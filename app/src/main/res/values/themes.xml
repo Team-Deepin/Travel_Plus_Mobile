@@ -3,6 +3,9 @@
     <style name="Base.Theme.TravelPlus" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">#A7D8F0</item>
+        <item name="colorOnPrimary">#000000</item>
+        <item name="colorButtonNormal">#A7D8F0</item>
     </style>
 
     <style name="Theme.TravelPlus" parent="Base.Theme.TravelPlus" />

@@ -30,7 +30,7 @@
         android:layout_height="wrap_content"
         android:text="여행+"
         android:textSize="80dp"
-        android:textColor="@color/black"
+        android:textColor="@color/text_primary"
         android:fontFamily="@font/bmeuljiro10yearslater"
         app:layout_constraintTop_toBottomOf="@+id/logo"
         app:layout_constraintStart_toStartOf="parent"
@@ -46,5 +46,6 @@
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginStart="50dp"
         android:textSize="30dp"
+        android:textColor="@color/text_fourth"
         />
 </androidx.constraintlayout.widget.ConstraintLayout>

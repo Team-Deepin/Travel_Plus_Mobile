@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="text_primary">#000000</color>
-    <color name="text_secondary">#808080</color>
+    <color name="text_primary">#ffffff</color>
+    <color name="text_secondary">#A0A0A0</color>
     <color name="text_third">#1E3A5F</color>
-    <color name="text_fourth">#fafafa</color>
+    <color name="text_fourth">#000000</color>
     <color name="login_button">#A7D8F0</color>
-    <color name="button_deactivate">#D0D0D0</color>
+    <color name="button_deactivate">#F0F0F0</color>
     <color name="trip_button">#3674B5</color>
     <color name="AIbutton_deactivate">#B0C4DE</color>
 </resources>
