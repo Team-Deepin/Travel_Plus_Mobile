@@ -22,7 +22,8 @@ import androidx.core.content.res.ResourcesCompat;
 public class LoginActivity extends AppCompatActivity {
     EditText email;
     EditText password;
-    Button loginBtn;
+//    Button loginBtn;
+    ImageView loginBtn;
     TextView register;
     ImageView kakaoLogin;
     Typeface font;
@@ -30,11 +31,11 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        email = findViewById(R.id.email);
-        password = findViewById(R.id.password);
+        email = findViewById(R.id.login_email);
+        password = findViewById(R.id.login_password);
         loginBtn = findViewById(R.id.login_button);
         register = findViewById(R.id.register);
-        kakaoLogin = findViewById(R.id.kakaoLogin);
+        kakaoLogin = findViewById(R.id.kakao_login);
         font = ResourcesCompat.getFont(this,R.font.bmeuljirottf);
         email.setOnEditorActionListener((TextView v, int actionId, KeyEvent event) -> {
             if (actionId == EditorInfo.IME_ACTION_NEXT ||
@@ -70,18 +71,10 @@ public class LoginActivity extends AppCompatActivity {
         };
         email.addTextChangedListener(textWatcher);
         password.addTextChangedListener(textWatcher);
-        // 다크 모드 연습
         register.setOnClickListener(view -> {
-            int currentNightMode = getResources().getConfiguration().uiMode
-                    & Configuration.UI_MODE_NIGHT_MASK;
-            if (currentNightMode == Configuration.UI_MODE_NIGHT_YES) {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-            } else {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-            }
-            Intent intent = getIntent();
-            finish();
+            Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
             startActivity(intent);
+            finish();
         });
         // 로그인 버튼 클릭
         loginBtn.setOnClickListener(view -> {
@@ -108,14 +101,18 @@ public class LoginActivity extends AppCompatActivity {
             password.setTypeface(Typeface.DEFAULT);
         }
 
-        if (!id.isEmpty() && !pw.isEmpty()) {
-            loginBtn.setBackground(ContextCompat.getDrawable(this,R.drawable.button_activate));
+        if (!id.isEmpty() && !pw.isEmpty() && validEmail(id)) {
+            loginBtn.setImageResource(R.drawable.login_button_activate);
             loginBtn.setClickable(true);
             loginBtn.setEnabled(true);
         } else {
-            loginBtn.setBackground(ContextCompat.getDrawable(this,R.drawable.button_deactivate));
+            loginBtn.setImageResource(R.drawable.login_button_deactivate);
             loginBtn.setClickable(false);
             loginBtn.setEnabled(false);
         }
+    }
+    private boolean validEmail(String email){
+        String emailPatern = "[a-zA-Z0-9._-]+@[a-zA-Z]+\\.+[a-zA-Z]+$";
+        return email.matches(emailPatern);
     }
 }
