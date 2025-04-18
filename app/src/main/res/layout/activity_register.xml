@@ -34,7 +34,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginTop="60dp"
-        android:textColor="@color/text_primary"/>
+        android:textColor="@color/black"/>
     <EditText
         android:id="@+id/register_email"
         android:layout_width="190dp"
@@ -58,7 +58,7 @@
         android:text="중복된 이메일입니다. 다시 시도해 주십시오."
         android:layout_marginStart="5dp"
         android:visibility="invisible"
-        android:textColor="@color/text_primary"/>
+        android:textColor="@color/black"/>
     <ImageView
         android:id="@+id/duplicate_check"
         android:layout_width="wrap_content"
@@ -98,7 +98,7 @@
         android:fontFamily="@font/bmeuljirottf"
         android:textSize="10dp"
         android:layout_marginStart="5dp"
-        android:textColor="@color/text_primary"
+        android:textColor="@color/black"
         android:visibility="invisible"
         android:text="비밀번호가 일치하지 않습니다."/>
     <EditText
@@ -117,7 +117,6 @@
         android:layout_height="wrap_content"
         android:src="@drawable/register_button_deactivate"
         android:enabled="false"
-        android:textColor="@color/text_primary"
         app:layout_constraintTop_toBottomOf="@id/register_name"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"

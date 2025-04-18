@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="text_primary">#ffffff</color>
-    <color name="text_secondary">#A0A0A0</color>
-    <color name="text_third">#1E3A5F</color>
-    <color name="text_fourth">#000000</color>
+    <color name="black">#000000</color>
+    <color name="gray">#808080</color>
+    <color name="color_text">#1E3A5F</color>
+    <color name="color_background">#fafafa</color>
     <color name="login_button">#A7D8F0</color>
-    <color name="button_deactivate">#F0F0F0</color>
-    <color name="trip_button">#3674B5</color>
+    <color name="navigation">#C6E7FF</color>
+    <color name="point">#578FCA</color>
+    <color name="blur">#CDF5FD</color>
+    <color name="text_sub">#6088BD</color>
+    <color name="button_deactivate">#D0D0D0</color>
+    <color name="color_button1">#3674B5</color>
     <color name="AIbutton_deactivate">#B0C4DE</color>
 </resources>

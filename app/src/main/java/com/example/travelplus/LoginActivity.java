@@ -78,9 +78,16 @@ public class LoginActivity extends AppCompatActivity {
         });
         // 로그인 버튼 클릭
         loginBtn.setOnClickListener(view -> {
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
+
+            if(is_first(email.getText().toString().trim())){
+                Intent intent = new Intent(LoginActivity.this, OnboardingActivity.class);
+                startActivity(intent);
+                finish();
+            }else{
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
         });
 
         // 카카오 로그인 클릭
@@ -114,5 +121,8 @@ public class LoginActivity extends AppCompatActivity {
     private boolean validEmail(String email){
         String emailPatern = "[a-zA-Z0-9._-]+@[a-zA-Z]+\\.+[a-zA-Z]+$";
         return email.matches(emailPatern);
+    }
+    private boolean is_first(String id){
+        return true;
     }
 }

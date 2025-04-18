@@ -3,10 +3,15 @@
     <style name="Base.Theme.TravelPlus" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
-        <item name="colorPrimary">#A7D8F0</item>
-        <item name="colorOnPrimary">#000000</item>
-        <item name="colorButtonNormal">#A7D8F0</item>
+        <item name="colorPrimary">@color/black</item>
     </style>
 
     <style name="Theme.TravelPlus" parent="Base.Theme.TravelPlus" />
+    <style name="CustomRadioButton">
+        <item name="android:button">@drawable/radio_button</item>
+        <item name="android:textColor">@color/text_sub</item>
+        <item name="android:fontFamily">@font/bmeuljirottf</item>
+        <item name="android:drawablePadding">16dp</item>
+    </style>
+
 </resources>

@@ -10,7 +10,7 @@
         android:label="여행+"
         android:roundIcon="@drawable/loading_logo"
         android:supportsRtl="true"
-        android:theme="@style/Theme.TravelPlus"
+        android:theme="@style/Base.Theme.TravelPlus"
         tools:targetApi="31">
         <activity
             android:name=".LoadingActivity"
@@ -30,6 +30,9 @@
         </activity>
         <activity
             android:name=".RegisterActivity">
+        </activity>
+        <activity
+            android:name=".OnboardingActivity">
         </activity>
     </application>
 
