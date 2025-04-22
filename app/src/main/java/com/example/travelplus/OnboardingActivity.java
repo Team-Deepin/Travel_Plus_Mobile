@@ -76,6 +76,7 @@ public class OnboardingActivity extends AppCompatActivity {
             Intent intent = new Intent(OnboardingActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
+            Toast.makeText(this, "환영합니다! [사용자]님", Toast.LENGTH_SHORT).show();
         });
     }
 }

@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -78,7 +79,6 @@ public class LoginActivity extends AppCompatActivity {
         });
         // 로그인 버튼 클릭
         loginBtn.setOnClickListener(view -> {
-
             if(is_first(email.getText().toString().trim())){
                 Intent intent = new Intent(LoginActivity.this, OnboardingActivity.class);
                 startActivity(intent);
@@ -87,6 +87,7 @@ public class LoginActivity extends AppCompatActivity {
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();
+                Toast.makeText(this, "환영합니다! [사용자]님", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -95,6 +96,7 @@ public class LoginActivity extends AppCompatActivity {
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
+            Toast.makeText(this, "환영합니다! [사용자]님", Toast.LENGTH_SHORT).show();
         });
 
     }
