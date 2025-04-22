@@ -7,6 +7,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.example.travelplus.fragment.CourseFragment;
 import com.example.travelplus.fragment.MainFragment;
+import com.example.travelplus.fragment.MoreFragment;
 
 
 public class mainAdapter extends FragmentStateAdapter {
@@ -22,14 +23,13 @@ public class mainAdapter extends FragmentStateAdapter {
                 return new MainFragment();
             case 1:
                 return new CourseFragment();
-//            case 2:
-//                return new fragment_extra();
+            case 2:
+                return new MoreFragment();
             default:
                 return new MainFragment();
         }
     }
 
-    // 탭의 개수
     @Override
     public int getItemCount() {
         return 3;
