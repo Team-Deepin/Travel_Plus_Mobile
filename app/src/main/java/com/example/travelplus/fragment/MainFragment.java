@@ -1,25 +1,33 @@
 package com.example.travelplus.fragment;
 
-import android.app.AlertDialog;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
+import com.example.travelplus.CourseList;
 import com.example.travelplus.R;
+import com.example.travelplus.WeatherList;
 import com.example.travelplus.WeatherResponse;
 import com.google.gson.Gson;
 
@@ -28,30 +36,72 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 public class MainFragment extends Fragment {
-    Spinner weather;
+    Spinner loactionList;
     String apiKey = "6340120faacb6462dae3d3b224bf7e37";
     TextView todayTemp, tomorrowTemp, TDATTemp;
     ImageView todayWeather, tomorrowWeather, TDATWeather;
-    String mainWeather;
-    float temp;
+    List<CourseList> courseListFromDB = Arrays.asList(
+            new CourseList("제주도 2박 3일", "2박 3일,", "렌터카")
+    );
+    List<WeatherList> weatherListFromDB = Arrays.asList(
+            new WeatherList("서울", new Date(), 23.7f),
+            new WeatherList("부산", new Date(), 22.3f)
+    );
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view =inflater.inflate(R.layout.fragment_main,container,false);
+        CardView homeList = view.findViewById(R.id.home_list);
+        ConstraintLayout weatherList = view.findViewById(R.id.weather_list);
+        HorizontalScrollView homeScroll = view.findViewById(R.id.home_scroll);
+        LinearLayout homeWeatherList = view.findViewById(R.id.home_weather_list);
 
-        weather = view.findViewById(R.id.weather_location);
+        loactionList = view.findViewById(R.id.weather_location);
         todayTemp = view.findViewById(R.id.today_temperature);
         tomorrowTemp = view.findViewById(R.id.tomorrow_temperature);
         TDATTemp = view.findViewById(R.id.the_day_after_tomorrow_temperature);
         todayWeather = view.findViewById(R.id.today_weather);
         tomorrowWeather = view.findViewById(R.id.tomorrow_weather);
         TDATWeather = view.findViewById(R.id.the_day_after_tomorrow_weather);
+        if (courseListFromDB.isEmpty()){
+            homeList.setVisibility(GONE);
+            weatherList.setVisibility(VISIBLE);
+            loactionList.setVisibility(VISIBLE);
+        }else {
+            homeList.setVisibility(VISIBLE);
+            weatherList.setVisibility(GONE);
+            loactionList.setVisibility(GONE);
+
+            // 지역이 한정되어 있어서 자체 날씨 예측 API를 써야할듯 싶음
+            for(WeatherList weather : weatherListFromDB){
+                View card = inflater.inflate(R.layout.fragment_weather_list, homeWeatherList, false);
+
+                CardView cardList = card.findViewById(R.id.card_list);
+                TextView locations = card.findViewById(R.id.home_location);
+                TextView date = card.findViewById(R.id.home_date);
+                TextView temp = card.findViewById(R.id.home_temperature);
+                ImageView weatherImage = card.findViewById(R.id.home_weather_image);
+
+                locations.setText(weather.location);
+                SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd");
+                String weatherDate = dateFormat.format(weather.date);
+                date.setText(weatherDate);
+                temp.setText(String.format("%.1f", weather.temperature)+"°C");
+                // 날씨 예측
+
+
+                homeWeatherList.addView(card);
+            }
+        }
         String[] items = {"서울", "부산", "수원", "인천", "대구", "대전", "광주", "울산", "제주"};
         Map<String, String> weatherLocation = new LinkedHashMap<>();
         weatherLocation.put("서울","Seoul");
@@ -65,8 +115,8 @@ public class MainFragment extends Fragment {
         weatherLocation.put("제주","Jeju");
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.dropdown_list, items);
         adapter.setDropDownViewResource(R.layout.dropdown_list);
-        weather.setAdapter(adapter);
-        weather.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        loactionList.setAdapter(adapter);
+        loactionList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View selectedView, int position, long id) {
                 String selectedKorean = items[position];
@@ -131,19 +181,21 @@ public class MainFragment extends Fragment {
                 boolean todaySet = false;
 
                 for (WeatherResponse.ForecastItem item : weather.list) {
+                    float temp = item.main.temp;
+                    String formattedTemp = String.format(Locale.getDefault(), "%.1f", temp);
                     if (!todaySet && item.dt_txt.contains(getTargetDate(0))) {
-                        todayTemp.setText(item.main.temp + "°C");
+                        todayTemp.setText(formattedTemp + "°C");
                         setWeatherImage(todayWeather, item.weather.get(0).main);
                         todaySet = true;
                     }
 
                     if (item.dt_txt.contains(tomorrow + " 12:00:00")) {
-                        tomorrowTemp.setText(item.main.temp + "°C");
+                        tomorrowTemp.setText(formattedTemp + "°C");
                         setWeatherImage(tomorrowWeather, item.weather.get(0).main);
                     }
 
                     if (item.dt_txt.contains(dayAfter + " 12:00:00")) {
-                        TDATTemp.setText(item.main.temp + "°C");
+                        TDATTemp.setText(formattedTemp+ "°C");
                         setWeatherImage(TDATWeather, item.weather.get(0).main);
                     }
                 }

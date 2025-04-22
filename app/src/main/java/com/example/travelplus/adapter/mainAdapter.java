@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
+import com.example.travelplus.fragment.CourseFragment;
 import com.example.travelplus.fragment.MainFragment;
 
 
@@ -19,8 +20,8 @@ public class mainAdapter extends FragmentStateAdapter {
         switch (position) {
             case 0:
                 return new MainFragment();
-//            case 1:
-//                return new fragment_trip();
+            case 1:
+                return new CourseFragment();
 //            case 2:
 //                return new fragment_extra();
             default:
