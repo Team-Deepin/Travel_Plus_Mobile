@@ -20,18 +20,19 @@ import androidx.fragment.app.Fragment;
 
 import com.example.travelplus.CourseList;
 import com.example.travelplus.R;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.Arrays;
 import java.util.List;
 
 public class CourseFragment extends Fragment {
     List<CourseList> courseListFromDB = Arrays.asList(
-            new CourseList("제주도 2박 3일", "2박 3일,", "렌터카"),
-            new CourseList("부산 1박 2일", "1박 2일,", "기차"),
-            new CourseList("서울 당일치기", "당일치기,", "지하철"),
-            new CourseList("test", "test", "test"),
-            new CourseList("test", "test", "test"),
-            new CourseList("test", "test", "test")
+            new CourseList("제주도 2박 3일", "제주도","2박 3일,", "자가용"),
+            new CourseList("부산 1박 2일", "부산","1박 2일,", "기차"),
+            new CourseList("서울 당일치기", "서울","당일치기,", "지하철"),
+            new CourseList("test", "test","test", "test"),
+            new CourseList("test", "test","test", "test"),
+            new CourseList("test", "test","test", "test")
     );
     ImageView aiRecommend, tripRecomment;
     @Nullable
@@ -67,6 +68,21 @@ public class CourseFragment extends Fragment {
             courseListLayout.addView(card);
             card.setOnClickListener(view1 -> {
                 // 상세 코스 리스트 UI 띄우기
+                Bundle bundle = new Bundle();
+                bundle.putString("title", course.title);
+                bundle.putString("location", course.location);
+                bundle.putString("duration", course.duration);
+                bundle.putString("vehicle", course.vehicle);
+
+                CourseDetailFragment detailFragment = new CourseDetailFragment();
+                detailFragment.setArguments(bundle);
+                ConstraintLayout courseLayout = view.findViewById(R.id.course_layout);
+                courseLayout.setVisibility(GONE);
+                requireActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragment_container, detailFragment)
+                        .addToBackStack(null)
+                        .commit();
             });
         }
 
@@ -74,8 +90,28 @@ public class CourseFragment extends Fragment {
             // AI 추천 UI 띄우기
         });
         tripRecomment.setOnClickListener(view1 -> {
-            // 여향지 추천 UI 띄우기
+            // 여행지 추천 UI 띄우기
         });
+
+        requireActivity().getSupportFragmentManager()
+                .addOnBackStackChangedListener(()->{
+                    if (requireActivity().getSupportFragmentManager().getBackStackEntryCount() == 0){
+                        ConstraintLayout courseLayout = view.findViewById(R.id.course_layout);
+                        FloatingActionButton cancelFab = requireActivity().findViewById(R.id.detail_cancel_fab);
+                        FloatingActionButton deleteFab = requireActivity().findViewById(R.id.detail_delete_fab);
+                        FloatingActionButton rateFab = requireActivity().findViewById(R.id.detail_rate_fab);
+                        TextView deleteText = requireActivity().findViewById(R.id.detail_delete_text);
+                        TextView rateText = requireActivity().findViewById(R.id.detail_rate_text);
+                        View detailBackground = requireActivity().findViewById(R.id.detail_background);
+                        courseLayout.setVisibility(VISIBLE);
+                        detailBackground.setVisibility(GONE);
+                        cancelFab.setVisibility(GONE);
+                        deleteFab.setVisibility(GONE);
+                        rateFab.setVisibility(GONE);
+                        deleteText.setVisibility(GONE);
+                        rateText.setVisibility(GONE);
+                    }
+                });
         return view;
     }
 }

@@ -50,7 +50,7 @@ public class MainFragment extends Fragment {
     TextView todayTemp, tomorrowTemp, TDATTemp;
     ImageView todayWeather, tomorrowWeather, TDATWeather;
     List<CourseList> courseListFromDB = Arrays.asList(
-            new CourseList("제주도 2박 3일", "2박 3일,", "렌터카")
+            new CourseList("제주도 2박 3일", "제주도","2박 3일,", "자가용")
     );
     List<WeatherList> weatherListFromDB = Arrays.asList(
             new WeatherList("서울", new Date(), 23.7f),
@@ -72,7 +72,7 @@ public class MainFragment extends Fragment {
         todayWeather = view.findViewById(R.id.today_weather);
         tomorrowWeather = view.findViewById(R.id.tomorrow_weather);
         TDATWeather = view.findViewById(R.id.the_day_after_tomorrow_weather);
-        if (courseListFromDB.isEmpty()){
+        if (!courseListFromDB.isEmpty()){
             homeList.setVisibility(GONE);
             weatherList.setVisibility(VISIBLE);
             loactionList.setVisibility(VISIBLE);
@@ -97,7 +97,6 @@ public class MainFragment extends Fragment {
                 date.setText(weatherDate);
                 temp.setText(String.format("%.1f", weather.temperature)+"°C");
                 // 날씨 예측
-
 
                 homeWeatherList.addView(card);
             }
@@ -199,8 +198,6 @@ public class MainFragment extends Fragment {
                         setWeatherImage(TDATWeather, item.weather.get(0).main);
                     }
                 }
-
-
 
             } catch (Exception e) {
                 Log.e("Weather", "파싱 오류: " + e.getMessage());
