@@ -1,27 +1,21 @@
 package com.example.travelplus.fragment;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.example.travelplus.LoginActivity;
-import com.example.travelplus.MainActivity;
+import com.example.travelplus.Login.LoginActivity;
 import com.example.travelplus.R;
 import com.example.travelplus.WithdrawTextView;
 

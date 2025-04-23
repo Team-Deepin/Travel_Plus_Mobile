@@ -77,6 +77,15 @@ public class CourseDetailFragment extends Fragment {
             deleteText.setVisibility(GONE);
             rateText.setVisibility(GONE);
         });
+        detailBackground.setOnClickListener(view1 -> {
+            plusFab.setVisibility(VISIBLE);
+            detailBackground.setVisibility(GONE);
+            cancelFab.setVisibility(GONE);
+            deleteFab.setVisibility(GONE);
+            rateFab.setVisibility(GONE);
+            deleteText.setVisibility(GONE);
+            rateText.setVisibility(GONE);
+        });
 
         for (CourseDetailList course : courseDetailListFromDB){
             View detail = inflater.inflate(R.layout.fragment_course_detail_list, detailListLayout, false);

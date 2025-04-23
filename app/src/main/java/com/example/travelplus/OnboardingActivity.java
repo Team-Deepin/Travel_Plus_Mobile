@@ -38,6 +38,7 @@ public class OnboardingActivity extends AppCompatActivity {
         experienceTour = findViewById(R.id.experience_tour);
         festivalTour = findViewById(R.id.festival_tour);
         parkTour = findViewById(R.id.park_tour);
+        onboardingBtn.setEnabled(false);
         Runnable setButton = new Runnable() {
             @Override
             public void run() {
@@ -50,11 +51,9 @@ public class OnboardingActivity extends AppCompatActivity {
 
                 if(isSexchecked && isTypechecked && !birth.isEmpty()){
                     onboardingBtn.setImageResource(R.drawable.input_activated);
-                    onboardingBtn.setClickable(true);
                     onboardingBtn.setEnabled(true);
                 }else{
                     onboardingBtn.setImageResource(R.drawable.input_deactivated);
-                    onboardingBtn.setClickable(false);
                     onboardingBtn.setEnabled(false);
                 }
             }

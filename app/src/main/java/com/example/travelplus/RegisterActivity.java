@@ -14,6 +14,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 
+import com.example.travelplus.Login.LoginActivity;
+
 public class RegisterActivity extends AppCompatActivity {
     ImageView back, dupliacteCheck, registerBtn;
     TextView email, password, passwordCheck, name, checkId, checkPw;
