@@ -1,4 +1,4 @@
-package com.example.travelplus.Login;
+package com.example.travelplus.login;
 
 public class LoginResponse {
     public int resultCode;

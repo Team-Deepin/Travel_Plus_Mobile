@@ -7,7 +7,7 @@ import android.os.Handler;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.travelplus.Login.LoginActivity;
+import com.example.travelplus.login.LoginActivity;
 
 public class LoadingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {

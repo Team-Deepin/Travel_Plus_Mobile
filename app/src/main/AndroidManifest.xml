@@ -27,13 +27,13 @@
             android:name=".MainActivity">
         </activity>
         <activity
-            android:name=".Login.LoginActivity">
+            android:name=".login.LoginActivity">
         </activity>
         <activity
             android:name=".register.RegisterActivity">
         </activity>
         <activity
-            android:name=".OnboardingActivity">
+            android:name=".onboarding.OnboardingActivity">
         </activity>
     </application>
 

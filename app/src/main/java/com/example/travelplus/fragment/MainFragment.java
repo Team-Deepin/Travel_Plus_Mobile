@@ -1,6 +1,5 @@
 package com.example.travelplus.fragment;
 
-import static android.content.Intent.getIntent;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
@@ -16,7 +15,6 @@ import android.widget.ArrayAdapter;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,11 +25,8 @@ import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
-import com.example.travelplus.CourseList;
 import com.example.travelplus.IsFirstResponse;
-import com.example.travelplus.Login.LoginResponse;
-import com.example.travelplus.MainActivity;
-import com.example.travelplus.OnboardingActivity;
+import com.example.travelplus.onboarding.OnboardingActivity;
 import com.example.travelplus.R;
 import com.example.travelplus.WeatherList;
 import com.example.travelplus.WeatherResponse;

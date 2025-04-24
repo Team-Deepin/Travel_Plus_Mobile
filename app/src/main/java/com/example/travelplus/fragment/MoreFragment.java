@@ -13,7 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,13 +20,11 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
-import com.example.travelplus.Login.LoginActivity;
-import com.example.travelplus.Login.LogoutResponse;
-import com.example.travelplus.MainActivity;
+import com.example.travelplus.login.LoginActivity;
+import com.example.travelplus.login.LogoutResponse;
 import com.example.travelplus.R;
 import com.example.travelplus.WithdrawTextView;
 import com.example.travelplus.network.ApiService;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.IOException;
 

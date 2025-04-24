@@ -1,4 +1,4 @@
-package com.example.travelplus.Login;
+package com.example.travelplus.login;
 
 import android.content.Intent;
 import android.graphics.Typeface;
