@@ -7,6 +7,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,16 +22,32 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
 import com.example.travelplus.Login.LoginActivity;
+import com.example.travelplus.Login.LogoutResponse;
+import com.example.travelplus.MainActivity;
 import com.example.travelplus.R;
 import com.example.travelplus.WithdrawTextView;
+import com.example.travelplus.network.ApiService;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.io.IOException;
+
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MoreFragment extends Fragment {
     ImageView notice, inquire, changeTheme, logout, withdraw;
+    ApiService apiService;
+    private MockWebServer mockServer;
     @Override
     @Nullable
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_more,container,false);
+        setupMockServer();
         notice = view.findViewById(R.id.more_notice);
         inquire = view.findViewById(R.id.more_inquire);
         changeTheme = view.findViewById(R.id.more_change_theme);
@@ -76,11 +93,38 @@ public class MoreFragment extends Fragment {
         cancelBtn.setOnClickListener(v -> dialog.dismiss());
         checkBtn.setOnClickListener(v -> {
             // 로그아웃 API
-            Toast.makeText(getActivity(), "로그아웃 되었습니다", Toast.LENGTH_SHORT).show();
-            dialog.dismiss();
-            Intent intent = new Intent(requireActivity(), LoginActivity.class);
-            startActivity(intent);
-            requireActivity().finish();
+            Call<LogoutResponse> call = apiService.logout();
+            call.enqueue(new Callback<LogoutResponse>() {
+                @Override
+                public void onResponse(Call<LogoutResponse> call, Response<LogoutResponse> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        LogoutResponse res = response.body();
+                        Log.d("Logout",res.resultMessage);
+                        if (res.resultCode == 200) {
+                            Toast.makeText(getActivity(), "로그아웃 되었습니다", Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                            Intent intent = new Intent(requireActivity(), LoginActivity.class);
+                            startActivity(intent);
+                            requireActivity().finish();
+                        }else{
+                            Toast.makeText(getActivity(), "로그아웃 실패", Toast.LENGTH_SHORT).show();
+                            Log.d("Logout",String.valueOf(res.resultCode));
+                            dialog.dismiss();
+                        }
+                    }else {
+                        Toast.makeText(getActivity(), "로그아웃 실패", Toast.LENGTH_SHORT).show();
+                        Log.d("Logout","로그아웃 실패");
+                        dialog.dismiss();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<LogoutResponse> call, Throwable t) {
+                    Toast.makeText(getActivity(), "로그아웃 실패", Toast.LENGTH_SHORT).show();
+                    Log.d("Logout","서버 연결 실패");
+                    dialog.dismiss();
+                }
+            });
         });
         dialog.show();
     }
@@ -113,5 +157,26 @@ public class MoreFragment extends Fragment {
             requireActivity().finish();
         });
         dialog.show();
+    }
+    private void setupMockServer() {
+        new Thread(() -> {
+            try {
+                mockServer = new MockWebServer();
+                mockServer.enqueue(new MockResponse()
+                        .setResponseCode(200)
+                        .setBody("{\"resultCode\":600,\"resultMessage\":\"Success\"}"));
+                mockServer.start();
+
+                Retrofit retrofit = new Retrofit.Builder()
+                        .baseUrl(mockServer.url("/"))
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build();
+
+                apiService = retrofit.create(ApiService.class);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 }

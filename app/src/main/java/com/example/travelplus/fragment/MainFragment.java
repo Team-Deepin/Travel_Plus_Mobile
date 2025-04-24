@@ -432,7 +432,7 @@ public class MainFragment extends Fragment {
                 mockServer.enqueue(new MockResponse()
                         .setResponseCode(200)
                         .setBody("{\"resultCode\":200, \"resultMessage\":\"성공\",\"isFirst\": false,\"title\":\"제주도\",\"area\":\"제주도\"," +
-                                "\"startDate\":\"2025-04-24\",\"endDate\":\"2025-05-02\",\"meansTp\":\"자가용\"}")
+                                "\"startDate\":\"2025-05-24\",\"endDate\":\"2025-05-28\",\"meansTp\":\"자가용\"}")
                         .addHeader("Content-Type", "application/json"));
 
                 mockServer.start();
