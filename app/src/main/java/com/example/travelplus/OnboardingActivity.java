@@ -15,7 +15,6 @@ import com.google.android.material.textfield.TextInputEditText;
 public class OnboardingActivity extends AppCompatActivity {
     TextInputEditText age;
     MaterialRadioButton male, female;
-    String sex;
     MaterialCheckBox cityTour, activityTour, emotionTour, shoppingTour, healingTour,
             historyTour, foodTour, natureTour, experienceTour, festivalTour, parkTour;
     ImageView onboardingBtn;

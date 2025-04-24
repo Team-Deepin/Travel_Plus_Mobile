@@ -80,7 +80,7 @@ public class CourseFragment extends Fragment {
                 courseLayout.setVisibility(GONE);
                 requireActivity().getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(R.id.fragment_container, detailFragment)
+                        .replace(R.id.course_fragment_container, detailFragment)
                         .addToBackStack(null)
                         .commit();
             });

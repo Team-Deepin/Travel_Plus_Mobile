@@ -122,18 +122,20 @@ public class LoginActivity extends AppCompatActivity {
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             startActivity(intent);
                             finish();
+                            runOnUiThread(() -> Toast.makeText(LoginActivity.this,
+                                    "환영합니다! "+emailStr+"님!", Toast.LENGTH_SHORT).show());
                         }else{
                             Log.d("Login",String.valueOf(res.resultCode));
                         }
                     } else {
-                        Toast.makeText(LoginActivity.this, "로그인 실패", Toast.LENGTH_SHORT).show();
+                        runOnUiThread(() -> Toast.makeText(LoginActivity.this, "로그인 실패", Toast.LENGTH_SHORT).show());
                         Log.d("Login","로그인 실패");
                     }
                 }
 
                 @Override
                 public void onFailure(Call<LoginResponse> call, Throwable t) {
-                    Toast.makeText(LoginActivity.this, "서버 연결 실패", Toast.LENGTH_SHORT).show();
+                    runOnUiThread(() -> Toast.makeText(LoginActivity.this, "로그인 실패", Toast.LENGTH_SHORT).show());
                     Log.d("Login","서버 연결 실패");
                 }
             });
@@ -174,7 +176,8 @@ public class LoginActivity extends AppCompatActivity {
             try {
                 mockServer = new MockWebServer();
                 mockServer.enqueue(new MockResponse()
-                        .setBody("{\"resultCode\":200,\"resultMessage\":\"Success\"}"));
+                        .setResponseCode(600)
+                        .setBody("{\"resultCode\":600,\"resultMessage\":\"Success\"}"));
                 mockServer.start();
 
                 Retrofit retrofit = new Retrofit.Builder()
@@ -189,5 +192,4 @@ public class LoginActivity extends AppCompatActivity {
             }
         }).start();
     }
-
 }

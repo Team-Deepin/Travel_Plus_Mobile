@@ -29,6 +29,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.travelplus.CourseList;
 import com.example.travelplus.IsFirstResponse;
+import com.example.travelplus.Login.LoginResponse;
 import com.example.travelplus.MainActivity;
 import com.example.travelplus.OnboardingActivity;
 import com.example.travelplus.R;
@@ -74,6 +75,10 @@ public class MainFragment extends Fragment {
     CardView homeList;
     ConstraintLayout weatherList;
     LinearLayout homeWeatherList;
+    Map<String, String> weatherLocation;
+    private String startDateGlobal;
+    private String endDateGlobal;
+    private String areaGlobal;
     private static final String TAG = "MainFragment";
     @Nullable
     @Override
@@ -95,17 +100,18 @@ public class MainFragment extends Fragment {
         homeDuration = view.findViewById(R.id.home_duration);
         homeMeansTP = view.findViewById(R.id.home_meansTP);
 
-        String[] items = {"서울", "부산", "수원", "인천", "대구", "대전", "광주", "울산", "제주"};
-        Map<String, String> weatherLocation = new LinkedHashMap<>();
+        String[] items = {"서울", "경기도", "강원도", "충청북도", "충청남도", "전라북도", "전라남도", "경상북도", "경상남도", "제주도"};
+        weatherLocation = new LinkedHashMap<>();
         weatherLocation.put("서울","Seoul");
-        weatherLocation.put("부산","Busan");
-        weatherLocation.put("수원","Suwon");
-        weatherLocation.put("인천","Incheon");
-        weatherLocation.put("대구","Daegu");
-        weatherLocation.put("대전","Daejeon");
-        weatherLocation.put("광주","Gwangju");
-        weatherLocation.put("울산","Ulsan");
-        weatherLocation.put("제주","Jeju");
+        weatherLocation.put("경기도","Suwon");
+        weatherLocation.put("강원도","Chuncheon");
+        weatherLocation.put("충청북도","Cheongju");
+        weatherLocation.put("충청남도","Cheonan");
+        weatherLocation.put("전라북도","Jeonju");
+        weatherLocation.put("전라남도","Gwangju");
+        weatherLocation.put("경상북도","Pohang");
+        weatherLocation.put("경상남도","Changwon");
+        weatherLocation.put("제주도","Jeju");
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.dropdown_list, items);
         adapter.setDropDownViewResource(R.layout.dropdown_list);
         loactionList.setAdapter(adapter);
@@ -119,20 +125,20 @@ public class MainFragment extends Fragment {
                 String url = "https://api.openweathermap.org/data/2.5/forecast?q=" + city
                         + "&appid=" + apiKey + "&units=metric&lang=kr";
 
-                new GetWeatherTask().execute(url);
+                new GetWeatherNoCourse().execute(url);
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 String url = "https://api.openweathermap.org/data/2.5/forecast?q=Seoul"
                         + "&appid=" + apiKey + "&units=metric&lang=kr";
-                new GetWeatherTask().execute(url);
+                new GetWeatherNoCourse().execute(url);
             }
         });
 
         return view;
     }
-    private class GetWeatherTask extends AsyncTask<String, Void, String> {
+    private class GetWeatherNoCourse extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... urls) {
             StringBuilder result = new StringBuilder();
@@ -196,12 +202,126 @@ public class MainFragment extends Fragment {
             }
         }
     }
+    private class GetWeatherCourse extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... urls) {
+            StringBuilder result = new StringBuilder();
+            try {
+                URL url = new URL(urls[0]);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+
+                BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(conn.getInputStream()));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    result.append(line);
+                }
+                reader.close();
+            } catch (Exception e) {
+                Log.e("Weather", "에러: " + e.getMessage());
+            }
+            return result.toString();
+        }
+
+        @Override
+        protected void onPostExecute(String json) {
+            if (json == null || json.isEmpty()) {
+                Toast.makeText(getContext(), "날씨 정보를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            try {
+                Gson gson = new Gson();
+                WeatherResponse weather = gson.fromJson(json, WeatherResponse.class);
+
+                LayoutInflater inflater = LayoutInflater.from(getContext());
+                SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                SimpleDateFormat outputDateFormat = new SimpleDateFormat("MM/dd", Locale.getDefault());
+
+                homeWeatherList.removeAllViews();
+
+                List<String> targetDates = getDateRange(startDateGlobal, endDateGlobal);
+
+                for (String target : targetDates) {
+                    boolean found = false;
+
+                    for (WeatherResponse.ForecastItem item : weather.list) {
+                        if (item.dt_txt.contains(target + " 12:00:00")) {
+                            View card = inflater.inflate(R.layout.fragment_weather_list, homeWeatherList, false);
+
+                            TextView location = card.findViewById(R.id.home_location);
+                            TextView date = card.findViewById(R.id.home_date);
+                            TextView temp = card.findViewById(R.id.home_temperature);
+                            ImageView weatherImage = card.findViewById(R.id.home_weather_image);
+
+                            location.setText(areaGlobal);
+                            date.setText(outputDateFormat.format(inputFormat.parse(item.dt_txt)));
+                            temp.setText(String.format(Locale.getDefault(), "%.1f°C", item.main.temp));
+                            setWeatherImage(weatherImage, item.weather.get(0).main);
+
+                            homeWeatherList.addView(card);
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    // 예보가 없을 경우
+                    if (!found) {
+                        View card = inflater.inflate(R.layout.fragment_weather_list, homeWeatherList, false);
+
+                        TextView location = card.findViewById(R.id.home_location);
+                        TextView date = card.findViewById(R.id.home_date);
+                        TextView temp = card.findViewById(R.id.home_temperature);
+                        ImageView weatherImage = card.findViewById(R.id.home_weather_image);
+
+                        location.setText(areaGlobal);
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                        SimpleDateFormat display = new SimpleDateFormat("MM/dd");
+                        String displayDate = display.format(sdf.parse(target));
+                        date.setText(displayDate); // MM/dd 변환 생략 가능
+                        temp.setText("예보 없음");
+                        weatherImage.setImageResource(R.drawable.no_image); // 기본 아이콘
+
+                        homeWeatherList.addView(card);
+                    }
+                }
+
+            } catch (Exception e) {
+                Log.e("Weather", "파싱 오류: " + e.getMessage());
+            }
+        }
+
+
+    }
     private String getTargetDate(int dayOffset) {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DATE, dayOffset);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         return sdf.format(calendar.getTime());
     }
+    private List<String> getDateRange(String start, String end) {
+        List<String> dateList = new ArrayList<>();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
+        try {
+            Date startDate = sdf.parse(start);
+            Date endDate = sdf.parse(end);
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(startDate);
+
+            while (!calendar.getTime().after(endDate)) {
+                dateList.add(sdf.format(calendar.getTime()));
+                calendar.add(Calendar.DATE, 1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return dateList;
+    }
+
     private void setWeatherImage(ImageView view, String mainWeather) {
         switch (mainWeather) {
             case "Rain":
@@ -228,73 +348,69 @@ public class MainFragment extends Fragment {
             @Override
             public void onResponse(Call<IsFirstResponse> call, Response<IsFirstResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    boolean isFirst = response.body().isFirst;
-                    boolean isTraveling = false;
-                    Date today = new Date();
-                    String startDateStr = response.body().startDate;
-                    String endDateStr = response.body().endDate;
-                    String duration="";
-                    try {
-                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                    IsFirstResponse res = response.body();
+                    Log.d("home",res.resultMessage);
+                    if(res.resultCode == 200){
+                        boolean isFirst = response.body().isFirst;
+                        boolean isTraveling = false;
+                        Date today = new Date();
+                        startDateGlobal= response.body().startDate;
+                        endDateGlobal = response.body().endDate;
+                        String duration="";
+                        areaGlobal = response.body().area;
+                        try {
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-                        Date startDate = dateFormat.parse(startDateStr);
-                        Date endDate = dateFormat.parse(endDateStr);
+                            Date startDate = dateFormat.parse(startDateGlobal);
+                            Date endDate = dateFormat.parse(endDateGlobal);
 
-                        long diffInMillis = endDate.getTime() - startDate.getTime();
-                        long diffTodayStart = today.getTime() - startDate.getTime();
-                        long diffTodayEnd = endDate.getTime() - today.getTime();
-                        long diffInDays = diffInMillis / (1000 * 60 * 60 * 24);
-                        if (diffInDays == 0) {
-                            duration = "당일치기";
-                        } else if (diffInDays == 1) {
-                            duration = "1박 2일";
-                        }
-                        else {
-                            duration = diffInDays + "박 " + (diffInDays + 1) + "일";
-                        }
-                        if (diffTodayStart >= 0 && diffTodayEnd >= 0) {
-                            isTraveling = true;
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    Log.d(TAG, "isFirst : " + isFirst);
-                    if (isFirst) {
-                        Intent onboardingIntent = new Intent(getContext(), OnboardingActivity.class);
-                        startActivity(onboardingIntent);
-                        requireActivity().finish();
-                    }else {
-                        if(isTraveling){
-                            homeList.setVisibility(VISIBLE);
-                            weatherList.setVisibility(GONE);
-                            loactionList.setVisibility(GONE);
-                            homeTitle.setText(response.body().title);
-                            homeDuration.setText(duration+",");
-                            homeMeansTP.setText(response.body().meansTp);
-                            homeWeatherList.removeAllViews();
-
-                            SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd", Locale.getDefault());
-                            for (WeatherList weather : weatherListFromDB) {
-                                View card = inflater.inflate(R.layout.fragment_weather_list, homeWeatherList, false);
-
-                                TextView locations = card.findViewById(R.id.home_location);
-                                TextView date = card.findViewById(R.id.home_date);
-                                TextView temp = card.findViewById(R.id.home_temperature);
-                                ImageView weatherImage = card.findViewById(R.id.home_weather_image);
-
-                                locations.setText(weather.location);
-                                date.setText(dateFormat.format(weather.date));
-                                temp.setText(String.format(Locale.getDefault(), "%.1f°C", weather.temperature));
-                                weatherImage.setImageResource(R.drawable.sunny); // 예시로 sunny 고정
-
-                                homeWeatherList.addView(card);
+                            long diffInMillis = endDate.getTime() - startDate.getTime();
+                            long diffTodayStart = today.getTime() - startDate.getTime();
+                            long diffTodayEnd = endDate.getTime() - today.getTime();
+                            long diffInDays = diffInMillis / (1000 * 60 * 60 * 24);
+                            if (diffInDays == 0) {
+                                duration = "당일치기";
+                            } else if (diffInDays == 1) {
+                                duration = "1박 2일";
                             }
-                        }else{
-                            homeList.setVisibility(GONE);
-                            weatherList.setVisibility(VISIBLE);
-                            loactionList.setVisibility(VISIBLE);
-                            homeWeatherList.setVisibility(GONE);
+                            else {
+                                duration = diffInDays + "박 " + (diffInDays + 1) + "일";
+                            }
+                            if (diffTodayStart >= 0 && diffTodayEnd >= 0) {
+                                isTraveling = true;
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
+                        Log.d(TAG, "isFirst : " + isFirst);
+                        if (isFirst) {
+                            Intent onboardingIntent = new Intent(getContext(), OnboardingActivity.class);
+                            startActivity(onboardingIntent);
+                            requireActivity().finish();
+                        }else {
+                            if(isTraveling){
+                                homeList.setVisibility(VISIBLE);
+                                weatherList.setVisibility(GONE);
+                                loactionList.setVisibility(GONE);
+                                homeTitle.setText(response.body().title);
+                                homeDuration.setText(duration+",");
+                                homeMeansTP.setText(response.body().meansTp);
+                                homeWeatherList.removeAllViews();
+
+                                String selectedEnglish = weatherLocation.get(areaGlobal);
+                                String url = "https://api.openweathermap.org/data/2.5/forecast?q=" + selectedEnglish
+                                        + "&appid=" + apiKey + "&units=metric&lang=kr";
+
+                                new GetWeatherCourse().execute(url);
+                            }else{
+                                homeList.setVisibility(GONE);
+                                weatherList.setVisibility(VISIBLE);
+                                loactionList.setVisibility(VISIBLE);
+                                homeWeatherList.setVisibility(GONE);
+                            }
+                        }
+                    }else {
+                        Log.d("home", "Result Code: " + res.resultCode + ", Result Message: " + res.resultMessage);
                     }
                 } else {
                     Log.e(TAG, "Response failed: " + response.message());
@@ -315,8 +431,8 @@ public class MainFragment extends Fragment {
                 // 응답 설정 (isFirst = true로 테스트)
                 mockServer.enqueue(new MockResponse()
                         .setResponseCode(200)
-                        .setBody("{\"isFirst\": false,\"title\":\"제주도\",\"area\":\"제주도\",\"startDate\":\"2025-04-24\"," +
-                                "\"endDate\":\"2025-04-26\",\"meansTp\":\"자가용\"}")
+                        .setBody("{\"resultCode\":200, \"resultMessage\":\"성공\",\"isFirst\": false,\"title\":\"제주도\",\"area\":\"제주도\"," +
+                                "\"startDate\":\"2025-04-24\",\"endDate\":\"2025-05-02\",\"meansTp\":\"자가용\"}")
                         .addHeader("Content-Type", "application/json"));
 
                 mockServer.start();

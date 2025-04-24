@@ -1,5 +1,8 @@
 package com.example.travelplus.fragment;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Paint;
@@ -9,15 +12,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
 import com.example.travelplus.Login.LoginActivity;
 import com.example.travelplus.R;
 import com.example.travelplus.WithdrawTextView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class MoreFragment extends Fragment {
     ImageView notice, inquire, changeTheme, logout, withdraw;
@@ -30,12 +36,29 @@ public class MoreFragment extends Fragment {
         changeTheme = view.findViewById(R.id.more_change_theme);
         logout = view.findViewById(R.id.more_logout);
         withdraw = view.findViewById(R.id.more_withdraw_membership);
+        changeTheme.setOnClickListener(view1 -> {
+            ChangeThemeFragment changeThemeFragment = new ChangeThemeFragment();
+            ConstraintLayout moreLayout = view.findViewById(R.id.more_layout);
+            moreLayout.setVisibility(GONE);
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.more_fragment_container, changeThemeFragment)
+                    .addToBackStack(null)
+                    .commit();
+        });
         logout.setOnClickListener(view1 -> {
             showLogoutPopup();
         });
         withdraw.setOnClickListener(view1 -> {
             showWithdrawPopup();
         });
+        requireActivity().getSupportFragmentManager()
+                .addOnBackStackChangedListener(()->{
+                    if (requireActivity().getSupportFragmentManager().getBackStackEntryCount() == 0){
+                        ConstraintLayout moreLayout = view.findViewById(R.id.more_layout);
+                        moreLayout.setVisibility(VISIBLE);
+                    }
+                });
         return view;
     }
     private void showLogoutPopup(){
