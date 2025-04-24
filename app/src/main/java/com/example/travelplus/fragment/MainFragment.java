@@ -74,16 +74,16 @@ public class MainFragment extends Fragment {
     private String startDateGlobal;
     private String endDateGlobal;
     private String areaGlobal;
-    private static final String TAG = "MainFragment";
+    private static final String TAG = "home";
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view =inflater.inflate(R.layout.fragment_main,container,false);
+        setupMockServer(inflater);
         homeList = view.findViewById(R.id.home_list);
         weatherList = view.findViewById(R.id.weather_list);
         HorizontalScrollView homeScroll = view.findViewById(R.id.home_scroll);
         homeWeatherList = view.findViewById(R.id.home_weather_list);
-        setupMockServer(inflater);
         loactionList = view.findViewById(R.id.weather_location);
         todayTemp = view.findViewById(R.id.today_temperature);
         tomorrowTemp = view.findViewById(R.id.tomorrow_temperature);
@@ -225,7 +225,6 @@ public class MainFragment extends Fragment {
                 Toast.makeText(getContext(), "날씨 정보를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show();
                 return;
             }
-
             try {
                 Gson gson = new Gson();
                 WeatherResponse weather = gson.fromJson(json, WeatherResponse.class);
@@ -260,7 +259,6 @@ public class MainFragment extends Fragment {
                             break;
                         }
                     }
-
                     // 예보가 없을 경우
                     if (!found) {
                         View card = inflater.inflate(R.layout.fragment_weather_list, homeWeatherList, false);
@@ -346,13 +344,13 @@ public class MainFragment extends Fragment {
                     IsFirstResponse res = response.body();
                     Log.d("home",res.resultMessage);
                     if(res.resultCode == 200){
-                        boolean isFirst = response.body().isFirst;
+                        boolean isFirst = res.isFirst;
                         boolean isTraveling = false;
                         Date today = new Date();
-                        startDateGlobal= response.body().startDate;
-                        endDateGlobal = response.body().endDate;
+                        startDateGlobal= res.startDate;
+                        endDateGlobal = res.endDate;
                         String duration="";
-                        areaGlobal = response.body().area;
+                        areaGlobal = res.area;
                         try {
                             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 

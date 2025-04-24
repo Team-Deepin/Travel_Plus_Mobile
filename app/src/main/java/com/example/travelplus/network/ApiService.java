@@ -1,6 +1,7 @@
 package com.example.travelplus.network;
 
 import com.example.travelplus.IsFirstResponse;
+import com.example.travelplus.course.CourseResponse;
 import com.example.travelplus.login.LoginRequest;
 import com.example.travelplus.login.LoginResponse;
 import com.example.travelplus.login.LogoutResponse;
@@ -25,6 +26,8 @@ public interface ApiService {
     Call<LogoutResponse> logout();
     @GET("/home")
     Call<IsFirstResponse> getIsFirst();
+    @GET("/course")
+    Call<CourseResponse> course();
 
 
 
