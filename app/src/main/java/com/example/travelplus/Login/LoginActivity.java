@@ -18,9 +18,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.example.travelplus.MainActivity;
-import com.example.travelplus.OnboardingActivity;
 import com.example.travelplus.R;
-import com.example.travelplus.RegisterActivity;
+import com.example.travelplus.register.RegisterActivity;
 import com.example.travelplus.network.ApiService;
 
 import java.io.IOException;
@@ -37,11 +36,11 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class LoginActivity extends AppCompatActivity {
     EditText email;
     EditText password;
-    ApiService apiService;
     ImageView loginBtn;
     TextView register;
     ImageView kakaoLogin;
     Typeface font;
+    ApiService apiService;
     private MockWebServer mockServer;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState){
@@ -125,6 +124,7 @@ public class LoginActivity extends AppCompatActivity {
                             runOnUiThread(() -> Toast.makeText(LoginActivity.this,
                                     "환영합니다! "+emailStr+"님!", Toast.LENGTH_SHORT).show());
                         }else{
+                            runOnUiThread(() -> Toast.makeText(LoginActivity.this, "로그인 실패", Toast.LENGTH_SHORT).show());
                             Log.d("Login",String.valueOf(res.resultCode));
                         }
                     } else {
@@ -176,8 +176,8 @@ public class LoginActivity extends AppCompatActivity {
             try {
                 mockServer = new MockWebServer();
                 mockServer.enqueue(new MockResponse()
-                        .setResponseCode(600)
-                        .setBody("{\"resultCode\":600,\"resultMessage\":\"Success\"}"));
+                        .setResponseCode(200)
+                        .setBody("{\"resultCode\":200,\"resultMessage\":\"Success\"}"));
                 mockServer.start();
 
                 Retrofit retrofit = new Retrofit.Builder()
