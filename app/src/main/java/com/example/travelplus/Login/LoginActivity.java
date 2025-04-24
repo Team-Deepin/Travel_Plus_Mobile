@@ -41,8 +41,8 @@ public class LoginActivity extends AppCompatActivity {
     ImageView loginBtn;
     TextView register;
     ImageView kakaoLogin;
-    private MockWebServer mockServer;
     Typeface font;
+    private MockWebServer mockServer;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -119,7 +119,8 @@ public class LoginActivity extends AppCompatActivity {
                         LoginResponse res = response.body();
                         Log.d("Login",res.resultMessage);
                         if (res.resultCode == 200) {
-                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            startActivity(intent);
                             finish();
                         }else{
                             Log.d("Login",String.valueOf(res.resultCode));

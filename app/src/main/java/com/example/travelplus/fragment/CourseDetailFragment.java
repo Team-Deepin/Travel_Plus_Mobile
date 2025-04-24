@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class CourseDetailFragment extends Fragment {
-    private String title, duration, vehicle, location;
+    private String title, duration, meansTP, location;
     int cnt=0;
     List<CourseDetailList> courseDetailListFromDB = Arrays.asList(
             new CourseDetailList(200, "성공","자가용","이동지1","이동지2",30,"없음",30.5,"이동수단"),
@@ -36,7 +36,7 @@ public class CourseDetailFragment extends Fragment {
             title = getArguments().getString("title");
             location = getArguments().getString("location");
             duration = getArguments().getString("duration");
-            vehicle = getArguments().getString("vehicle");
+            meansTP = getArguments().getString("meansTP");
         }
     }
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -58,7 +58,7 @@ public class CourseDetailFragment extends Fragment {
         titleView.setText(title);
         locationView.setText(location);
         durationView.setText(duration);
-        vehicleView.setText(vehicle);
+        vehicleView.setText(meansTP);
         plusFab.setOnClickListener(view1 -> {
             plusFab.setVisibility(GONE);
             detailBackground.setVisibility(VISIBLE);

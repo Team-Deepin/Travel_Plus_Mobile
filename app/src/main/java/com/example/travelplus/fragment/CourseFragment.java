@@ -59,11 +59,11 @@ public class CourseFragment extends Fragment {
             CardView cardList = card.findViewById(R.id.card_list);
             TextView title = card.findViewById(R.id.course_title);
             TextView duration = card.findViewById(R.id.course_duration);
-            TextView vehicle = card.findViewById(R.id.course_vehicle);
+            TextView meansTP = card.findViewById(R.id.course_meansTP);
 
             title.setText(course.title);
             duration.setText(course.duration);
-            vehicle.setText(course.vehicle);
+            meansTP.setText(course.meansTP);
 
             courseListLayout.addView(card);
             card.setOnClickListener(view1 -> {
@@ -72,7 +72,7 @@ public class CourseFragment extends Fragment {
                 bundle.putString("title", course.title);
                 bundle.putString("location", course.location);
                 bundle.putString("duration", course.duration);
-                bundle.putString("vehicle", course.vehicle);
+                bundle.putString("meansTP", course.meansTP);
 
                 CourseDetailFragment detailFragment = new CourseDetailFragment();
                 detailFragment.setArguments(bundle);

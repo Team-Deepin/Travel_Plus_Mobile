@@ -1,29 +1,17 @@
 package com.example.travelplus;
 
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
-
 import android.os.Bundle;
-import android.view.View;
-import android.widget.TextView;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.travelplus.adapter.mainAdapter;
-import com.example.travelplus.fragment.CourseDetailFragment;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ViewPager2 mainView;
-    private mainAdapter mainadapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
         ViewPager2 mainView = findViewById(R.id.mainView);
         mainAdapter adapter = new mainAdapter(this);
         mainView.setAdapter(adapter);
+
         new TabLayoutMediator(mainTap, mainView,
                 (tab, position) -> {
                     tab.view.setOnClickListener(view -> {
