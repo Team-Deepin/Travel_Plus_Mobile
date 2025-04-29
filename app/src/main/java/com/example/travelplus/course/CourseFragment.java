@@ -1,4 +1,4 @@
-package com.example.travelplus.fragment;
+package com.example.travelplus.course;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -15,13 +15,11 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
-import com.example.travelplus.course.Course;
-import com.example.travelplus.course.CourseResponse;
 import com.example.travelplus.R;
+import com.example.travelplus.fragment.CourseDetailFragment;
 import com.example.travelplus.network.ApiService;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -29,7 +27,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 import okhttp3.mockwebserver.MockResponse;
@@ -41,7 +38,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class CourseFragment extends Fragment {
-    ImageView aiRecommend, tripRecomment;
+    ImageView aiRecommend, tripRecommend;
     ScrollView courseScrollView;
     LinearLayout courseListLayout;
     ConstraintLayout noCourseListLayout;
@@ -56,12 +53,12 @@ public class CourseFragment extends Fragment {
         courseScrollView = view.findViewById(R.id.course_scroll);
         noCourseListLayout = view.findViewById(R.id.course_no_list);
         aiRecommend = view.findViewById(R.id.course_AI);
-        tripRecomment = view.findViewById(R.id.course_trip);
+        tripRecommend = view.findViewById(R.id.course_trip);
 
         aiRecommend.setOnClickListener(view1 -> {
             // AI 추천 UI 띄우기
         });
-        tripRecomment.setOnClickListener(view1 -> {
+        tripRecommend.setOnClickListener(view1 -> {
             // 여행지 추천 UI 띄우기
         });
 
@@ -148,6 +145,7 @@ public class CourseFragment extends Fragment {
             public void onFailure(Call<CourseResponse> call, Throwable t) {
                 courseScrollView.setVisibility(GONE);
                 noCourseListLayout.setVisibility(VISIBLE);
+                Log.d("course","연결 실패");
             }
         });
     }

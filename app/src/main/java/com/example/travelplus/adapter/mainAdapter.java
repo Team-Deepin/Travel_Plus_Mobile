@@ -5,7 +5,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-import com.example.travelplus.fragment.CourseFragment;
+import com.example.travelplus.course.CourseFragment;
 import com.example.travelplus.fragment.MainFragment;
 import com.example.travelplus.fragment.MoreFragment;
 

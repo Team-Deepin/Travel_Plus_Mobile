@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
+import com.example.travelplus.inquiry.InquiryFragment;
 import com.example.travelplus.login.LoginActivity;
 import com.example.travelplus.login.LogoutResponse;
 import com.example.travelplus.R;
@@ -37,7 +38,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MoreFragment extends Fragment {
-    ImageView notice, inquire, changeTheme, logout, withdraw;
+    ImageView notice, inquiry, changeTheme, logout, withdraw;
     ApiService apiService;
     private MockWebServer mockServer;
     @Override
@@ -46,10 +47,20 @@ public class MoreFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_more,container,false);
         setupMockServer();
         notice = view.findViewById(R.id.more_notice);
-        inquire = view.findViewById(R.id.more_inquire);
+        inquiry = view.findViewById(R.id.more_inquiry);
         changeTheme = view.findViewById(R.id.more_change_theme);
         logout = view.findViewById(R.id.more_logout);
         withdraw = view.findViewById(R.id.more_withdraw_membership);
+        inquiry.setOnClickListener(view1 -> {
+            InquiryFragment inquiryFragment = new InquiryFragment();
+            ConstraintLayout moreLayout = view.findViewById(R.id.more_layout);
+            moreLayout.setVisibility(GONE);
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.more_fragment_container, inquiryFragment)
+                    .addToBackStack(null)
+                    .commit();
+        });
         changeTheme.setOnClickListener(view1 -> {
             ChangeThemeFragment changeThemeFragment = new ChangeThemeFragment();
             ConstraintLayout moreLayout = view.findViewById(R.id.more_layout);

@@ -26,7 +26,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginTop="165dp"/>
         <ImageView
-            android:id="@+id/more_inquire"
+            android:id="@+id/more_inquiry"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/inquire"
@@ -39,7 +39,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/change_theme"
-            app:layout_constraintTop_toBottomOf="@id/more_inquire"
+            app:layout_constraintTop_toBottomOf="@id/more_inquiry"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginTop="15dp"/>
