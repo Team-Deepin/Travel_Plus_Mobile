@@ -19,7 +19,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
 import com.example.travelplus.R;
-import com.example.travelplus.fragment.CourseDetailFragment;
 import com.example.travelplus.network.ApiService;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -168,7 +167,7 @@ public class CourseFragment extends Fragment {
                 mockServer.enqueue(new MockResponse()
                         .setResponseCode(200)
                         .setBody("{\n" +
-                                "  \"resultCode\": 200,\n" +
+                                "  \"resultCode\": 600,\n" +
                                 "  \"resultMessage\": \"Success\",\n" +
                                 "  \"data\": [\n" +
                                 "    {\n" +

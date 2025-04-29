@@ -22,6 +22,7 @@ import androidx.fragment.app.Fragment;
 import com.example.travelplus.R;
 import com.example.travelplus.course.Course;
 import com.example.travelplus.network.ApiService;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.IOException;
 
@@ -46,9 +47,19 @@ public class InquiryFragment extends Fragment {
         ImageView inquiryBtn = view.findViewById(R.id.inquiry_btn);
         inquiryScroll = view.findViewById(R.id.inquiry_scroll);
         inquiryList = view.findViewById(R.id.inquiry_list);
-
-
-
+        inquiryBtn.setOnClickListener(view1 -> {
+            // 문의하기 이동
+        });
+        
+        requireActivity().getSupportFragmentManager()
+                .addOnBackStackChangedListener(() -> {
+                    if (isAdded()) {
+                        if (requireActivity().getSupportFragmentManager().getBackStackEntryCount() == 1) {
+                            ConstraintLayout inquiryLayout = requireView().findViewById(R.id.inquiry_layout);
+                            inquiryLayout.setVisibility(VISIBLE);
+                        }
+                    }
+                });
 
         return view;
     }
@@ -74,11 +85,11 @@ public class InquiryFragment extends Fragment {
 
                             title.setText(inquiry.title);
                             if(inquiry.isAnswered){
-                                complete.setText("[처리중]");
-                                complete.setTextColor(incompleteColor);
-                            }else {
                                 complete.setText("[답변 완료]");
                                 complete.setTextColor(completeColor);
+                            }else {
+                                complete.setText("[처리중]");
+                                complete.setTextColor(incompleteColor);
                             }
 
                             inquiryList.addView(card);
@@ -87,9 +98,19 @@ public class InquiryFragment extends Fragment {
                                 Bundle bundle = new Bundle();
                                 bundle.putInt("inquiryId",inquiry.inquireId);
                                 bundle.putString("title",inquiry.title);
-                                if(!inquiry.isAnswered){
-                                    bundle.putString("anser",inquiry.answer);
+                                bundle.putString("content",inquiry.content);
+                                if(inquiry.isAnswered){
+                                    bundle.putString("answer",inquiry.answer);
                                 }
+                                InquiryAnswerFragment inquiryAnswerFragment = new InquiryAnswerFragment();
+                                inquiryAnswerFragment.setArguments(bundle);
+                                ConstraintLayout inquiryLayout = requireView().findViewById(R.id.inquiry_layout);
+                                inquiryLayout.setVisibility(GONE);
+                                requireActivity().getSupportFragmentManager()
+                                        .beginTransaction()
+                                        .replace(R.id.inquiry_fragment_container, inquiryAnswerFragment)
+                                        .addToBackStack(null)
+                                        .commit();
                                 
                             });
                         }

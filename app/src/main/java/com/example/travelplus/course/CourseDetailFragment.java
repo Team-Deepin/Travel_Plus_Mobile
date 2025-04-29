@@ -1,4 +1,4 @@
-package com.example.travelplus.fragment;
+package com.example.travelplus.course;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;

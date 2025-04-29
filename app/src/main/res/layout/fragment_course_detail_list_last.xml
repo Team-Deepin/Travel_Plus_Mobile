@@ -29,7 +29,7 @@
         android:id="@+id/place_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="여행지 1"
+        android:text=""
         android:textSize="18dp"
         android:textColor="@color/color_text"
         android:fontFamily="@font/bmeuljirottf"
