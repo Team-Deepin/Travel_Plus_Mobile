@@ -2,12 +2,16 @@ package com.example.travelplus.network;
 
 import com.example.travelplus.IsFirstResponse;
 import com.example.travelplus.course.CourseResponse;
+import com.example.travelplus.inquiry.InquireRequest;
+import com.example.travelplus.inquiry.InquireResponse;
 import com.example.travelplus.inquiry.InquiryResponse;
 import com.example.travelplus.login.LoginRequest;
 import com.example.travelplus.login.LoginResponse;
 import com.example.travelplus.login.LogoutResponse;
 import com.example.travelplus.onboarding.OnboardingRequest;
 import com.example.travelplus.onboarding.OnboardingResponse;
+import com.example.travelplus.register.DuplicateCheckRequest;
+import com.example.travelplus.register.DuplicateCheckResponse;
 import com.example.travelplus.register.RegisterRequest;
 import com.example.travelplus.register.RegisterResponse;
 
@@ -27,6 +31,8 @@ public interface ApiService {
     Call<RegisterResponse> register(@Body RegisterRequest request);
     @POST("/auth/onboarding")
     Call<OnboardingResponse> onboarding(@Body OnboardingRequest request);
+    @POST("/auth/check")
+    Call<DuplicateCheckResponse> duplicateCheck(@Body DuplicateCheckRequest request);
     @GET("/auth/logout")
     Call<LogoutResponse> logout();
     @GET("/home")
@@ -35,4 +41,6 @@ public interface ApiService {
     Call<CourseResponse> course();
     @GET("/edit/inquire")
     Call<InquiryResponse> inquiry();
+    @POST("/edit/inquire/submit")
+    Call<InquireResponse> inquire(@Body InquireRequest request);
 }

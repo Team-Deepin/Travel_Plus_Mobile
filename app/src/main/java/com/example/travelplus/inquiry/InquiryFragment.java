@@ -49,6 +49,14 @@ public class InquiryFragment extends Fragment {
         inquiryList = view.findViewById(R.id.inquiry_list);
         inquiryBtn.setOnClickListener(view1 -> {
             // 문의하기 이동
+            InquireFragment inquireFragment = new InquireFragment();
+            ConstraintLayout inquiryLayout = requireView().findViewById(R.id.inquiry_layout);
+            inquiryLayout.setVisibility(GONE);
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.inquiry_fragment_container, inquireFragment)
+                    .addToBackStack(null)
+                    .commit();
         });
         
         requireActivity().getSupportFragmentManager()
@@ -130,7 +138,7 @@ public class InquiryFragment extends Fragment {
             public void onFailure(Call<InquiryResponse> call, Throwable t) {
                 inquiryScroll.setVisibility(GONE);
                 noListContainer.setVisibility(VISIBLE);
-                Log.d("inquiry", "연결 실패");
+                Log.e("inquiry", "API call failed: " + t);
             }
         });
     }

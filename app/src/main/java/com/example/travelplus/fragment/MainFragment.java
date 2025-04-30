@@ -74,7 +74,6 @@ public class MainFragment extends Fragment {
     private String startDateGlobal;
     private String endDateGlobal;
     private String areaGlobal;
-    private static final String TAG = "home";
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -375,7 +374,7 @@ public class MainFragment extends Fragment {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                        Log.d(TAG, "isFirst : " + isFirst);
+                        Log.d("home", "isFirst : " + isFirst);
                         if (isFirst) {
                             Intent onboardingIntent = new Intent(getContext(), OnboardingActivity.class);
                             startActivity(onboardingIntent);
@@ -406,13 +405,13 @@ public class MainFragment extends Fragment {
                         Log.d("home", "Result Code: " + res.resultCode + ", Result Message: " + res.resultMessage);
                     }
                 } else {
-                    Log.e(TAG, "Response failed: " + response.message());
+                    Log.e("home", "Response failed: " + response.message());
                 }
             }
 
             @Override
             public void onFailure(Call<IsFirstResponse> call, Throwable t) {
-                Log.e(TAG, "API call failed: " + t.getMessage());
+                Log.e("home", "API call failed: " + t);
             }
         });
     }
@@ -446,7 +445,7 @@ public class MainFragment extends Fragment {
                 });
 
             } catch (IOException e) {
-                Log.e(TAG, "MockServer setup failed: " + e.getMessage());
+                Log.e("home", "MockServer setup failed: " + e.getMessage());
             }
         }).start();
     }

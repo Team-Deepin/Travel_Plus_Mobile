@@ -131,7 +131,7 @@ public class OnboardingActivity extends AppCompatActivity {
                 @Override
                 public void onFailure(Call<OnboardingResponse> call, Throwable t) {
                     runOnUiThread(() -> Toast.makeText(OnboardingActivity.this, "입력 실패", Toast.LENGTH_SHORT).show());
-                    Log.d("Onboarding","서버 연결 실패");
+                    t.printStackTrace();
                 }
             });
         });

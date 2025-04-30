@@ -34,7 +34,7 @@ public class RegisterActivity extends AppCompatActivity {
     ImageView back, duplicateCheck, registerBtn;
     TextView email, password, passwordCheck, name, checkId, checkPw;
     Typeface font;
-    Boolean duplicate;
+    boolean duplicate;
     ApiService apiService;
     private MockWebServer mockServer;
     @Override
@@ -114,13 +114,41 @@ public class RegisterActivity extends AppCompatActivity {
         name.addTextChangedListener(textWatcher);
         duplicateCheck.setOnClickListener(view -> {
             // backend에 중복하는지 보내기
-            duplicate=true;
-            checkId.setVisibility(TextView.VISIBLE);
-            if(duplicate){
-                checkId.setText("사용가능한 이메일입니다.");
-            }else {
-                checkId.setText("중복된 이메일입니다. 다시 시도해 주십시오.");
-            }
+            String id = email.getText().toString().trim();
+            DuplicateCheckRequest duplicateCheckRequest = new DuplicateCheckRequest(id);
+            Call<DuplicateCheckResponse> call = apiService.duplicateCheck(duplicateCheckRequest);
+            call.enqueue(new Callback<DuplicateCheckResponse>() {
+                @Override
+                public void onResponse(Call<DuplicateCheckResponse> call, Response<DuplicateCheckResponse> response) {
+                    if (response.isSuccessful() && response.body() != null){
+                        DuplicateCheckResponse res = response.body();
+                        Log.d("Duplicate",res.resultMessage);
+                        if(res.resultCode == 200){
+                            checkId.setVisibility(TextView.VISIBLE);
+                            if(res.duplication){
+                                checkId.setText("사용가능한 이메일입니다.");
+                                duplicate = true;
+                            }else {
+                                checkId.setText("중복된 이메일입니다. 다시 시도해 주십시오.");
+                                duplicate = false;
+                            }
+                        }else {
+                            runOnUiThread(() -> Toast.makeText(RegisterActivity.this, "중복확인 실패", Toast.LENGTH_SHORT).show());
+                            Log.d("Duplicate","중복확인 실패\n"+"ResultCode : "+res.resultCode+" ResultMessage : "+res.resultMessage);
+                        }
+                    }else {
+                        runOnUiThread(() -> Toast.makeText(RegisterActivity.this, "중복확인 실패", Toast.LENGTH_SHORT).show());
+                        Log.d("Duplicate","중복확인 실패");
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<DuplicateCheckResponse> call, Throwable t) {
+                    runOnUiThread(() -> Toast.makeText(RegisterActivity.this, "네트워크 연결 실패", Toast.LENGTH_SHORT).show());
+                    t.printStackTrace();
+                }
+            });
+
             checkInputAndSetButton();
         });
         registerBtn.setOnClickListener(view -> {
