@@ -26,6 +26,7 @@ import com.example.travelplus.login.LogoutResponse;
 import com.example.travelplus.R;
 import com.example.travelplus.WithdrawTextView;
 import com.example.travelplus.network.ApiService;
+import com.example.travelplus.notice.NoticeFragment;
 
 import java.io.IOException;
 
@@ -51,6 +52,16 @@ public class MoreFragment extends Fragment {
         changeTheme = view.findViewById(R.id.more_change_theme);
         logout = view.findViewById(R.id.more_logout);
         withdraw = view.findViewById(R.id.more_withdraw_membership);
+        notice.setOnClickListener(view1 -> {
+            NoticeFragment noticeFragment = new NoticeFragment();
+            ConstraintLayout moreLayout = view.findViewById(R.id.more_layout);
+            moreLayout.setVisibility(GONE);
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.more_fragment_container, noticeFragment)
+                    .addToBackStack(null)
+                    .commit();
+        });
         inquiry.setOnClickListener(view1 -> {
             InquiryFragment inquiryFragment = new InquiryFragment();
             ConstraintLayout moreLayout = view.findViewById(R.id.more_layout);
@@ -172,7 +183,7 @@ public class MoreFragment extends Fragment {
                 mockServer = new MockWebServer();
                 mockServer.enqueue(new MockResponse()
                         .setResponseCode(200)
-                        .setBody("{\"resultCode\":600,\"resultMessage\":\"Success\"}"));
+                        .setBody("{\"resultCode\":200,\"resultMessage\":\"Success\"}"));
                 mockServer.start();
 
                 Retrofit retrofit = new Retrofit.Builder()

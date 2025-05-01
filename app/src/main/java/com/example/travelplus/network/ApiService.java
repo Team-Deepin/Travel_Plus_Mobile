@@ -8,6 +8,8 @@ import com.example.travelplus.inquiry.InquiryResponse;
 import com.example.travelplus.login.LoginRequest;
 import com.example.travelplus.login.LoginResponse;
 import com.example.travelplus.login.LogoutResponse;
+import com.example.travelplus.notice.NoticeDetailResponse;
+import com.example.travelplus.notice.NoticeResponse;
 import com.example.travelplus.onboarding.OnboardingRequest;
 import com.example.travelplus.onboarding.OnboardingResponse;
 import com.example.travelplus.register.DuplicateCheckRequest;
@@ -20,6 +22,8 @@ import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
+import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 public interface ApiService {
     @POST("/auth/login")
@@ -43,4 +47,9 @@ public interface ApiService {
     Call<InquiryResponse> inquiry();
     @POST("/edit/inquire/submit")
     Call<InquireResponse> inquire(@Body InquireRequest request);
+    @GET("/edit/notice")
+    Call<NoticeResponse> getNotices(@Query("page") int page, @Query("size") int size);
+    @GET("/edit/notice/{noticeId}")
+    Call<NoticeDetailResponse> getNoticeDetail(@Path("noticeId") int noticeId);
+
 }

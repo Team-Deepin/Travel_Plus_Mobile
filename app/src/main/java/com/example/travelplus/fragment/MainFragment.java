@@ -57,7 +57,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainFragment extends Fragment {
-    Spinner loactionList;
+    Spinner locationList;
     String apiKey = "6340120faacb6462dae3d3b224bf7e37";
     TextView todayTemp, tomorrowTemp, TDATTemp, homeTitle, homeDuration, homeMeansTP;
     ImageView todayWeather, tomorrowWeather, TDATWeather;
@@ -81,9 +81,8 @@ public class MainFragment extends Fragment {
         setupMockServer(inflater);
         homeList = view.findViewById(R.id.home_list);
         weatherList = view.findViewById(R.id.weather_list);
-        HorizontalScrollView homeScroll = view.findViewById(R.id.home_scroll);
         homeWeatherList = view.findViewById(R.id.home_weather_list);
-        loactionList = view.findViewById(R.id.weather_location);
+        locationList = view.findViewById(R.id.weather_location);
         todayTemp = view.findViewById(R.id.today_temperature);
         tomorrowTemp = view.findViewById(R.id.tomorrow_temperature);
         TDATTemp = view.findViewById(R.id.the_day_after_tomorrow_temperature);
@@ -108,8 +107,8 @@ public class MainFragment extends Fragment {
         weatherLocation.put("제주도","Jeju");
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.dropdown_list, items);
         adapter.setDropDownViewResource(R.layout.dropdown_list);
-        loactionList.setAdapter(adapter);
-        loactionList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        locationList.setAdapter(adapter);
+        locationList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View selectedView, int position, long id) {
                 String selectedKorean = items[position];
@@ -383,7 +382,7 @@ public class MainFragment extends Fragment {
                             if(isTraveling){
                                 homeList.setVisibility(VISIBLE);
                                 weatherList.setVisibility(GONE);
-                                loactionList.setVisibility(GONE);
+                                locationList.setVisibility(GONE);
                                 homeTitle.setText(response.body().title);
                                 homeDuration.setText(duration+",");
                                 homeMeansTP.setText(response.body().meansTp);
@@ -397,7 +396,7 @@ public class MainFragment extends Fragment {
                             }else{
                                 homeList.setVisibility(GONE);
                                 weatherList.setVisibility(VISIBLE);
-                                loactionList.setVisibility(VISIBLE);
+                                locationList.setVisibility(VISIBLE);
                                 homeWeatherList.setVisibility(GONE);
                             }
                         }
