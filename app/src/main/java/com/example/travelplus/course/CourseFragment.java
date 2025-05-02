@@ -167,7 +167,7 @@ public class CourseFragment extends Fragment {
                 mockServer.enqueue(new MockResponse()
                         .setResponseCode(200)
                         .setBody("{\n" +
-                                "  \"resultCode\": 600,\n" +
+                                "  \"resultCode\": 200,\n" +
                                 "  \"resultMessage\": \"Success\",\n" +
                                 "  \"data\": [\n" +
                                 "    {\n" +

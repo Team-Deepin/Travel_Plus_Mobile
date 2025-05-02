@@ -80,7 +80,7 @@
         android:id="@+id/cancel_button"
         android:layout_width="150dp"
         android:layout_height="60dp"
-        android:src="@drawable/cancle_btn"
+        android:src="@drawable/cancel_btn"
         app:layout_constraintEnd_toStartOf="@id/check_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />

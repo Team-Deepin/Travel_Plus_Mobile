@@ -20,11 +20,13 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
+import com.example.travelplus.IsFirstResponse;
 import com.example.travelplus.inquiry.InquiryFragment;
 import com.example.travelplus.login.LoginActivity;
 import com.example.travelplus.login.LogoutResponse;
 import com.example.travelplus.R;
 import com.example.travelplus.WithdrawTextView;
+import com.example.travelplus.login.WithdrawResponse;
 import com.example.travelplus.network.ApiService;
 import com.example.travelplus.notice.NoticeFragment;
 
@@ -169,11 +171,40 @@ public class MoreFragment extends Fragment {
         cancelBtn.setOnClickListener(v -> dialog.dismiss());
         checkBtn.setOnClickListener(v -> {
             // 회원탈퇴 API
-            Toast.makeText(getActivity(), "회원탈퇴 되었습니다", Toast.LENGTH_SHORT).show();
-            dialog.dismiss();
-            Intent intent = new Intent(requireActivity(), LoginActivity.class);
-            startActivity(intent);
-            requireActivity().finish();
+            WithdrawResponse withdrawResponse = new WithdrawResponse();
+            Call<WithdrawResponse> call = apiService.withdraw();
+            call.enqueue(new Callback<WithdrawResponse>() {
+                @Override
+                public void onResponse(Call<WithdrawResponse> call, Response<WithdrawResponse> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        WithdrawResponse res = response.body();
+                        Log.d("Withdraw", res.resultMessage);
+                        if (res.resultCode == 200) {
+                            Log.d("Withdraw", "회원탈퇴 성공");
+                            Toast.makeText(getActivity(), "회원탈퇴 되었습니다.", Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                            Intent intent = new Intent(requireActivity(), LoginActivity.class);
+                            startActivity(intent);
+                            requireActivity().finish();
+                        }else {
+                            Log.d("Withdraw", "회원탈퇴 실패");
+                            Toast.makeText(getActivity(), "회원탈퇴를 완료할 수 없습니다. 다시 시도해 주세요.", Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                        }
+                    }else {
+                        Log.d("Withdraw", "회원탈퇴 실패");
+                        Toast.makeText(getActivity(), "회원탈퇴를 완료할 수 없습니다. 다시 시도해 주세요.", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                    }
+                }
+                @Override
+                public void onFailure(Call<WithdrawResponse> call, Throwable t) {
+                    Toast.makeText(getActivity(), "네트워크 연결 실패", Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
+                    Log.e("Withdraw","API call failed: " + t);
+                }
+            });
+
         });
         dialog.show();
     }

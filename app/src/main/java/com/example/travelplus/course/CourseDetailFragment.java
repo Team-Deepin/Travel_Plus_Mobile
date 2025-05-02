@@ -3,12 +3,17 @@ package com.example.travelplus.course;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
+import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,14 +21,29 @@ import androidx.fragment.app.Fragment;
 
 import com.example.travelplus.CourseDetailList;
 import com.example.travelplus.R;
+import com.example.travelplus.login.LoginActivity;
+import com.example.travelplus.login.LogoutResponse;
+import com.example.travelplus.network.ApiService;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class CourseDetailFragment extends Fragment {
     private String title, duration, meansTP, location;
     int cnt=0;
+    int courseId;
+    ApiService apiService;
+    private MockWebServer mockServer;
     List<CourseDetailList> courseDetailListFromDB = Arrays.asList(
             new CourseDetailList(200, "성공","자가용","이동지1","이동지2",30,"없음",30.5,"이동수단"),
             new CourseDetailList(200, "성공","자가용","이동지2","이동지3",30,"없음",30.5,"이동수단"),
@@ -33,6 +53,7 @@ public class CourseDetailFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
+            courseId = getArguments().getInt("courseId");
             title = getArguments().getString("title");
             location = getArguments().getString("location");
             duration = getArguments().getString("duration");
@@ -41,7 +62,7 @@ public class CourseDetailFragment extends Fragment {
     }
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_course_detail, container, false);
-
+        setupMockServer();
         TextView titleView = view.findViewById(R.id.detail_title);
         TextView locationView = view.findViewById(R.id.detail_location);
         TextView durationView = view.findViewById(R.id.detail_duration);
@@ -86,7 +107,9 @@ public class CourseDetailFragment extends Fragment {
             deleteText.setVisibility(GONE);
             rateText.setVisibility(GONE);
         });
-
+        deleteFab.setOnClickListener(view1 -> {
+            showDeletePopup();
+        });
         for (CourseDetailList course : courseDetailListFromDB){
             View detail = inflater.inflate(R.layout.fragment_course_detail_list, detailListLayout, false);
 
@@ -111,5 +134,74 @@ public class CourseDetailFragment extends Fragment {
         detailListLayout.addView(lastPlaceView);
 
         return view;
+    }
+    private void showDeletePopup(){
+        Dialog dialog = new Dialog(getActivity());
+        dialog.setContentView(R.layout.pop_up_course_delete);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setLayout(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+            dialog.getWindow().setBackgroundDrawable(getResources().getDrawable(R.drawable.rounded_input, null));
+        }
+        ImageView deleteCancelBtn = dialog.findViewById(R.id.course_delete_cancel_button);
+        ImageView deleteBtn = dialog.findViewById(R.id.course_delete_button);
+        deleteCancelBtn.setOnClickListener(v -> dialog.dismiss());
+        deleteBtn.setOnClickListener(v -> {
+            // 코스 삭제 API
+            Call<CourseDeleteResponse> call = apiService.deleteCourse(courseId);
+            call.enqueue(new Callback<CourseDeleteResponse>() {
+                @Override
+                public void onResponse(Call<CourseDeleteResponse> call, Response<CourseDeleteResponse> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        CourseDeleteResponse res = response.body();
+                        Log.d("Delete Course",res.resultMessage);
+                        if (res.resultCode == 200) {
+                            Toast.makeText(getActivity(), "코스가 삭제되었습니다.", Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                            requireActivity().getSupportFragmentManager().popBackStack();
+                        }else{
+                            Toast.makeText(getActivity(), "코스 삭제 실패", Toast.LENGTH_SHORT).show();
+                            Log.d("Delete Course",String.valueOf(res.resultCode));
+                            dialog.dismiss();
+                        }
+                    }else {
+                        Toast.makeText(getActivity(), "코스 삭제 실패", Toast.LENGTH_SHORT).show();
+                        Log.d("Delete Course","코스 삭제 실패");
+                        dialog.dismiss();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<CourseDeleteResponse> call, Throwable t) {
+                    Toast.makeText(getActivity(), "코스 삭제 실패", Toast.LENGTH_SHORT).show();
+                    Log.d("Delete Course","서버 연결 실패");
+                    dialog.dismiss();
+                }
+            });
+        });
+        dialog.show();
+    }
+    private void setupMockServer() {
+        new Thread(() -> {
+            try {
+                mockServer = new MockWebServer();
+                mockServer.enqueue(new MockResponse()
+                        .setResponseCode(200)
+                        .setBody("{\"resultCode\":200,\"resultMessage\":\"Success\"}"));
+                mockServer.start();
+
+                Retrofit retrofit = new Retrofit.Builder()
+                        .baseUrl(mockServer.url("/"))
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build();
+
+                apiService = retrofit.create(ApiService.class);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 }
