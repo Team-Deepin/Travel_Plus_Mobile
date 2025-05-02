@@ -2,6 +2,8 @@ package com.example.travelplus.network;
 
 import com.example.travelplus.IsFirstResponse;
 import com.example.travelplus.course.CourseDeleteResponse;
+import com.example.travelplus.course.CourseRatingRequest;
+import com.example.travelplus.course.CourseRatingResponse;
 import com.example.travelplus.course.CourseResponse;
 import com.example.travelplus.inquiry.InquireRequest;
 import com.example.travelplus.inquiry.InquireResponse;
@@ -23,6 +25,7 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
+import retrofit2.http.Header;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
@@ -30,9 +33,6 @@ import retrofit2.http.Query;
 
 public interface ApiService {
     @POST("/auth/login")
-    @Headers({
-            "Content-Type: application/json; charset=utf-8"
-    })
     Call<LoginResponse> login(@Body LoginRequest request);
     @POST("/auth/register")
     Call<RegisterResponse> register(@Body RegisterRequest request);
@@ -40,6 +40,8 @@ public interface ApiService {
     Call<OnboardingResponse> onboarding(@Body OnboardingRequest request);
     @POST("/auth/check")
     Call<DuplicateCheckResponse> duplicateCheck(@Body DuplicateCheckRequest request);
+    @POST("/rating")
+    Call<CourseRatingResponse> rate(@Body CourseRatingRequest request);
     @GET("/auth/logout")
     Call<LogoutResponse> logout();
     @GET("/home")

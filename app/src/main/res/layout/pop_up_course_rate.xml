@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="300dp"
+    android:layout_height="300dp">
+
+    <TextView
+        android:id="@+id/course_rate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/bmeuljiro10yearslater"
+        android:text="여행+"
+        android:textColor="@color/black"
+        android:textSize="30dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"/>
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="26dp"
+        android:src="@drawable/home_logo"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/course_rate"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="25dp"/>
+    <TextView
+        android:id="@+id/course_rate_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/bmeuljirottf"
+        android:text="여행은 어떠셨나요 ?"
+        android:textColor="@color/black"
+        android:textSize="25dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/course_rate"
+        android:layout_marginTop="40dp"/>
+    <TextView
+        android:id="@+id/course_rate_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/bmeuljirottf"
+        android:text="여행 코스를 평가해주세요 !"
+        android:textColor="@color/black"
+        android:textSize="25dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/course_rate_title"/>
+
+    <RatingBar
+        android:id="@+id/course_rate_star"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:stepSize="0.5"
+        android:numStars="5"
+        android:rating="5"
+        android:backgroundTint="@android:color/transparent"
+        android:progressTint="#EEC346"
+        android:secondaryProgressTint="#EEC346"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/course_rate_text"
+        app:layout_constraintBottom_toTopOf="@id/course_rate_next_button"/>
+
+    <ImageView
+        android:id="@+id/course_rate_next_button"
+        android:layout_width="150dp"
+        android:layout_height="60dp"
+        android:src="@drawable/course_rate_next_btn"
+        app:layout_constraintEnd_toStartOf="@id/course_rate_apply_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <ImageView
+        android:id="@+id/course_rate_apply_button"
+        android:layout_width="150dp"
+        android:layout_height="60dp"
+        android:src="@drawable/course_rate_apply_btn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/course_rate_next_button"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

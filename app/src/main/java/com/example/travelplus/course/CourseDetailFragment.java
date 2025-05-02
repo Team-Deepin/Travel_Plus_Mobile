@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,6 +43,9 @@ public class CourseDetailFragment extends Fragment {
     private String title, duration, meansTP, location;
     int cnt=0;
     int courseId;
+    FloatingActionButton plusFab, cancelFab, deleteFab, rateFab;
+    TextView deleteText, rateText;
+    View detailBackground;
     ApiService apiService;
     private MockWebServer mockServer;
     List<CourseDetailList> courseDetailListFromDB = Arrays.asList(
@@ -67,13 +71,13 @@ public class CourseDetailFragment extends Fragment {
         TextView locationView = view.findViewById(R.id.detail_location);
         TextView durationView = view.findViewById(R.id.detail_duration);
         TextView vehicleView = view.findViewById(R.id.detail_vehicle);
-        FloatingActionButton plusFab = view.findViewById(R.id.detail_plus_fab);
-        FloatingActionButton cancelFab = requireActivity().findViewById(R.id.detail_cancel_fab);
-        FloatingActionButton deleteFab = requireActivity().findViewById(R.id.detail_delete_fab);
-        FloatingActionButton rateFab = requireActivity().findViewById(R.id.detail_rate_fab);
-        TextView deleteText = requireActivity().findViewById(R.id.detail_delete_text);
-        TextView rateText = requireActivity().findViewById(R.id.detail_rate_text);
-        View detailBackground = requireActivity().findViewById(R.id.detail_background);
+        plusFab = view.findViewById(R.id.detail_plus_fab);
+        cancelFab = requireActivity().findViewById(R.id.detail_cancel_fab);
+        deleteFab = requireActivity().findViewById(R.id.detail_delete_fab);
+        rateFab = requireActivity().findViewById(R.id.detail_rate_fab);
+        deleteText = requireActivity().findViewById(R.id.detail_delete_text);
+        rateText = requireActivity().findViewById(R.id.detail_rate_text);
+        detailBackground = requireActivity().findViewById(R.id.detail_background);
         LinearLayout detailListLayout = view.findViewById(R.id.detail_list);
 
         titleView.setText(title);
@@ -109,6 +113,9 @@ public class CourseDetailFragment extends Fragment {
         });
         deleteFab.setOnClickListener(view1 -> {
             showDeletePopup();
+        });
+        rateFab.setOnClickListener(view1 -> {
+            showRatingPopup();
         });
         for (CourseDetailList course : courseDetailListFromDB){
             View detail = inflater.inflate(R.layout.fragment_course_detail_list, detailListLayout, false);
@@ -147,7 +154,17 @@ public class CourseDetailFragment extends Fragment {
         }
         ImageView deleteCancelBtn = dialog.findViewById(R.id.course_delete_cancel_button);
         ImageView deleteBtn = dialog.findViewById(R.id.course_delete_button);
-        deleteCancelBtn.setOnClickListener(v -> dialog.dismiss());
+        deleteCancelBtn.setOnClickListener(v -> {
+            plusFab.setVisibility(VISIBLE);
+            detailBackground.setVisibility(GONE);
+            cancelFab.setVisibility(GONE);
+            deleteFab.setVisibility(GONE);
+            rateFab.setVisibility(GONE);
+            deleteText.setVisibility(GONE);
+            rateText.setVisibility(GONE);
+            dialog.dismiss();
+            dialog.dismiss();
+        });
         deleteBtn.setOnClickListener(v -> {
             // 코스 삭제 API
             Call<CourseDeleteResponse> call = apiService.deleteCourse(courseId);
@@ -158,6 +175,7 @@ public class CourseDetailFragment extends Fragment {
                         CourseDeleteResponse res = response.body();
                         Log.d("Delete Course",res.resultMessage);
                         if (res.resultCode == 200) {
+                            Log.d("Delete Course", "코스 삭제 완료");
                             Toast.makeText(getActivity(), "코스가 삭제되었습니다.", Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
                             requireActivity().getSupportFragmentManager().popBackStack();
@@ -177,6 +195,72 @@ public class CourseDetailFragment extends Fragment {
                 public void onFailure(Call<CourseDeleteResponse> call, Throwable t) {
                     Toast.makeText(getActivity(), "코스 삭제 실패", Toast.LENGTH_SHORT).show();
                     Log.d("Delete Course","서버 연결 실패");
+                    dialog.dismiss();
+                }
+            });
+        });
+        dialog.show();
+    }
+    private void showRatingPopup(){
+        Dialog dialog = new Dialog(getActivity());
+        dialog.setContentView(R.layout.pop_up_course_rate);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setLayout(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+            dialog.getWindow().setBackgroundDrawable(getResources().getDrawable(R.drawable.rounded_input, null));
+        }
+        ImageView rateNextBtn = dialog.findViewById(R.id.course_rate_next_button);
+        ImageView rateApplyBtn = dialog.findViewById(R.id.course_rate_apply_button);
+        RatingBar ratingBar = dialog.findViewById(R.id.course_rate_star);
+        ratingBar.setOnRatingBarChangeListener((bar, rating, fromUser) -> {
+            if (rating < 0.5f) {
+                bar.setRating(0.5f);
+            }
+        });
+        rateNextBtn.setOnClickListener(v ->{
+            plusFab.setVisibility(VISIBLE);
+            detailBackground.setVisibility(GONE);
+            cancelFab.setVisibility(GONE);
+            deleteFab.setVisibility(GONE);
+            rateFab.setVisibility(GONE);
+            deleteText.setVisibility(GONE);
+            rateText.setVisibility(GONE);
+            dialog.dismiss();
+        });
+        rateApplyBtn.setOnClickListener(v -> {
+            // 코스 평가 API
+            double score = ratingBar.getRating();
+            CourseRatingRequest courseRatingRequest = new CourseRatingRequest(courseId, score);
+            Call<CourseRatingResponse> call = apiService.rate(courseRatingRequest);
+            call.enqueue(new Callback<CourseRatingResponse>() {
+                @Override
+                public void onResponse(Call<CourseRatingResponse> call, Response<CourseRatingResponse> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        CourseRatingResponse res = response.body();
+                        Log.d("Rate Course",res.resultMessage);
+                        if (res.resultCode == 200) {
+                            Log.d("Rate Course", "평가 점수 : "+score);
+                            Toast.makeText(getActivity(), "코스가 평가되었습니다.", Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                            requireActivity().getSupportFragmentManager().popBackStack();
+                        }else{
+                            Toast.makeText(getActivity(), "코스 평가 실패", Toast.LENGTH_SHORT).show();
+                            Log.d("Rate Course",String.valueOf(res.resultCode));
+                            dialog.dismiss();
+                        }
+                    }else {
+                        Toast.makeText(getActivity(), "코스 평가 실패", Toast.LENGTH_SHORT).show();
+                        Log.d("Rate Course","코스 평가 실패");
+                        dialog.dismiss();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<CourseRatingResponse> call, Throwable t) {
+                    Toast.makeText(getActivity(), "코스 평가 실패", Toast.LENGTH_SHORT).show();
+                    Log.d("Rate Course","서버 연결 실패");
                     dialog.dismiss();
                 }
             });
