@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="300dp"
+    android:layout_height="180dp">
+
+    <TextView
+        android:id="@+id/course_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/bmeuljirottf"
+        android:text="코스 삭제"
+        android:textColor="@color/black"
+        android:textSize="30dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="20dp"/>
+    <TextView
+        android:id="@+id/course_delete_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/bmeuljirottf"
+        android:text="제주도 2박 3일 코스를"
+        android:textColor="@color/gray"
+        android:textSize="20dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/course_delete"
+        android:layout_marginTop="40dp"/>
+    <TextView
+        android:id="@+id/course_delete_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/bmeuljirottf"
+        android:text="삭제하시겠습니까?"
+        android:textColor="@color/gray"
+        android:textSize="20dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/course_delete_title" />
+
+    <ImageView
+        android:id="@+id/course_delete_cancel_button"
+        android:layout_width="150dp"
+        android:layout_height="60dp"
+        android:src="@drawable/course_delete_cancel_btn"
+        app:layout_constraintEnd_toStartOf="@id/course_delete_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <ImageView
+        android:id="@+id/course_delete_button"
+        android:layout_width="150dp"
+        android:layout_height="60dp"
+        android:src="@drawable/course_delete_btn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/course_delete_cancel_button"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
