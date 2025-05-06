@@ -58,33 +58,13 @@ public class RegisterActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         });
-        email.setOnEditorActionListener((TextView v, int actionId, KeyEvent event) -> {
-            if (actionId == EditorInfo.IME_ACTION_NEXT ||
-                    (event != null && event.getAction() == KeyEvent.ACTION_DOWN &&
-                            event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
-                password.requestFocus();
-                return true;
-            }
-            return false;
-        });
-        password.setOnEditorActionListener((TextView v, int actionId, KeyEvent event) -> {
-            if (actionId == EditorInfo.IME_ACTION_NEXT ||
-                    (event != null && event.getAction() == KeyEvent.ACTION_DOWN &&
-                            event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
-                passwordCheck.requestFocus();
-                return true;
-            }
-            return false;
-        });
-        passwordCheck.setOnEditorActionListener((TextView v, int actionId, KeyEvent event) -> {
-            if (actionId == EditorInfo.IME_ACTION_NEXT ||
-                    (event != null && event.getAction() == KeyEvent.ACTION_DOWN &&
-                            event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
-                name.requestFocus();
-                return true;
-            }
-            return false;
-        });
+        email.setOnEditorActionListener((v, actionId, event) ->
+                handleEditorAction(actionId, event, password));
+        password.setOnEditorActionListener((v, actionId, event) ->
+                handleEditorAction(actionId, event, passwordCheck));
+        passwordCheck.setOnEditorActionListener((v, actionId, event) ->
+                handleEditorAction(actionId, event, name));
+
         name.setOnEditorActionListener((TextView v, int actionId, KeyEvent event) -> {
             if (actionId == EditorInfo.IME_ACTION_NEXT ||
                     (event != null && event.getAction() == KeyEvent.ACTION_DOWN &&
@@ -94,6 +74,7 @@ public class RegisterActivity extends AppCompatActivity {
             }
             return false;
         });
+
         TextWatcher textWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -125,7 +106,7 @@ public class RegisterActivity extends AppCompatActivity {
                         Log.d("Duplicate",res.resultMessage);
                         if(res.resultCode == 200){
                             checkId.setVisibility(TextView.VISIBLE);
-                            if(res.duplication){
+                            if(res.data.duplication){
                                 checkId.setText("사용가능한 이메일입니다.");
                                 duplicate = true;
                             }else {
@@ -134,10 +115,12 @@ public class RegisterActivity extends AppCompatActivity {
                             }
                         }else {
                             runOnUiThread(() -> Toast.makeText(RegisterActivity.this, "중복확인 실패", Toast.LENGTH_SHORT).show());
+                            duplicate = false;
                             Log.d("Duplicate","중복확인 실패\n"+"ResultCode : "+res.resultCode+" ResultMessage : "+res.resultMessage);
                         }
                     }else {
                         runOnUiThread(() -> Toast.makeText(RegisterActivity.this, "중복확인 실패", Toast.LENGTH_SHORT).show());
+                        duplicate = false;
                         Log.d("Duplicate","중복확인 실패");
                     }
                 }
@@ -145,10 +128,10 @@ public class RegisterActivity extends AppCompatActivity {
                 @Override
                 public void onFailure(Call<DuplicateCheckResponse> call, Throwable t) {
                     runOnUiThread(() -> Toast.makeText(RegisterActivity.this, "네트워크 연결 실패", Toast.LENGTH_SHORT).show());
+                    duplicate = false;
                     t.printStackTrace();
                 }
             });
-
             checkInputAndSetButton();
         });
         registerBtn.setOnClickListener(view -> {
@@ -195,16 +178,9 @@ public class RegisterActivity extends AppCompatActivity {
         String user_name = name.getText().toString().trim();
         Boolean same;
 
-        if(pw.isEmpty()){
-            password.setTypeface(font);
-        }else{
-            password.setTypeface(Typeface.DEFAULT);
-        }
-        if(pwc.isEmpty()){
-            passwordCheck.setTypeface(font);
-        }else{
-            passwordCheck.setTypeface(Typeface.DEFAULT);
-        }
+        password.setTypeface(pw.isEmpty() ? font : Typeface.DEFAULT);
+        passwordCheck.setTypeface(pwc.isEmpty() ? font : Typeface.DEFAULT);
+
         if(pw.isEmpty() || pwc.isEmpty() || pw.equals(pwc)){
             checkPw.setVisibility(TextView.INVISIBLE);
             same=true;
@@ -223,6 +199,15 @@ public class RegisterActivity extends AppCompatActivity {
     private boolean validEmail(String email){
         String emailPatern = "[a-zA-Z0-9._-]+@[a-zA-Z]+\\.+[a-zA-Z]+$";
         return email.matches(emailPatern);
+    }
+    private boolean handleEditorAction(int actionId, KeyEvent event, TextView nextField) {
+        if (actionId == EditorInfo.IME_ACTION_NEXT ||
+                (event != null && event.getAction() == KeyEvent.ACTION_DOWN &&
+                        event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
+            nextField.requestFocus();
+            return true;
+        }
+        return false;
     }
     private void setupMockServer() {
         new Thread(() -> {

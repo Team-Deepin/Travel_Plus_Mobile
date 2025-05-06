@@ -1,9 +1,9 @@
 package com.example.travelplus.register;
 
 public class DuplicateCheckRequest {
-    public String username;
+    public String email;
 
-    public DuplicateCheckRequest(String username) {
-        this.username = username;
+    public DuplicateCheckRequest(String email) {
+        this.email = email;
     }
 }

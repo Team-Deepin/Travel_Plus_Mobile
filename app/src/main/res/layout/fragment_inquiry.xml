@@ -77,13 +77,14 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
         <ScrollView
             android:id="@+id/inquiry_scroll"
-            android:visibility="gone"
+            android:visibility="visible"
             android:layout_width="330dp"
-            android:layout_height="380dp"
+            android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/inquiry_text"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="30dp">
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="20dp">
             <LinearLayout
                 android:id="@+id/inquiry_list"
                 android:layout_width="wrap_content"
