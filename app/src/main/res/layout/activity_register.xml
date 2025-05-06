@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.4" />
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.2" />
+    <ImageView
+        android:id="@+id/back_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:src="@drawable/arrow_back"
+        android:layout_marginTop="60dp" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="회원가입"
+        android:fontFamily="@font/bmeuljirottf"
+        android:textSize="30dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="60dp"
+        android:textColor="@color/black"/>
+    <EditText
+        android:id="@+id/register_email"
+        android:layout_width="190dp"
+        android:layout_height="wrap_content"
+        android:hint="이메일"
+        android:textSize="15dp"
+        android:inputType="textEmailAddress"
+        android:fontFamily="@font/bmeuljirottf"
+        app:layout_constraintBottom_toTopOf="@id/register_password"
+        app:layout_constraintStart_toStartOf="@id/guideline2"
+        app:layout_constraintEnd_toStartOf="@id/duplicate_check"
+        android:layout_marginBottom="70dp"/>
+    <TextView
+        android:id="@+id/check_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@id/guideline2"
+        app:layout_constraintTop_toBottomOf="@id/register_email"
+        android:fontFamily="@font/bmeuljirottf"
+        android:textSize="10dp"
+        android:text="중복된 이메일입니다. 다시 시도해 주십시오."
+        android:layout_marginStart="5dp"
+        android:visibility="invisible"
+        android:textColor="@color/black"/>
+    <ImageView
+        android:id="@+id/duplicate_check"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/duplicate_check_button"
+        app:layout_constraintStart_toEndOf="@id/register_email"
+        app:layout_constraintBottom_toTopOf="@id/register_password"
+        android:layout_marginBottom="70dp"/>
+    <EditText
+        android:id="@+id/register_password"
+        android:layout_width="260dp"
+        android:layout_height="wrap_content"
+        android:hint="비밀번호"
+        android:textSize="15dp"
+        android:inputType="textPassword"
+        android:fontFamily="@font/bmeuljirottf"
+        app:layout_constraintBottom_toTopOf="@id/guideline1"
+        app:layout_constraintStart_toStartOf="@id/guideline2"
+        android:layout_marginBottom="35dp"/>
+    <EditText
+        android:id="@+id/register_check_password"
+        android:layout_width="260dp"
+        android:layout_height="wrap_content"
+        android:hint="비밀번호 확인"
+        android:textSize="15dp"
+        android:inputType="textPassword"
+        android:fontFamily="@font/bmeuljirottf"
+        app:layout_constraintTop_toBottomOf="@id/guideline1"
+        app:layout_constraintStart_toStartOf="@id/guideline2"
+        android:layout_marginTop="35dp"/>
+    <TextView
+        android:id="@+id/check_pw"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@id/guideline2"
+        app:layout_constraintTop_toBottomOf="@id/register_check_password"
+        android:fontFamily="@font/bmeuljirottf"
+        android:textSize="10dp"
+        android:layout_marginStart="5dp"
+        android:textColor="@color/black"
+        android:visibility="invisible"
+        android:text="비밀번호가 일치하지 않습니다."/>
+    <EditText
+        android:id="@+id/register_name"
+        android:layout_width="260dp"
+        android:layout_height="wrap_content"
+        android:hint="이름"
+        android:textSize="15dp"
+        android:fontFamily="@font/bmeuljirottf"
+        app:layout_constraintTop_toBottomOf="@id/register_check_password"
+        app:layout_constraintStart_toStartOf="@id/guideline2"
+        android:layout_marginTop="70dp"/>
+    <ImageView
+        android:id="@+id/register_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/register_button_deactivate"
+        android:enabled="false"
+        app:layout_constraintTop_toBottomOf="@id/register_name"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
