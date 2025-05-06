@@ -16,6 +16,10 @@ import com.example.travelplus.notice.NoticeDetailResponse;
 import com.example.travelplus.notice.NoticeResponse;
 import com.example.travelplus.onboarding.OnboardingRequest;
 import com.example.travelplus.onboarding.OnboardingResponse;
+import com.example.travelplus.recommend.AIRecommendRequest;
+import com.example.travelplus.recommend.AIRecommendResponse;
+import com.example.travelplus.recommend.AISaveRequest;
+import com.example.travelplus.recommend.AISaveResponse;
 import com.example.travelplus.register.DuplicateCheckRequest;
 import com.example.travelplus.register.DuplicateCheckResponse;
 import com.example.travelplus.register.RegisterRequest;
@@ -42,6 +46,12 @@ public interface ApiService {
     Call<DuplicateCheckResponse> duplicateCheck(@Body DuplicateCheckRequest request);
     @POST("/rating")
     Call<CourseRatingResponse> rate(@Body CourseRatingRequest request);
+    @POST("/edit/inquire/submit")
+    Call<InquireResponse> inquire(@Body InquireRequest request);
+    @POST("/course/recommend")
+    Call<AIRecommendResponse> recommend(@Body AIRecommendRequest request);
+    @POST("/course/save")
+    Call<AISaveResponse> save(@Body AISaveRequest request);
     @GET("/auth/logout")
     Call<LogoutResponse> logout();
     @GET("/home")
@@ -50,8 +60,7 @@ public interface ApiService {
     Call<CourseResponse> course();
     @GET("/edit/inquire")
     Call<InquiryResponse> inquiry();
-    @POST("/edit/inquire/submit")
-    Call<InquireResponse> inquire(@Body InquireRequest request);
+
     @GET("/edit/notice")
     Call<NoticeResponse> getNotices(@Query("page") int page, @Query("size") int size);
     @GET("/edit/notice/{noticeId}")

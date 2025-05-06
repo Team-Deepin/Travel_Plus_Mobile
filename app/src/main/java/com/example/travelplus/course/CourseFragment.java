@@ -3,15 +3,19 @@ package com.example.travelplus.course;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
+import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,7 +23,10 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
 import com.example.travelplus.R;
+import com.example.travelplus.login.LoginActivity;
+import com.example.travelplus.login.LogoutResponse;
 import com.example.travelplus.network.ApiService;
+import com.example.travelplus.recommend.AIRecommendFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.IOException;
@@ -55,7 +62,7 @@ public class CourseFragment extends Fragment {
         tripRecommend = view.findViewById(R.id.course_trip);
 
         aiRecommend.setOnClickListener(view1 -> {
-            // AI 추천 UI 띄우기
+            ai_recommend_click();
         });
         tripRecommend.setOnClickListener(view1 -> {
             // 여행지 추천 UI 띄우기
@@ -159,6 +166,37 @@ public class CourseFragment extends Fragment {
             e.printStackTrace();
             return "기간 불명";
         }
+    }
+    private void ai_recommend_click(){
+        Dialog dialog = new Dialog(getActivity());
+        dialog.setContentView(R.layout.pop_up_course_title);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setLayout(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+            dialog.getWindow().setBackgroundDrawable(getResources().getDrawable(R.drawable.rounded_input, null));
+        }
+        EditText courseTitle = dialog.findViewById(R.id.course_create_title);
+        ImageView inputBtn = dialog.findViewById(R.id.course_jnput_button);
+        ImageView nextBtn = dialog.findViewById(R.id.course_next_button);
+        nextBtn.setOnClickListener(v -> dialog.dismiss());
+        inputBtn.setOnClickListener(v -> {
+            String title = courseTitle.getText().toString().trim();
+            Bundle bundle = new Bundle();
+            bundle.putString("title",title);
+            AIRecommendFragment aiRecommendFragment = new AIRecommendFragment();
+            aiRecommendFragment.setArguments(bundle);
+            ConstraintLayout courseLayout = requireView().findViewById(R.id.course_layout);
+            courseLayout.setVisibility(GONE);
+            dialog.dismiss();
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.course_fragment_container, aiRecommendFragment)
+                    .addToBackStack(null)
+                    .commit();
+        });
+        dialog.show();
     }
     private void setupMockServer(LayoutInflater inflater) {
         new Thread(() -> {

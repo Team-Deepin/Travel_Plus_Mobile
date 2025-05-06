@@ -21,7 +21,7 @@ public class WithdrawTextView extends AppCompatTextView {
         strokePaint.setTextSize(getTextSize());
         strokePaint.setStyle(Paint.Style.STROKE);
         strokePaint.setStrokeWidth(6);
-        strokePaint.setColor(0xFFFFFFFF); // 테두리 색 (예: 흰색)
+        strokePaint.setColor(0xFFFFFFFF);
         strokePaint.setTextAlign(Paint.Align.LEFT);
     }
 
@@ -30,11 +30,7 @@ public class WithdrawTextView extends AppCompatTextView {
         String text = getText().toString();
         float x = 0;
         float y = getBaseline();
-
-        // 테두리 먼저 그림
         canvas.drawText(text, x, y, strokePaint);
-
-        // 기본 텍스트 그림
         super.onDraw(canvas);
     }
 }
