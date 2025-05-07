@@ -149,6 +149,7 @@ public class RegisterActivity extends AppCompatActivity {
                         Log.d("Register",res.resultMessage);
                         if(res.resultCode == 200){
                             Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                             startActivity(intent);
                             finish();
                             runOnUiThread(() -> Toast.makeText(RegisterActivity.this,
