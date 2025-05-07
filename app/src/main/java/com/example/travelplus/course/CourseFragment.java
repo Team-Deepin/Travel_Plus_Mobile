@@ -27,6 +27,7 @@ import com.example.travelplus.login.LoginActivity;
 import com.example.travelplus.login.LogoutResponse;
 import com.example.travelplus.network.ApiService;
 import com.example.travelplus.recommend.AIRecommendFragment;
+import com.example.travelplus.survey.SurveyFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.IOException;
@@ -65,7 +66,7 @@ public class CourseFragment extends Fragment {
             ai_recommend_click();
         });
         tripRecommend.setOnClickListener(view1 -> {
-            // 여행지 추천 UI 띄우기
+            survey_click();
         });
 
         requireActivity().getSupportFragmentManager()
@@ -193,6 +194,37 @@ public class CourseFragment extends Fragment {
             requireActivity().getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.course_fragment_container, aiRecommendFragment)
+                    .addToBackStack(null)
+                    .commit();
+        });
+        dialog.show();
+    }
+    private void survey_click(){
+        Dialog dialog = new Dialog(getActivity());
+        dialog.setContentView(R.layout.pop_up_course_title);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setLayout(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+            dialog.getWindow().setBackgroundDrawable(getResources().getDrawable(R.drawable.rounded_input, null));
+        }
+        EditText courseTitle = dialog.findViewById(R.id.course_create_title);
+        ImageView inputBtn = dialog.findViewById(R.id.course_jnput_button);
+        ImageView nextBtn = dialog.findViewById(R.id.course_next_button);
+        nextBtn.setOnClickListener(v -> dialog.dismiss());
+        inputBtn.setOnClickListener(v -> {
+            String title = courseTitle.getText().toString().trim();
+            Bundle bundle = new Bundle();
+            bundle.putString("title",title);
+            SurveyFragment surveyFragment = new SurveyFragment();
+            surveyFragment.setArguments(bundle);
+            ConstraintLayout courseLayout = requireView().findViewById(R.id.course_layout);
+            courseLayout.setVisibility(GONE);
+            dialog.dismiss();
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.course_fragment_container, surveyFragment)
                     .addToBackStack(null)
                     .commit();
         });

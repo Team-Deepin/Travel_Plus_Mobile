@@ -1,4 +1,4 @@
-package com.example.travelplus.recommend;
+package com.example.travelplus.survey;
 
 import static android.view.View.VISIBLE;
 
@@ -24,7 +24,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.example.travelplus.R;
-import com.example.travelplus.course.CourseResponse;
 import com.example.travelplus.network.ApiService;
 
 import java.io.IOException;
@@ -41,9 +40,9 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class AIResultFragment extends Fragment {
+public class SurveyResultFragment extends Fragment {
     String title, transit, date;
-    List<AIRecommendResponse.AIRecommendData> data;
+    List<SurveyResponse.surveyData> data;
     ApiService apiService;
     private MockWebServer mockServer;
     @Override
@@ -53,23 +52,23 @@ public class AIResultFragment extends Fragment {
             title = getArguments().getString("title");
             transit = getArguments().getString("transit");
             date = getArguments().getString("date");
-            data = (List<AIRecommendResponse.AIRecommendData>) getArguments().getSerializable("data");
+            data = (List<SurveyResponse.surveyData>) getArguments().getSerializable("data");
         }
     }
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_ai_recommend_result, container, false);
-        TextView titleView = view.findViewById(R.id.ai_title);
-        LinearLayout aiList = view.findViewById(R.id.ai_list);
-        ImageView aiSelectBtn = view.findViewById(R.id.ai_select_btn);
+        View view = inflater.inflate(R.layout.fragment_survey_result, container, false);
+        TextView titleView = view.findViewById(R.id.survey_title);
+        LinearLayout surveyList = view.findViewById(R.id.survey_list);
+        ImageView surveySelectBtn = view.findViewById(R.id.survey_select_btn);
         setupMockServer();
 
         titleView.setText(title);
         if (title.isEmpty()){
             titleView.setText(data.get(0).courseDetails.get(0).area + " "+date + " "+ transit);
         }
-        for (AIRecommendResponse.AIRecommendData courseData : data) {
+        for (SurveyResponse.surveyData courseData : data) {
             LinearLayout courseCard = new LinearLayout(requireContext());
             courseCard.setTag(courseData.courseId);
             courseCard.setOrientation(LinearLayout.VERTICAL);
@@ -81,8 +80,8 @@ public class AIResultFragment extends Fragment {
             courseParams.setMargins(0, 0, 0, 40);
             courseCard.setLayoutParams(courseParams);
             courseCard.setOnClickListener(v -> {
-                for (int i = 0; i < aiList.getChildCount(); i++) {
-                    aiList.getChildAt(i).setSelected(false);
+                for (int i = 0; i < surveyList.getChildCount(); i++) {
+                    surveyList.getChildAt(i).setSelected(false);
                 }
                 v.setSelected(true);
             });
@@ -99,15 +98,15 @@ public class AIResultFragment extends Fragment {
             courseTitle.setTypeface(ResourcesCompat.getFont(requireContext(), R.font.bmeuljirottf));
             courseCard.addView(courseTitle);
 
-            for (AIRecommendResponse.CourseDetailGroup group : courseData.courseDetails) {
-                Map<String, List<AIRecommendResponse.detailPlace>> dayGrouped = new LinkedHashMap<>();
-                for (AIRecommendResponse.detailPlace place : group.places) {
+            for (SurveyResponse.CourseDetailGroup group : courseData.courseDetails) {
+                Map<String, List<SurveyResponse.detailPlace>> dayGrouped = new LinkedHashMap<>();
+                for (SurveyResponse.detailPlace place : group.places) {
                     dayGrouped.computeIfAbsent(place.day, k -> new ArrayList<>()).add(place);
                 }
 
-                for (Map.Entry<String, List<AIRecommendResponse.detailPlace>> entry : dayGrouped.entrySet()) {
+                for (Map.Entry<String, List<SurveyResponse.detailPlace>> entry : dayGrouped.entrySet()) {
                     String day = entry.getKey();
-                    List<AIRecommendResponse.detailPlace> places = entry.getValue();
+                    List<SurveyResponse.detailPlace> places = entry.getValue();
 
                     TextView dayText = new TextView(requireContext());
                     LinearLayout.LayoutParams dayParams = new LinearLayout.LayoutParams(
@@ -122,23 +121,23 @@ public class AIResultFragment extends Fragment {
                     dayText.setTypeface(ResourcesCompat.getFont(requireContext(), R.font.bmeuljirottf));
                     courseCard.addView(dayText);
 
-                    for (AIRecommendResponse.detailPlace place : places) {
-                        View placeCard = inflater.inflate(R.layout.fragment_ai_recommend_result_list, courseCard, false);
-                        TextView placeText = placeCard.findViewById(R.id.ai_result_place);
+                    for (SurveyResponse.detailPlace place : places) {
+                        View placeCard = inflater.inflate(R.layout.fragment_survey_result_list, courseCard, false);
+                        TextView placeText = placeCard.findViewById(R.id.survey_result_place);
                         placeText.setText(place.placeName);
                         courseCard.addView(placeCard);
                     }
                 }
             }
-            aiList.addView(courseCard);
+            surveyList.addView(courseCard);
         }
 
-        aiSelectBtn.setOnClickListener(v -> {
+        surveySelectBtn.setOnClickListener(v -> {
             boolean hasSelection = false;
             int selectedCourseId = -1;
 
-            for (int i = 0; i < aiList.getChildCount(); i++) {
-                View child = aiList.getChildAt(i);
+            for (int i = 0; i < surveyList.getChildCount(); i++) {
+                View child = surveyList.getChildAt(i);
                 if (child instanceof LinearLayout && child.isSelected()) {
                     hasSelection = true;
                     selectedCourseId = (int) child.getTag();
@@ -152,8 +151,8 @@ public class AIResultFragment extends Fragment {
             }
 
             // 선택된 데이터 찾기
-            AIRecommendResponse.AIRecommendData selectedData = null;
-            for (AIRecommendResponse.AIRecommendData d : data) {
+            SurveyResponse.surveyData selectedData = null;
+            for (SurveyResponse.surveyData d : data) {
                 if (d.courseId == selectedCourseId) {
                     selectedData = d;
                     break;
@@ -161,31 +160,31 @@ public class AIResultFragment extends Fragment {
             }
 
             if (selectedData != null) {
-                AISaveRequest aiSaveRequest = new AISaveRequest(
+                SurveySaveRequest surveySaveRequest = new SurveySaveRequest(
                         selectedData.courseId,
-                        "협업필터링",
+                        "콘텐츠기반",
                         selectedData.courseDetails
                 );
 
-                Call<AISaveResponse> call = apiService.aiSave(aiSaveRequest);
-                call.enqueue(new Callback<AISaveResponse>() {
+                Call<SurveySaveResponse> call = apiService.surveySave(surveySaveRequest);
+                call.enqueue(new Callback<SurveySaveResponse>() {
                     @Override
-                    public void onResponse(Call<AISaveResponse> call, Response<AISaveResponse> response) {
+                    public void onResponse(Call<SurveySaveResponse> call, Response<SurveySaveResponse> response) {
                         if (response.isSuccessful() && response.body() != null) {
-                            AISaveResponse res = response.body();
-                            Log.d("aiSave", res.resultMessage);
+                            SurveySaveResponse res = response.body();
+                            Log.d("surveySave", res.resultMessage);
                             if (res.resultCode == 200) {
-                                Log.d("aiSave", "성공");
+                                Log.d("surveySave", "성공");
                                 requireActivity().getSupportFragmentManager()
                                         .popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                             }
                         } else {
-                            Log.d("aiSave", "실패");
+                            Log.d("surveySave", "실패");
                         }
                     }
 
                     @Override
-                    public void onFailure(Call<AISaveResponse> call, Throwable t) {
+                    public void onFailure(Call<SurveySaveResponse> call, Throwable t) {
                         t.printStackTrace();
                     }
                 });

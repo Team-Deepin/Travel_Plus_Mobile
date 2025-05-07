@@ -24,6 +24,10 @@ import com.example.travelplus.register.DuplicateCheckRequest;
 import com.example.travelplus.register.DuplicateCheckResponse;
 import com.example.travelplus.register.RegisterRequest;
 import com.example.travelplus.register.RegisterResponse;
+import com.example.travelplus.survey.SurveyRequest;
+import com.example.travelplus.survey.SurveyResponse;
+import com.example.travelplus.survey.SurveySaveRequest;
+import com.example.travelplus.survey.SurveySaveResponse;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -51,7 +55,11 @@ public interface ApiService {
     @POST("/course/recommend")
     Call<AIRecommendResponse> recommend(@Body AIRecommendRequest request);
     @POST("/course/save")
-    Call<AISaveResponse> save(@Body AISaveRequest request);
+    Call<AISaveResponse> aiSave(@Body AISaveRequest request);
+    @POST("/course/save")
+    Call<SurveySaveResponse> surveySave(@Body SurveySaveRequest request);
+    @POST("/course/survey")
+    Call<SurveyResponse> survey(@Body SurveyRequest request);
     @GET("/auth/logout")
     Call<LogoutResponse> logout();
     @GET("/home")

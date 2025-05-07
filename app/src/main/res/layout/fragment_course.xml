@@ -99,7 +99,7 @@
             android:id="@+id/course_trip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/trip_recommend"
+            android:src="@drawable/survey_btn_activate"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
