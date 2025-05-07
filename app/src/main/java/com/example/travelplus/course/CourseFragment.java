@@ -133,9 +133,14 @@ public class CourseFragment extends Fragment {
                                             .addToBackStack(null)
                                             .commit();
                                 } else if (course.meansTP.equals("대중교통")) {
-
+                                    CourseDetailTransitFragment detailTransitFragment = new CourseDetailTransitFragment();
+                                    detailTransitFragment.setArguments(bundle);
+                                    requireActivity().getSupportFragmentManager()
+                                            .beginTransaction()
+                                            .replace(R.id.course_fragment_container, detailTransitFragment)
+                                            .addToBackStack(null)
+                                            .commit();
                                 }
-
                             });
                         }
                     }else{
