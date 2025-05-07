@@ -1,6 +1,8 @@
 package com.example.travelplus.network;
 
 import com.example.travelplus.IsFirstResponse;
+import com.example.travelplus.change.ChangeThemeRequest;
+import com.example.travelplus.change.ChangeThemeResponse;
 import com.example.travelplus.course.CourseDeleteResponse;
 import com.example.travelplus.course.CourseRatingRequest;
 import com.example.travelplus.course.CourseRatingResponse;
@@ -36,6 +38,7 @@ import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
@@ -68,11 +71,12 @@ public interface ApiService {
     Call<CourseResponse> course();
     @GET("/edit/inquire")
     Call<InquiryResponse> inquiry();
-
     @GET("/edit/notice")
     Call<NoticeResponse> getNotices(@Query("page") int page, @Query("size") int size);
     @GET("/edit/notice/{noticeId}")
     Call<NoticeDetailResponse> getNoticeDetail(@Path("noticeId") int noticeId);
+    @PUT("/edit/userModify")
+    Call<ChangeThemeResponse> change(@Body ChangeThemeRequest request);
     @DELETE("/course/delete/{courseId}")
     Call<CourseDeleteResponse> deleteCourse(@Path("courseId") int courseId);
     @DELETE("/edit/delete")

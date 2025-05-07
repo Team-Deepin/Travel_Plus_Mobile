@@ -20,7 +20,7 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
-import com.example.travelplus.IsFirstResponse;
+import com.example.travelplus.change.ChangeThemeFragment;
 import com.example.travelplus.inquiry.InquiryFragment;
 import com.example.travelplus.login.LoginActivity;
 import com.example.travelplus.login.LogoutResponse;
