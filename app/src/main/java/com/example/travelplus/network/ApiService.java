@@ -5,6 +5,7 @@ import com.example.travelplus.change.ChangeThemeRequest;
 import com.example.travelplus.change.ChangeThemeResponse;
 import com.example.travelplus.course.CourseDeleteResponse;
 import com.example.travelplus.course.CourseDetailCarResponse;
+import com.example.travelplus.course.CourseDetailTransitResponse;
 import com.example.travelplus.course.CourseRatingRequest;
 import com.example.travelplus.course.CourseRatingResponse;
 import com.example.travelplus.course.CourseResponse;
@@ -72,6 +73,8 @@ public interface ApiService {
     Call<CourseResponse> course();
     @GET("/course/detail/car")
     Call<CourseDetailCarResponse> detailCar(@Query("userId") long userId, @Query("courseId") int courseId);
+    @GET("/course/detail/transit")
+    Call<CourseDetailTransitResponse> detailTransit(@Query("userId") long userId, @Query("courseId") int courseId);
     @GET("/edit/inquire")
     Call<InquiryResponse> inquiry();
     @GET("/edit/notice")
