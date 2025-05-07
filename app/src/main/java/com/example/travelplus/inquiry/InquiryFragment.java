@@ -20,9 +20,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.travelplus.R;
-import com.example.travelplus.course.Course;
 import com.example.travelplus.network.ApiService;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.IOException;
 
@@ -85,7 +83,7 @@ public class InquiryFragment extends Fragment {
                         noListContainer.setVisibility(GONE);
                         int incompleteColor = ContextCompat.getColor(requireContext(), R.color.incomplete);
                         int completeColor = ContextCompat.getColor(requireContext(), R.color.complete);
-                        for (Inquiry inquiry : res.data) {
+                        for (InquiryResponse.Inquiry inquiry : res.data) {
                             View card = inflater.inflate(R.layout.fragment_inquiry_list, inquiryList, false);
 
                             TextView title = card.findViewById(R.id.inquiry_title);

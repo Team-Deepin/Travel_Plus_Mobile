@@ -11,4 +11,10 @@ public class NoticeResponse {
         public int totalCount;
         public List<Notice> notices;
     }
+    public static class Notice {
+        public int noticeId;
+        public String title;
+        public String date;
+    }
+
 }

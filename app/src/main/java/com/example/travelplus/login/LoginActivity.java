@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.content.SharedPreferences;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -117,6 +118,10 @@ public class LoginActivity extends AppCompatActivity {
                         LoginResponse res = response.body();
                         Log.d("Login",res.resultMessage);
                         if (res.resultCode == 200) {
+                            SharedPreferences prefs = getSharedPreferences("userPrefs", MODE_PRIVATE);
+                            SharedPreferences.Editor editor = prefs.edit();
+                            editor.putLong("userId", res.userId);
+                            editor.apply();
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             startActivity(intent);
                             finish();
@@ -176,7 +181,7 @@ public class LoginActivity extends AppCompatActivity {
                 mockServer = new MockWebServer();
                 mockServer.enqueue(new MockResponse()
                         .setResponseCode(200)
-                        .setBody("{\"resultCode\":200,\"resultMessage\":\"Success\"}"));
+                        .setBody("{\"resultCode\":200,\"resultMessage\":\"Success\", \"userId\":1}"));
                 mockServer.start();
 
                 Retrofit retrofit = new Retrofit.Builder()

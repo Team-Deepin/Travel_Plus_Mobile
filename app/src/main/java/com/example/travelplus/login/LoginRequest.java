@@ -1,11 +1,11 @@
 package com.example.travelplus.login;
 
 public class LoginRequest {
-    public String username;
+    public String email;
     public String password;
 
-    public LoginRequest(String username, String password) {
-        this.username = username;
+    public LoginRequest(String email, String password) {
+        this.email = email;
         this.password = password;
     }
 }

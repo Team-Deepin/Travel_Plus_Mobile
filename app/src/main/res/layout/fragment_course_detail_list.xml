@@ -11,49 +11,43 @@
         android:background="@drawable/circle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginStart="16dp"/>
-    <View
-        android:id="@+id/line"
-        android:layout_width="2dp"
-        android:layout_height="0dp"
-        android:background="@color/point"
-        app:layout_constraintStart_toStartOf="@id/circle"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginStart="4dp"/>
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"/>
     <TextView
-        android:id="@+id/place_name"
+        android:id="@+id/detail_place_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="18dp"
+        android:text="asdf"
+        android:textSize="25dp"
         android:textColor="@color/color_text"
         android:fontFamily="@font/bmeuljirottf"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginStart="30dp"/>
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="5dp"/>
 
     <TextView
-        android:id="@+id/vehicle"
+        android:id="@+id/detail_meanstp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=""
+        android:text="asdf"
         android:textSize="14dp"
         android:textColor="@color/text_sub"
         android:fontFamily="@font/bmeuljirottf"
-        app:layout_constraintTop_toBottomOf="@id/place_name"
+        app:layout_constraintTop_toBottomOf="@id/detail_place_name"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginStart="30dp"/>
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="5dp"/>
     <TextView
-        android:id="@+id/time"
+        android:id="@+id/detail_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=""
+        android:text="asdf"
         android:textSize="14dp"
         android:textColor="@color/text_sub"
         android:fontFamily="@font/bmeuljirottf"
-        app:layout_constraintTop_toBottomOf="@id/place_name"
-        app:layout_constraintStart_toEndOf="@id/vehicle"
+        app:layout_constraintTop_toBottomOf="@id/detail_place_name"
+        app:layout_constraintStart_toEndOf="@id/detail_meanstp"
+        android:layout_marginTop="5dp"
         android:layout_marginStart="5dp"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
