@@ -21,9 +21,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.travelplus.R;
-import com.example.travelplus.course.CourseDetailFragment;
 import com.example.travelplus.network.ApiService;
-import com.example.travelplus.onboarding.OnboardingResponse;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -321,6 +319,15 @@ public class AIRecommendFragment extends Fragment {
                                 "              \"placeAddress\": \"부산 사하구 감내2로\",\n" +
                                 "              \"sequence\": 1,\n" +
                                 "              \"placeType\": \"문화\"\n" +
+                                "            },\n" +
+                                "            {\n" +
+                                "              \"day\": \"2025-07-02\",\n" +
+                                "              \"placeName\": \"testData\",\n" +
+                                "              \"placeLat\": 35.0975,\n" +
+                                "              \"placeLon\": 129.0108,\n" +
+                                "              \"placeAddress\": \"부산 사하구 감내2로\",\n" +
+                                "              \"sequence\": 2,\n" +
+                                "              \"placeType\": \"문화\"\n" +
                                 "            }\n" +
                                 "          ]\n" +
                                 "        },\n" +
@@ -335,6 +342,100 @@ public class AIRecommendFragment extends Fragment {
                                 "              \"placeAddress\": \"부산 중구 남포동\",\n" +
                                 "              \"sequence\": 1,\n" +
                                 "              \"placeType\": \"쇼핑\"\n" +
+                                "            }\n" +
+                                "          ]\n" +
+                                "        }\n" +
+                                "      ]\n" +
+                                "    },\n" +
+                                "    {\n" +
+                                "      \"courseId\": 103,\n" +
+                                "      \"courseDetails\": [\n" +
+                                "        {\n" +
+                                "          \"area\": \"seoul\",\n" +
+                                "          \"places\": [\n" +
+                                "            {\n" +
+                                "              \"day\": \"2025-06-01\",\n" +
+                                "              \"placeName\": \"광장시장\",\n" +
+                                "              \"placeLat\": 37.5704,\n" +
+                                "              \"placeLon\": 126.991,\n" +
+                                "              \"placeAddress\": \"서울 종로구 창경궁로 88\",\n" +
+                                "              \"sequence\": 1,\n" +
+                                "              \"placeType\": \"전통시장\"\n" +
+                                "            }\n" +
+                                "          ]\n" +
+                                "        },\n" +
+                                "        {\n" +
+                                "          \"area\": \"hongdae\",\n" +
+                                "          \"places\": [\n" +
+                                "            {\n" +
+                                "              \"day\": \"2025-06-02\",\n" +
+                                "              \"placeName\": \"홍대 거리\",\n" +
+                                "              \"placeLat\": 37.5563,\n" +
+                                "              \"placeLon\": 126.9229,\n" +
+                                "              \"placeAddress\": \"서울 마포구 와우산로\",\n" +
+                                "              \"sequence\": 1,\n" +
+                                "              \"placeType\": \"문화\"\n" +
+                                "            }\n" +
+                                "          ]\n" +
+                                "        },\n" +
+                                "        {\n" +
+                                "          \"area\": \"itaewon\",\n" +
+                                "          \"places\": [\n" +
+                                "            {\n" +
+                                "              \"day\": \"2025-06-03\",\n" +
+                                "              \"placeName\": \"이태원 거리\",\n" +
+                                "              \"placeLat\": 37.5345,\n" +
+                                "              \"placeLon\": 126.9941,\n" +
+                                "              \"placeAddress\": \"서울 용산구 이태원로\",\n" +
+                                "              \"sequence\": 1,\n" +
+                                "              \"placeType\": \"음식\"\n" +
+                                "            }\n" +
+                                "          ]\n" +
+                                "        }\n" +
+                                "      ]\n" +
+                                "    },\n" +
+                                "    {\n" +
+                                "      \"courseId\": 105,\n" +
+                                "      \"courseDetails\": [\n" +
+                                "        {\n" +
+                                "          \"area\": \"seoul\",\n" +
+                                "          \"places\": [\n" +
+                                "            {\n" +
+                                "              \"day\": \"2025-06-01\",\n" +
+                                "              \"placeName\": \"광장시장\",\n" +
+                                "              \"placeLat\": 37.5704,\n" +
+                                "              \"placeLon\": 126.991,\n" +
+                                "              \"placeAddress\": \"서울 종로구 창경궁로 88\",\n" +
+                                "              \"sequence\": 1,\n" +
+                                "              \"placeType\": \"전통시장\"\n" +
+                                "            }\n" +
+                                "          ]\n" +
+                                "        },\n" +
+                                "        {\n" +
+                                "          \"area\": \"hongdae\",\n" +
+                                "          \"places\": [\n" +
+                                "            {\n" +
+                                "              \"day\": \"2025-06-02\",\n" +
+                                "              \"placeName\": \"홍대 거리\",\n" +
+                                "              \"placeLat\": 37.5563,\n" +
+                                "              \"placeLon\": 126.9229,\n" +
+                                "              \"placeAddress\": \"서울 마포구 와우산로\",\n" +
+                                "              \"sequence\": 1,\n" +
+                                "              \"placeType\": \"문화\"\n" +
+                                "            }\n" +
+                                "          ]\n" +
+                                "        },\n" +
+                                "        {\n" +
+                                "          \"area\": \"itaewon\",\n" +
+                                "          \"places\": [\n" +
+                                "            {\n" +
+                                "              \"day\": \"2025-06-03\",\n" +
+                                "              \"placeName\": \"이태원 거리\",\n" +
+                                "              \"placeLat\": 37.5345,\n" +
+                                "              \"placeLon\": 126.9941,\n" +
+                                "              \"placeAddress\": \"서울 용산구 이태원로\",\n" +
+                                "              \"sequence\": 1,\n" +
+                                "              \"placeType\": \"음식\"\n" +
                                 "            }\n" +
                                 "          ]\n" +
                                 "        }\n" +

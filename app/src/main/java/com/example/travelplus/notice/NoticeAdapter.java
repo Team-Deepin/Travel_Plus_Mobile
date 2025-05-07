@@ -15,18 +15,18 @@ import java.util.List;
 
 public class NoticeAdapter extends RecyclerView.Adapter<NoticeAdapter.NoticeViewHolder> {
 
-    private final List<Notice> noticeList = new ArrayList<>();
+    private final List<NoticeResponse.Notice> noticeList = new ArrayList<>();
     private OnItemClickListener listener;
 
     public interface OnItemClickListener {
-        void onItemClick(Notice notice);
+        void onItemClick(NoticeResponse.Notice notice);
     }
 
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.listener = listener;
     }
 
-    public void setItems(List<Notice> items) {
+    public void setItems(List<NoticeResponse.Notice> items) {
         noticeList.clear();
         noticeList.addAll(items);
         notifyDataSetChanged();
@@ -42,7 +42,7 @@ public class NoticeAdapter extends RecyclerView.Adapter<NoticeAdapter.NoticeView
 
     @Override
     public void onBindViewHolder(@NonNull NoticeViewHolder holder, int position) {
-        Notice notice = noticeList.get(position);
+        NoticeResponse.Notice notice = noticeList.get(position);
         String rawDate = notice.date;
         String formatted = rawDate.split("T")[0].replace("-", ".");
         holder.noticeDate.setText(formatted);

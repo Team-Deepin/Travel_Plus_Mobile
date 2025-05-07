@@ -13,15 +13,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginStart="16dp"/>
-    <View
-        android:id="@+id/line"
-        android:layout_width="2dp"
-        android:layout_height="0dp"
-        android:background="@color/point"
-        app:layout_constraintStart_toStartOf="@id/circle"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="4dp"/>
     <TextView
         android:id="@+id/survey_result_place"
         android:layout_width="wrap_content"

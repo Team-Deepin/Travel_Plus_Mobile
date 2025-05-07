@@ -92,7 +92,7 @@ public class NoticeFragment extends Fragment {
             @Override
             public void onResponse(Call<NoticeResponse> call, Response<NoticeResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    List<Notice> notices = response.body().data.notices;
+                    List<NoticeResponse.Notice> notices = response.body().data.notices;
                     totalCount = response.body().data.totalCount;
 
                     if (notices.isEmpty()) {

@@ -4,7 +4,6 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
 import android.app.Dialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,7 +14,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,8 +21,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
 import com.example.travelplus.R;
-import com.example.travelplus.login.LoginActivity;
-import com.example.travelplus.login.LogoutResponse;
 import com.example.travelplus.network.ApiService;
 import com.example.travelplus.recommend.AIRecommendFragment;
 import com.example.travelplus.survey.SurveyFragment;
@@ -102,7 +98,7 @@ public class CourseFragment extends Fragment {
                         Log.d("course","성공");
                         courseScrollView.setVisibility(VISIBLE);
                         noCourseListLayout.setVisibility(GONE);
-                        for (Course course : res.data) {
+                        for (CourseResponse.Course course : res.data) {
                             View card = inflater.inflate(R.layout.fragment_course_list, courseListLayout, false);
 
                             TextView title = card.findViewById(R.id.course_title);
@@ -125,15 +121,21 @@ public class CourseFragment extends Fragment {
                                 bundle.putString("meansTP", course.meansTP);
                                 bundle.putStringArrayList("type", new ArrayList<>(course.courseType));
 
-                                CourseDetailFragment detailFragment = new CourseDetailFragment();
-                                detailFragment.setArguments(bundle);
                                 ConstraintLayout courseLayout = requireView().findViewById(R.id.course_layout);
                                 courseLayout.setVisibility(GONE);
-                                requireActivity().getSupportFragmentManager()
-                                        .beginTransaction()
-                                        .replace(R.id.course_fragment_container, detailFragment)
-                                        .addToBackStack(null)
-                                        .commit();
+
+                                if (course.meansTP.equals("자가용")){
+                                    CourseDetailCarFragment detailCarFragment = new CourseDetailCarFragment();
+                                    detailCarFragment.setArguments(bundle);
+                                    requireActivity().getSupportFragmentManager()
+                                            .beginTransaction()
+                                            .replace(R.id.course_fragment_container, detailCarFragment)
+                                            .addToBackStack(null)
+                                            .commit();
+                                } else if (course.meansTP.equals("대중교통")) {
+
+                                }
+
                             });
                         }
                     }else{
@@ -256,7 +258,7 @@ public class CourseFragment extends Fragment {
                                 "      \"courseType\": [\"힐링\", \"쇼핑\"],\n" +
                                 "      \"startDate\": \"2025-06-15\",\n" +
                                 "      \"endDate\": \"2025-06-20\",\n" +
-                                "      \"meansTP\": \"자가용\"\n" +
+                                "      \"meansTP\": \"대중교통\"\n" +
                                 "    }\n" +
                                 "  ]\n" +
                                 "}"));
