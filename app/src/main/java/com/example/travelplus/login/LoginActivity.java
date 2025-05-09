@@ -1,12 +1,17 @@
 package com.example.travelplus.login;
 
+import static android.content.ContentValues.TAG;
+
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -22,9 +27,17 @@ import com.example.travelplus.MainActivity;
 import com.example.travelplus.R;
 import com.example.travelplus.register.RegisterActivity;
 import com.example.travelplus.network.ApiService;
+import com.kakao.sdk.auth.model.OAuthToken;
+import com.kakao.sdk.common.model.ClientError;
+import com.kakao.sdk.common.model.ClientErrorCause;
+import com.kakao.sdk.user.UserApiClient;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+import kotlin.Unit;
+import kotlin.jvm.functions.Function2;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import retrofit2.Call;
@@ -35,11 +48,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 
 public class LoginActivity extends AppCompatActivity {
-    EditText email;
-    EditText password;
-    ImageView loginBtn;
+    private static final String TAG = "KakaoLogin";
+    EditText email, password;
+    ImageView loginBtn, kakaoLogin;
     TextView register;
-    ImageView kakaoLogin;
     Typeface font;
     ApiService apiService;
     private MockWebServer mockServer;
@@ -48,16 +60,52 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         setupMockServer();
-//        apiService = new Retrofit.Builder()
-//                .baseUrl("http://your-server.com/")
-//                .addConverterFactory(GsonConverterFactory.create())
-//                .build()
-//                .create(ApiService.class);
         email = findViewById(R.id.login_email);
         password = findViewById(R.id.login_password);
         loginBtn = findViewById(R.id.login_button);
         register = findViewById(R.id.register);
         kakaoLogin = findViewById(R.id.kakao_login);
+
+        Function2<OAuthToken,Throwable, Unit> callback =new Function2<OAuthToken, Throwable, Unit>() {
+            @Override
+            // 콜백 메서드 ,
+            public Unit invoke(OAuthToken oAuthToken, Throwable throwable) {
+                Log.e(TAG,"CallBack Method");
+                //oAuthToken != null 이라면 로그인 성공
+                if(oAuthToken!=null){
+                    // 토큰이 전달된다면 로그인이 성공한 것이고 토큰이 전달되지 않으면 로그인 실패한다.
+                    String accessToken = oAuthToken.getAccessToken();
+                    Log.d(TAG, "카카오 로그인 성공, 토큰: " + accessToken);
+                    checkAgreements(LoginActivity.this);
+                    Log.d(TAG, "checkAgreements 호출됨");
+                    UserApiClient.getInstance().me((user, error)->{
+                        if (error != null) {
+                            Log.e(TAG, "사용자 정보 요청 실패", error);
+                        } else if (user != null) {
+                            String kakaoEmail = user.getKakaoAccount().getEmail();
+                            String nickname = user.getKakaoAccount().getProfile().getNickname();
+
+                            Log.d(TAG, "카카오 이메일: " + kakaoEmail);
+                            Log.d(TAG, "닉네임: " + nickname);
+                            SharedPreferences prefs = getSharedPreferences("userPrefs", MODE_PRIVATE);
+                            SharedPreferences.Editor editor = prefs.edit();
+                            editor.putLong("userId", 1);
+                            editor.apply();
+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            startActivity(intent);
+                            finish();
+                        }
+                        return null;
+                    });
+                }else {
+                    //로그인 실패
+                    Log.e(TAG, "invoke: login fail" );
+                }
+                return null;
+            }
+        };
+
+
         font = ResourcesCompat.getFont(this,R.font.bmeuljirottf);
         loginBtn.setEnabled(false);
         email.setOnEditorActionListener((TextView v, int actionId, KeyEvent event) -> {
@@ -115,13 +163,18 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                     if (response.isSuccessful() && response.body() != null) {
+
+                        String authorization = response.headers().get("Authorization");
+                        if (authorization != null) {
+                            SharedPreferences prefs = getSharedPreferences("userPrefs", MODE_PRIVATE);
+                            SharedPreferences.Editor editor = prefs.edit();
+                            editor.putString("authorization", authorization);
+                            editor.apply();
+                            Log.d("Login", "저장 완료: " + authorization);
+                        }
                         LoginResponse res = response.body();
                         Log.d("Login",res.resultMessage);
                         if (res.resultCode == 200) {
-                            SharedPreferences prefs = getSharedPreferences("userPrefs", MODE_PRIVATE);
-                            SharedPreferences.Editor editor = prefs.edit();
-                            editor.putLong("userId", res.userId);
-                            editor.apply();
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             startActivity(intent);
                             finish();
@@ -147,10 +200,96 @@ public class LoginActivity extends AppCompatActivity {
 
         // 카카오 로그인 클릭
         kakaoLogin.setOnClickListener(view -> {
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            String kakaoAppKey = "4f903fc74917f6a8970285622c94b491";
+            String redirectUri = "http://182.230.40.124:8080/auth/kakao";
+            String authUrl = "https://kauth.kakao.com/oauth/authorize"
+                    + "?client_id=" + kakaoAppKey
+                    + "&redirect_uri=" + redirectUri
+                    + "&response_type=code";
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(authUrl));
             startActivity(intent);
-            finish();
-            Toast.makeText(this, "환영합니다! [사용자]님", Toast.LENGTH_SHORT).show();
+
+//            if (UserApiClient.getInstance().isKakaoTalkLoginAvailable(LoginActivity.this)) {
+//                UserApiClient.getInstance().loginWithKakaoTalk(LoginActivity.this, new Function2<OAuthToken, Throwable, Unit>() {
+//                    @Override
+//                    public Unit invoke(OAuthToken token, Throwable error) {
+//                        if (error != null) {
+//                            Log.e(TAG, "카카오톡으로 로그인 실패", error);
+//
+//                            // 카카오톡 로그인 취소한 경우
+//                            if (error instanceof ClientError &&
+//                                    ((ClientError) error).getReason() == ClientErrorCause.Cancelled) {
+//                                // 사용자가 명시적으로 취소한 것 -> 아무 처리 안 함
+//                                return Unit.INSTANCE;
+//                            }
+//
+//                            // 실패 시 카카오계정 로그인으로 대체
+//                            UserApiClient.getInstance().loginWithKakaoAccount(LoginActivity.this, callback);
+//                        } else if (token != null) {
+//                            Log.i(TAG, "카카오톡으로 로그인 성공 " + token.getAccessToken());
+//                            checkAgreements(LoginActivity.this);
+//                            Log.d(TAG, "checkAgreements 호출됨");
+//                        }
+//                        return Unit.INSTANCE;
+//                    }
+//                });
+//            } else {
+//                UserApiClient.getInstance().loginWithKakaoAccount(LoginActivity.this, callback);
+//                checkAgreements(LoginActivity.this);
+//                Log.d(TAG, "checkAgreements 호출됨");
+//            }
+
+        });
+
+    }
+    private void checkAgreements(Context context){
+        Log.d(TAG, "checkAgreements() 함수 실행 시작");
+        UserApiClient.getInstance().me(new Function2<com.kakao.sdk.user.model.User, Throwable, Unit>() {
+            @Override
+            public Unit invoke(com.kakao.sdk.user.model.User user, Throwable error) {
+                if (error != null) {
+                    Log.e(TAG, "사용자 정보 요청 실패", error);
+                } else if (user != null) {
+                    List<String> scopes = new ArrayList<>();
+
+                    if (user.getKakaoAccount().getEmailNeedsAgreement() == Boolean.TRUE) scopes.add("account_email");
+                    if (user.getKakaoAccount().getBirthdayNeedsAgreement() == Boolean.TRUE) scopes.add("birthday");
+                    if (user.getKakaoAccount().getBirthyearNeedsAgreement() == Boolean.TRUE) scopes.add("birthyear");
+                    if (user.getKakaoAccount().getGenderNeedsAgreement() == Boolean.TRUE) scopes.add("gender");
+                    if (user.getKakaoAccount().getPhoneNumberNeedsAgreement() == Boolean.TRUE) scopes.add("phone_number");
+                    if (user.getKakaoAccount().getProfileNeedsAgreement() == Boolean.TRUE) scopes.add("profile");
+                    if (user.getKakaoAccount().getAgeRangeNeedsAgreement() == Boolean.TRUE) scopes.add("age_range");
+
+                    if (!scopes.isEmpty()) {
+                        Log.d(TAG, "사용자에게 추가 동의를 받아야 합니다.");
+
+                        UserApiClient.getInstance().loginWithNewScopes(context, scopes, null, new Function2<OAuthToken, Throwable, Unit>() {
+                            @Override
+                            public Unit invoke(OAuthToken token, Throwable error) {
+                                if (error != null) {
+                                    Log.e(TAG, "사용자 추가 동의 실패", error);
+                                } else {
+                                    Log.d(TAG, "allowed scopes: " + token.getScopes());
+                                    // 재요청
+                                    UserApiClient.getInstance().me(new Function2<com.kakao.sdk.user.model.User, Throwable, Unit>() {
+                                        @Override
+                                        public Unit invoke(com.kakao.sdk.user.model.User user, Throwable error) {
+                                            if (error != null) {
+                                                Log.e(TAG, "사용자 정보 재요청 실패", error);
+                                            } else if (user != null) {
+                                                Log.i(TAG, "사용자 정보 재요청 성공");
+                                            }
+                                            return Unit.INSTANCE;
+                                        }
+                                    });
+                                }
+                                return Unit.INSTANCE;
+                            }
+                        });
+                    }
+                }
+                return Unit.INSTANCE;
+            }
         });
     }
     private void checkInputAndSetButton() {

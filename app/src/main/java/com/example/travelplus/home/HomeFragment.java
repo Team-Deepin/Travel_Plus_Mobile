@@ -1,9 +1,12 @@
-package com.example.travelplus.fragment;
+package com.example.travelplus.home;
 
+import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,7 +15,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -25,10 +27,8 @@ import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
-import com.example.travelplus.IsFirstResponse;
 import com.example.travelplus.onboarding.OnboardingActivity;
 import com.example.travelplus.R;
-import com.example.travelplus.WeatherList;
 import com.example.travelplus.WeatherResponse;
 import com.example.travelplus.network.ApiService;
 import com.google.gson.Gson;
@@ -40,7 +40,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -56,24 +55,23 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class MainFragment extends Fragment {
+public class HomeFragment extends Fragment {
     Spinner locationList;
     String apiKey = "6340120faacb6462dae3d3b224bf7e37";
     TextView todayTemp, tomorrowTemp, TDATTemp, homeTitle, homeDuration, homeMeansTP;
     ImageView todayWeather, tomorrowWeather, TDATWeather;
-    List<WeatherList> weatherListFromDB = Arrays.asList(
-            new WeatherList("서울", new Date(), 23.7f),
-            new WeatherList("부산", new Date(), 22.3f)
-    );
     private MockWebServer mockServer;
     ApiService apiService;
     CardView homeList;
     ConstraintLayout weatherList;
     LinearLayout homeWeatherList;
     Map<String, String> weatherLocation;
-    private String startDateGlobal;
-    private String endDateGlobal;
-    private String areaGlobal;
+    String startDateGlobal, areaGlobal, endDateGlobal, authorization;
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        SharedPreferences prefs = requireActivity().getSharedPreferences("userPrefs", MODE_PRIVATE);
+        authorization = prefs.getString("authorization", null);
+    }
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -234,8 +232,15 @@ public class MainFragment extends Fragment {
                 homeWeatherList.removeAllViews();
 
                 List<String> targetDates = getDateRange(startDateGlobal, endDateGlobal);
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                Date today = new Date();
 
                 for (String target : targetDates) {
+                    Date targetDate = sdf.parse(target);
+                    if (targetDate.before(today)) {
+                        continue;
+                    }
+
                     boolean found = false;
 
                     for (WeatherResponse.ForecastItem item : weather.list) {
@@ -267,12 +272,11 @@ public class MainFragment extends Fragment {
                         ImageView weatherImage = card.findViewById(R.id.home_weather_image);
 
                         location.setText(areaGlobal);
-                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                         SimpleDateFormat display = new SimpleDateFormat("MM/dd");
                         String displayDate = display.format(sdf.parse(target));
-                        date.setText(displayDate); // MM/dd 변환 생략 가능
+                        date.setText(displayDate);
                         temp.setText("예보 없음");
-                        weatherImage.setImageResource(R.drawable.no_image); // 기본 아이콘
+                        weatherImage.setImageResource(R.drawable.no_image);
 
                         homeWeatherList.addView(card);
                     }
@@ -334,21 +338,21 @@ public class MainFragment extends Fragment {
         }
     }
     private void checkIsFirst(LayoutInflater inflater) {
-        Call<IsFirstResponse> call = apiService.getIsFirst();
-        call.enqueue(new Callback<IsFirstResponse>() {
+        Call<HomeResponse> call = apiService.home(authorization);
+        call.enqueue(new Callback<HomeResponse>() {
             @Override
-            public void onResponse(Call<IsFirstResponse> call, Response<IsFirstResponse> response) {
+            public void onResponse(Call<HomeResponse> call, Response<HomeResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    IsFirstResponse res = response.body();
+                    HomeResponse res = response.body();
                     Log.d("home",res.resultMessage);
                     if(res.resultCode == 200){
-                        boolean isFirst = res.isFirst;
+                        boolean isFirst = res.data.get(0).isFirst;
                         boolean isTraveling = false;
                         Date today = new Date();
-                        startDateGlobal= res.startDate;
-                        endDateGlobal = res.endDate;
+                        startDateGlobal= res.data.get(0).course.get(0).startDate;
+                        endDateGlobal = res.data.get(0).course.get(0).endDate;
                         String duration="";
-                        areaGlobal = res.area;
+                        areaGlobal = res.data.get(0).course.get(0).area;
                         try {
                             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -383,9 +387,9 @@ public class MainFragment extends Fragment {
                                 homeList.setVisibility(VISIBLE);
                                 weatherList.setVisibility(GONE);
                                 locationList.setVisibility(GONE);
-                                homeTitle.setText(response.body().title);
+                                homeTitle.setText(res.data.get(0).course.get(0).title);
                                 homeDuration.setText(duration+",");
-                                homeMeansTP.setText(response.body().meansTp);
+                                homeMeansTP.setText(res.data.get(0).course.get(0).meansTp);
                                 homeWeatherList.removeAllViews();
 
                                 String selectedEnglish = weatherLocation.get(areaGlobal);
@@ -409,7 +413,7 @@ public class MainFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<IsFirstResponse> call, Throwable t) {
+            public void onFailure(Call<HomeResponse> call, Throwable t) {
                 Log.e("home", "API call failed: " + t);
             }
         });
@@ -423,7 +427,7 @@ public class MainFragment extends Fragment {
                 mockServer.enqueue(new MockResponse()
                         .setResponseCode(200)
                         .setBody("{\"resultCode\":200, \"resultMessage\":\"성공\",\"isFirst\": false,\"title\":\"제주도\",\"area\":\"제주도\"," +
-                                "\"startDate\":\"2025-04-24\",\"endDate\":\"2025-04-28\",\"meansTp\":\"자가용\"}")
+                                "\"startDate\":\"2025-05-05\",\"endDate\":\"2025-05-06\",\"meansTp\":\"자가용\"}")
                         .addHeader("Content-Type", "application/json"));
 
                 mockServer.start();

@@ -6,7 +6,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.example.travelplus.course.CourseFragment;
-import com.example.travelplus.fragment.MainFragment;
+import com.example.travelplus.home.HomeFragment;
 import com.example.travelplus.fragment.MoreFragment;
 
 
@@ -20,13 +20,13 @@ public class mainAdapter extends FragmentStateAdapter {
     public Fragment createFragment(int position) {
         switch (position) {
             case 0:
-                return new MainFragment();
+                return new HomeFragment();
             case 1:
                 return new CourseFragment();
             case 2:
                 return new MoreFragment();
             default:
-                return new MainFragment();
+                return new HomeFragment();
         }
     }
 
