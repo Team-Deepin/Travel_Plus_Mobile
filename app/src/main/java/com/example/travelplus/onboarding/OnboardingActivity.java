@@ -1,6 +1,7 @@
 package com.example.travelplus.onboarding;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageView;
@@ -34,12 +35,14 @@ public class OnboardingActivity extends AppCompatActivity {
     MaterialCheckBox cityTour, activityTour, emotionTour, shoppingTour, healingTour,
             historyTour, foodTour, natureTour, experienceTour, festivalTour, parkTour;
     ImageView onboardingBtn;
-
+    String authorization;
     ApiService apiService;
     private MockWebServer mockServer;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+        SharedPreferences prefs = getSharedPreferences("userPrefs", MODE_PRIVATE);
+        authorization = prefs.getString("authorization", null);
         setContentView(R.layout.activity_onboarding);
         setupMockServer();
         age = findViewById(R.id.onboarding_birth);
@@ -106,7 +109,7 @@ public class OnboardingActivity extends AppCompatActivity {
             if (festivalTour.isChecked()) selectedTypes.add("축제/공연/이벤트");
             if (parkTour.isChecked()) selectedTypes.add("테마파크/공원");
             OnboardingRequest request = new OnboardingRequest(gender, birth, selectedTypes);
-            Call<OnboardingResponse> call = apiService.onboarding(request);
+            Call<OnboardingResponse> call = apiService.onboarding(authorization, request);
             call.enqueue(new Callback<OnboardingResponse>() {
                 @Override
                 public void onResponse(Call<OnboardingResponse> call, Response<OnboardingResponse> response) {

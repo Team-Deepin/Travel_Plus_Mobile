@@ -147,6 +147,7 @@ public class AIRecommendFragment extends Fragment {
                 transportFlag = true;
             }
         });
+
         dateCheckBtn.setOnClickListener(view1 -> {
             List<Calendar> selectedDates = calendarView.getSelectedDates();
             if (!selectedDates.isEmpty()) {
@@ -154,9 +155,10 @@ public class AIRecommendFragment extends Fragment {
                 Calendar end = selectedDates.get(selectedDates.size() - 1);
 
                 SimpleDateFormat fmt = new SimpleDateFormat("MM/dd", Locale.getDefault());
-                String text = fmt.format(start.getTime())
-                        + " ~ "
-                        + fmt.format(end.getTime());
+                String text = fmt.format(start.getTime());
+                if (!start.equals(end)) {
+                    text += " ~ " + fmt.format(end.getTime());
+                }
                 dateSelectText.setText(text);
                 dateSelect.setVisibility(VISIBLE);
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());

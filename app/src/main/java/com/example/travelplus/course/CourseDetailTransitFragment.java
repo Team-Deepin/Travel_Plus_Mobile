@@ -413,6 +413,79 @@ public class CourseDetailTransitFragment extends Fragment {
                                             "          ]\n" +
                                             "        }\n" +
                                             "      ]\n" +
+                                            "    },\n" +
+                                            "    {\n" +
+                                            "      \"day\": \"2025-07-19\",\n" +
+                                            "      \"transitDetails\": [\n" +
+                                            "        {\n" +
+                                            "          \"from\": \"서울시청\",\n" +
+                                            "          \"to\": \"국립현대미술관\",\n" +
+                                            "          \"paths\": [\n" +
+                                            "            {\n" +
+                                            "              \"mode\": \"WALK\",\n" +
+                                            "              \"start\": \"출발지\",\n" +
+                                            "              \"end\": \"프레스센터\",\n" +
+                                            "              \"route\": null,\n" +
+                                            "              \"sectionTime\": 156\n" +
+                                            "            },\n" +
+                                            "            {\n" +
+                                            "              \"mode\": \"BUS\",\n" +
+                                            "              \"start\": \"프레스센터\",\n" +
+                                            "              \"end\": \"정독도서관\",\n" +
+                                            "              \"route\": \"마을:종로11\",\n" +
+                                            "              \"sectionTime\": 429\n" +
+                                            "            },\n" +
+                                            "            {\n" +
+                                            "              \"mode\": \"WALK\",\n" +
+                                            "              \"start\": \"정독도서관\",\n" +
+                                            "              \"end\": \"도착지\",\n" +
+                                            "              \"route\": null,\n" +
+                                            "              \"sectionTime\": 378\n" +
+                                            "            }\n" +
+                                            "          ]\n" +
+                                            "        },\n" +
+                                            "        {\n" +
+                                            "          \"from\": \"국립현대미술관\",\n" +
+                                            "          \"to\": \"이태원\",\n" +
+                                            "          \"paths\": [\n" +
+                                            "            {\n" +
+                                            "              \"mode\": \"WALK\",\n" +
+                                            "              \"start\": \"출발지\",\n" +
+                                            "              \"end\": \"경복궁\",\n" +
+                                            "              \"route\": null,\n" +
+                                            "              \"sectionTime\": 575\n" +
+                                            "            },\n" +
+                                            "            {\n" +
+                                            "              \"mode\": \"SUBWAY\",\n" +
+                                            "              \"start\": \"경복궁\",\n" +
+                                            "              \"end\": \"약수\",\n" +
+                                            "              \"route\": \"수도권3호선\",\n" +
+                                            "              \"sectionTime\": 608\n" +
+                                            "            },\n" +
+                                            "            {\n" +
+                                            "              \"mode\": \"WALK\",\n" +
+                                            "              \"start\": \"약수\",\n" +
+                                            "              \"end\": \"약수\",\n" +
+                                            "              \"route\": null,\n" +
+                                            "              \"sectionTime\": 170\n" +
+                                            "            },\n" +
+                                            "            {\n" +
+                                            "              \"mode\": \"SUBWAY\",\n" +
+                                            "              \"start\": \"약수\",\n" +
+                                            "              \"end\": \"이태원\",\n" +
+                                            "              \"route\": \"수도권6호선\",\n" +
+                                            "              \"sectionTime\": 304\n" +
+                                            "            },\n" +
+                                            "            {\n" +
+                                            "              \"mode\": \"WALK\",\n" +
+                                            "              \"start\": \"이태원\",\n" +
+                                            "              \"end\": \"도착지\",\n" +
+                                            "              \"route\": null,\n" +
+                                            "              \"sectionTime\": 150\n" +
+                                            "            }\n" +
+                                            "          ]\n" +
+                                            "        }\n" +
+                                            "      ]\n" +
                                             "    }\n" +
                                             "  ]\n" +
                                             "}");

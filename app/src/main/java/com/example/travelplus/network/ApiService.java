@@ -1,6 +1,6 @@
 package com.example.travelplus.network;
 
-import com.example.travelplus.IsFirstResponse;
+import com.example.travelplus.home.HomeResponse;
 import com.example.travelplus.change.ChangeThemeRequest;
 import com.example.travelplus.change.ChangeThemeResponse;
 import com.example.travelplus.course.CourseDeleteResponse;
@@ -12,6 +12,7 @@ import com.example.travelplus.course.CourseResponse;
 import com.example.travelplus.inquiry.InquireRequest;
 import com.example.travelplus.inquiry.InquireResponse;
 import com.example.travelplus.inquiry.InquiryResponse;
+import com.example.travelplus.login.KakaoResponse;
 import com.example.travelplus.login.LoginRequest;
 import com.example.travelplus.login.LoginResponse;
 import com.example.travelplus.login.LogoutResponse;
@@ -38,7 +39,6 @@ import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
-import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
@@ -50,7 +50,7 @@ public interface ApiService {
     @POST("/auth/register")
     Call<RegisterResponse> register(@Body RegisterRequest request);
     @POST("/auth/onboarding")
-    Call<OnboardingResponse> onboarding(@Body OnboardingRequest request);
+    Call<OnboardingResponse> onboarding(@Header("Authorization") String authorization, @Body OnboardingRequest request);
     @POST("/auth/check")
     Call<DuplicateCheckResponse> duplicateCheck(@Body DuplicateCheckRequest request);
     @POST("/rating")
@@ -65,10 +65,12 @@ public interface ApiService {
     Call<SurveySaveResponse> surveySave(@Body SurveySaveRequest request);
     @POST("/course/survey")
     Call<SurveyResponse> survey(@Body SurveyRequest request);
+    @GET("/auth/kakao")
+    Call<KakaoResponse> kakao(@Query("code") String code);
     @GET("/auth/logout")
     Call<LogoutResponse> logout();
-    @GET("/home")
-    Call<IsFirstResponse> getIsFirst();
+    @GET("/auth/home")
+    Call<HomeResponse> home(@Header("Authorization") String authorization);
     @GET("/course")
     Call<CourseResponse> course();
     @GET("/course/detail/car")

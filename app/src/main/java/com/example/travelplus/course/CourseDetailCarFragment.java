@@ -62,7 +62,6 @@ public class CourseDetailCarFragment extends Fragment {
         }
         prefs = requireContext().getSharedPreferences("userPrefs", Context.MODE_PRIVATE);
         userId = prefs.getLong("userId", -1);
-
     }
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_course_detail, container, false);
@@ -133,7 +132,7 @@ public class CourseDetailCarFragment extends Fragment {
                     if(res.resultCode == 200 && res.data != null && !res.data.isEmpty()) {
                         titleView.setText(title);
                         locationView.setText(location);
-                        vehicleView.setText(res.meansTp);
+                        vehicleView.setText("자가용");
                         durationView.setText(duration);
                         LinearLayout detailCard = new LinearLayout(requireContext());
 
@@ -160,15 +159,15 @@ public class CourseDetailCarFragment extends Fragment {
                             dayText.setTextColor(ContextCompat.getColor(requireContext(), R.color.color_text));
                             dayText.setTypeface(ResourcesCompat.getFont(requireContext(), R.font.bmeuljirottf));
                             detailCard.addView(dayText);
-                            for (CourseDetailCarResponse.carDetail carDetail : carData.carDetails) {
+                            for (CourseDetailCarResponse.route route : carData.routes) {
                                 View placeCard = inflater.inflate(R.layout.fragment_course_detail_car_list, detailCard, false);
                                 TextView placeText = placeCard.findViewById(R.id.detail_car_place_name);
                                 TextView meansTpText = placeCard.findViewById(R.id.detail_car_meanstp);
                                 TextView timeText = placeCard.findViewById(R.id.detail_car_time);
 
-                                placeText.setText(carDetail.start);
+                                placeText.setText(route.start);
                                 meansTpText.setText(res.meansTp);
-                                int time = carDetail.sectionTime;
+                                int time = route.sectionTime;
                                 int hourTime = (time / 60 >= 60) ? (time / 60) / 60 : 0;
                                 int minTime = (time / 60 >= 60) ? (time % 60) : (time / 60);
 
@@ -179,7 +178,7 @@ public class CourseDetailCarFragment extends Fragment {
                                 }
                                 detailCard.addView(placeCard);
                             }
-                            CourseDetailCarResponse.carDetail lastDetail = carData.carDetails.get(carData.carDetails.size() - 1);
+                            CourseDetailCarResponse.route lastDetail = carData.routes.get(carData.routes.size() - 1);
                             View endPlaceCard = inflater.inflate(R.layout.fragment_course_detail_car_list, detailCard, false);
                             TextView placeText = endPlaceCard.findViewById(R.id.detail_car_place_name);
                             TextView meansTpText = endPlaceCard.findViewById(R.id.detail_car_meanstp);
@@ -350,26 +349,26 @@ public class CourseDetailCarFragment extends Fragment {
                                             "  \"data\": [\n" +
                                             "    {\n" +
                                             "      \"day\": \"2025-10-15\",\n" +
-                                            "      \"carDetails\": [\n" +
-                                            "        { \"start\": \"서울시청\", \"end\": \"국립현대미술관\", \"distance\": \"1768\", \"sectionTime\": 431, \"meansTp\": \"자동차\" },\n" +
-                                            "        { \"start\": \"국립현대미술관\", \"end\": \"이태원\", \"distance\": \"6320\", \"sectionTime\": 1130, \"meansTp\": \"자동차\" },\n" +
-                                            "        { \"start\": \"이태원\", \"end\": \"홍대입구\", \"distance\": \"12246\", \"sectionTime\": 1300, \"meansTp\": \"자동차\" }\n" +
+                                            "      \"routes\": [\n" +
+                                            "        { \"start\": \"서울시청\", \"end\": \"국립현대미술관\", \"distance\": \"1768\", \"sectionTime\": 431},\n" +
+                                            "        { \"start\": \"국립현대미술관\", \"end\": \"이태원\", \"distance\": \"6320\", \"sectionTime\": 1130 },\n" +
+                                            "        { \"start\": \"이태원\", \"end\": \"홍대입구\", \"distance\": \"12246\", \"sectionTime\": 1300 }\n" +
                                             "      ]\n" +
                                             "    },\n" +
                                             "    {\n" +
                                             "      \"day\": \"2025-10-16\",\n" +
-                                            "      \"carDetails\": [\n" +
-                                            "        { \"start\": \"서울시청\", \"end\": \"국립현대미술관\", \"distance\": \"1768\", \"sectionTime\": 431, \"meansTp\": \"자동차\" },\n" +
-                                            "        { \"start\": \"국립현대미술관\", \"end\": \"이태원\", \"distance\": \"6320\", \"sectionTime\": 1130, \"meansTp\": \"자동차\" },\n" +
-                                            "        { \"start\": \"이태원\", \"end\": \"홍대입구\", \"distance\": \"12246\", \"sectionTime\": 1300, \"meansTp\": \"자동차\" }\n" +
+                                            "      \"routes\": [\n" +
+                                            "        { \"start\": \"서울시청\", \"end\": \"국립현대미술관\", \"distance\": \"1768\", \"sectionTime\": 431 },\n" +
+                                            "        { \"start\": \"국립현대미술관\", \"end\": \"이태원\", \"distance\": \"6320\", \"sectionTime\": 1130 },\n" +
+                                            "        { \"start\": \"이태원\", \"end\": \"홍대입구\", \"distance\": \"12246\", \"sectionTime\": 1300 }\n" +
                                             "      ]\n" +
                                             "    },\n" +
                                             "    {\n" +
                                             "      \"day\": \"2025-10-17\",\n" +
-                                            "      \"carDetails\": [\n" +
-                                            "        { \"start\": \"서울시청\", \"end\": \"국립현대미술관\", \"distance\": \"1768\", \"sectionTime\": 431, \"meansTp\": \"자동차\" },\n" +
-                                            "        { \"start\": \"국립현대미술관\", \"end\": \"이태원\", \"distance\": \"6320\", \"sectionTime\": 1130, \"meansTp\": \"자동차\" },\n" +
-                                            "        { \"start\": \"이태원\", \"end\": \"홍대입구\", \"distance\": \"12246\", \"sectionTime\": 1300, \"meansTp\": \"자동차\" }\n" +
+                                            "      \"routes\": [\n" +
+                                            "        { \"start\": \"서울시청\", \"end\": \"국립현대미술관\", \"distance\": \"1768\", \"sectionTime\": 431 },\n" +
+                                            "        { \"start\": \"국립현대미술관\", \"end\": \"이태원\", \"distance\": \"6320\", \"sectionTime\": 1130 },\n" +
+                                            "        { \"start\": \"이태원\", \"end\": \"홍대입구\", \"distance\": \"12246\", \"sectionTime\": 1300 }\n" +
                                             "      ]\n" +
                                             "    }\n" +
                                             "  ]\n" +

@@ -39,7 +39,7 @@
         />
     <Spinner
         android:id="@+id/weather_location"
-        android:layout_width="90dp"
+        android:layout_width="100dp"
         android:layout_height="40dp"
         style="@style/Widget.AppCompat.Spinner"
         android:dropDownWidth="match_parent"

@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
@@ -22,8 +23,10 @@ import com.example.travelplus.network.ApiService;
 
 import java.io.IOException;
 
+import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -45,6 +48,7 @@ public class RegisterActivity extends AppCompatActivity {
         back = findViewById(R.id.back_btn);
         duplicateCheck = findViewById(R.id.duplicate_check);
         registerBtn = findViewById(R.id.register_button);
+        registerBtn.setEnabled(false);
         email = findViewById(R.id.register_email);
         password = findViewById(R.id.register_password);
         passwordCheck = findViewById(R.id.register_check_password);
@@ -55,6 +59,7 @@ public class RegisterActivity extends AppCompatActivity {
         duplicate=false;
         back.setOnClickListener(view -> {
             Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
             finish();
         });
@@ -214,9 +219,27 @@ public class RegisterActivity extends AppCompatActivity {
         new Thread(() -> {
             try {
                 mockServer = new MockWebServer();
-                mockServer.enqueue(new MockResponse()
-                        .setResponseCode(200)
-                        .setBody("{\"resultCode\":200,\"resultMessage\":\"Success\"}"));
+                mockServer.setDispatcher(new Dispatcher() {
+                    @NonNull
+                    @Override
+                    public MockResponse dispatch(@NonNull RecordedRequest request) {
+                        String path = request.getPath();
+                        Log.d("mockServer", "요청됨: " + request.getPath());
+                        if (path.contains("/auth/register")) {
+                            return new MockResponse()
+                                    .setResponseCode(200)
+                                    .addHeader("Content-Type", "application/json")
+                                    .setBody("{\"resultCode\":200,\"resultMessage\":\"회원가입 성공\"}");
+                        } else if (path.contains("/auth/check")) {
+                            return new MockResponse()
+                                    .setResponseCode(200)
+                                    .addHeader("Content-Type", "application/json")
+                                    .setBody("{\"resultCode\":200,\"resultMessage\":\"중복 체크 성공\",\"data\":{\"duplication\":true}}");
+                        }
+
+                        return new MockResponse().setResponseCode(404);
+                    }
+                });
                 mockServer.start();
 
                 Retrofit retrofit = new Retrofit.Builder()

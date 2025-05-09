@@ -1,8 +1,8 @@
-package com.example.travelplus;
+package com.example.travelplus.home;
 
 import java.util.List;
 
-public class IsFirstResponse {
+public class HomeResponse {
     public int resultCode;
     public String resultMessage;
     public List<homeData> data;
@@ -10,7 +10,8 @@ public class IsFirstResponse {
     public static class homeData{
         public boolean isFirst;
         public List<courseHome> course;
-
+    }
+    public static class courseHome{
         public int courseId;
         public String title;
         public String area;

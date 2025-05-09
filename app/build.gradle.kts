@@ -5,7 +5,9 @@ plugins {
 android {
     namespace = "com.example.travelplus"
     compileSdk = 35
-
+    buildFeatures {
+        buildConfig = true
+    }
     defaultConfig {
         applicationId = "com.example.travelplus"
         minSdk = 24
@@ -14,6 +16,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "KAKAO_NATIVE_KEY", "\"8744f682580c73cc841d96ed46fb5748\"")
     }
 
     buildTypes {
@@ -45,4 +48,5 @@ dependencies {
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation ("com.squareup.okhttp3:mockwebserver:4.11.0")
     implementation ("com.applandeo:material-calendar-view:1.9.0")
+    implementation("com.kakao.sdk:v2-user:2.21.2")
 }

@@ -10,9 +10,9 @@ public class CourseDetailCarResponse {
 
     public static class carData{
         public String day;
-        public List<carDetail> carDetails;
+        public List<route> routes;
     }
-    public static class carDetail{
+    public static class route{
         public String start;
         public String end;
         public int sectionTime;
