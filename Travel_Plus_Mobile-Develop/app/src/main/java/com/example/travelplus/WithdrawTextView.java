@@ -1,0 +1,36 @@
+package com.example.travelplus;
+
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.util.AttributeSet;
+
+import androidx.appcompat.widget.AppCompatTextView;
+
+public class WithdrawTextView extends AppCompatTextView {
+    private Paint strokePaint;
+
+    public WithdrawTextView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        init();
+    }
+
+    private void init() {
+        strokePaint = new Paint();
+        strokePaint.setAntiAlias(true);
+        strokePaint.setTextSize(getTextSize());
+        strokePaint.setStyle(Paint.Style.STROKE);
+        strokePaint.setStrokeWidth(6);
+        strokePaint.setColor(0xFFFFFFFF);
+        strokePaint.setTextAlign(Paint.Align.LEFT);
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        String text = getText().toString();
+        float x = 0;
+        float y = getBaseline();
+        canvas.drawText(text, x, y, strokePaint);
+        super.onDraw(canvas);
+    }
+}
