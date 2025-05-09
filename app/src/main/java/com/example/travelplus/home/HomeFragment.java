@@ -61,10 +61,6 @@ public class MainFragment extends Fragment {
     String apiKey = "6340120faacb6462dae3d3b224bf7e37";
     TextView todayTemp, tomorrowTemp, TDATTemp, homeTitle, homeDuration, homeMeansTP;
     ImageView todayWeather, tomorrowWeather, TDATWeather;
-    List<WeatherList> weatherListFromDB = Arrays.asList(
-            new WeatherList("서울", new Date(), 23.7f),
-            new WeatherList("부산", new Date(), 22.3f)
-    );
     private MockWebServer mockServer;
     ApiService apiService;
     CardView homeList;
@@ -234,8 +230,15 @@ public class MainFragment extends Fragment {
                 homeWeatherList.removeAllViews();
 
                 List<String> targetDates = getDateRange(startDateGlobal, endDateGlobal);
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                Date today = new Date();
 
                 for (String target : targetDates) {
+                    Date targetDate = sdf.parse(target);
+                    if (targetDate.before(today)) {
+                        continue;
+                    }
+
                     boolean found = false;
 
                     for (WeatherResponse.ForecastItem item : weather.list) {
@@ -267,12 +270,11 @@ public class MainFragment extends Fragment {
                         ImageView weatherImage = card.findViewById(R.id.home_weather_image);
 
                         location.setText(areaGlobal);
-                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                         SimpleDateFormat display = new SimpleDateFormat("MM/dd");
                         String displayDate = display.format(sdf.parse(target));
-                        date.setText(displayDate); // MM/dd 변환 생략 가능
+                        date.setText(displayDate);
                         temp.setText("예보 없음");
-                        weatherImage.setImageResource(R.drawable.no_image); // 기본 아이콘
+                        weatherImage.setImageResource(R.drawable.no_image);
 
                         homeWeatherList.addView(card);
                     }
@@ -342,13 +344,13 @@ public class MainFragment extends Fragment {
                     IsFirstResponse res = response.body();
                     Log.d("home",res.resultMessage);
                     if(res.resultCode == 200){
-                        boolean isFirst = res.isFirst;
+                        boolean isFirst = res.data.get(0).isFirst;
                         boolean isTraveling = false;
                         Date today = new Date();
-                        startDateGlobal= res.startDate;
-                        endDateGlobal = res.endDate;
+                        startDateGlobal= res.data.get(0).startDate;
+                        endDateGlobal = res.data.get(0).endDate;
                         String duration="";
-                        areaGlobal = res.area;
+                        areaGlobal = res.data.get(0).area;
                         try {
                             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -383,9 +385,9 @@ public class MainFragment extends Fragment {
                                 homeList.setVisibility(VISIBLE);
                                 weatherList.setVisibility(GONE);
                                 locationList.setVisibility(GONE);
-                                homeTitle.setText(response.body().title);
+                                homeTitle.setText(res.data.get(0).title);
                                 homeDuration.setText(duration+",");
-                                homeMeansTP.setText(response.body().meansTp);
+                                homeMeansTP.setText(res.data.get(0).meansTp);
                                 homeWeatherList.removeAllViews();
 
                                 String selectedEnglish = weatherLocation.get(areaGlobal);
@@ -423,7 +425,7 @@ public class MainFragment extends Fragment {
                 mockServer.enqueue(new MockResponse()
                         .setResponseCode(200)
                         .setBody("{\"resultCode\":200, \"resultMessage\":\"성공\",\"isFirst\": false,\"title\":\"제주도\",\"area\":\"제주도\"," +
-                                "\"startDate\":\"2025-04-24\",\"endDate\":\"2025-04-28\",\"meansTp\":\"자가용\"}")
+                                "\"startDate\":\"2025-05-05\",\"endDate\":\"2025-05-06\",\"meansTp\":\"자가용\"}")
                         .addHeader("Content-Type", "application/json"));
 
                 mockServer.start();
