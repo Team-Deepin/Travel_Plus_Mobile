@@ -1,7 +1,9 @@
 package com.example.travelplus.survey;
 
+import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.VISIBLE;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
@@ -41,7 +43,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class SurveyResultFragment extends Fragment {
-    String title, transit, date;
+    String title, transit, date, authorization;
     List<SurveyResponse.surveyData> data;
     ApiService apiService;
     private MockWebServer mockServer;
@@ -54,6 +56,8 @@ public class SurveyResultFragment extends Fragment {
             date = getArguments().getString("date");
             data = (List<SurveyResponse.surveyData>) getArguments().getSerializable("data");
         }
+        SharedPreferences prefs = requireActivity().getSharedPreferences("userPrefs", MODE_PRIVATE);
+        authorization = prefs.getString("authorization", null);
     }
     @Nullable
     @Override
@@ -166,7 +170,7 @@ public class SurveyResultFragment extends Fragment {
                         selectedData.courseDetails
                 );
 
-                Call<SurveySaveResponse> call = apiService.surveySave(surveySaveRequest);
+                Call<SurveySaveResponse> call = apiService.surveySave(authorization, surveySaveRequest);
                 call.enqueue(new Callback<SurveySaveResponse>() {
                     @Override
                     public void onResponse(Call<SurveySaveResponse> call, Response<SurveySaveResponse> response) {

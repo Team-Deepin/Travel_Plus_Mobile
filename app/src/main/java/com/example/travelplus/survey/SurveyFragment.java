@@ -1,8 +1,10 @@
 package com.example.travelplus.survey;
 
+import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
@@ -23,6 +25,7 @@ import androidx.fragment.app.Fragment;
 import com.applandeo.materialcalendarview.CalendarView;
 import com.example.travelplus.R;
 import com.example.travelplus.network.ApiService;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.checkbox.MaterialCheckBox;
 
 import java.io.IOException;
@@ -46,9 +49,9 @@ public class SurveyFragment extends Fragment {
             peopleFlag = true, themeFlag = true;
     boolean placeCheck = false, dateCheck = false, transportCheck = false,
             peopleCheck = false, themeCheck = false;
-    String title, area, meansTp, startDate, endDate, person;
+    String title, area, meansTp, startDate, endDate, person, authorization;
     List<String> tripType = new ArrayList<>();
-    ImageView surveyBtn;
+    MaterialCardView surveyBtn;
     ApiService apiService;
     private MockWebServer mockServer;
     @Override
@@ -57,6 +60,8 @@ public class SurveyFragment extends Fragment {
         if (getArguments() != null) {
             title = getArguments().getString("title");
         }
+        SharedPreferences prefs = requireActivity().getSharedPreferences("userPrefs", MODE_PRIVATE);
+        authorization = prefs.getString("authorization", null);
     }
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_survey, container, false);
@@ -503,7 +508,7 @@ public class SurveyFragment extends Fragment {
             if (festivalTour.isChecked()) tripType.add("축제/공연/이벤트");
             if (parkTour.isChecked()) tripType.add("테마파크/공원");
             SurveyRequest surveyRequest = new SurveyRequest(title, area, meansTp, person, startDate, endDate, tripType);
-            Call<SurveyResponse> call = apiService.survey(surveyRequest);
+            Call<SurveyResponse> call = apiService.survey(authorization, surveyRequest);
             call.enqueue(new Callback<SurveyResponse>() {
                 @Override
                 public void onResponse(Call<SurveyResponse> call, Response<SurveyResponse> response) {
@@ -545,9 +550,13 @@ public class SurveyFragment extends Fragment {
         boolean enabled = placeCheck && dateCheck && transportCheck && peopleCheck && themeCheck;
         surveyBtn.setEnabled(enabled);
         if (enabled) {
-            surveyBtn.setImageResource(R.drawable.survey_btn_activate);
+//            surveyBtn.setImageResource(R.drawable.survey_btn_activate);
+            int color = ContextCompat.getColor(requireContext(), R.color.color_button1);
+            surveyBtn.setCardBackgroundColor(color);
         } else {
-            surveyBtn.setImageResource(R.drawable.survey_btn_deactivate);
+//            surveyBtn.setImageResource(R.drawable.survey_btn_deactivate);
+            int color = ContextCompat.getColor(requireContext(), R.color.survey_deactivate);
+            surveyBtn.setCardBackgroundColor(color);
         }
     }
     private void setText(String text, TextView textView, CardView cardView){

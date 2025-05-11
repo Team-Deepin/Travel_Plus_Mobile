@@ -3,12 +3,17 @@ package com.example.travelplus.onboarding;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 
 import com.example.travelplus.MainActivity;
 import com.example.travelplus.R;
@@ -18,8 +23,12 @@ import com.google.android.material.radiobutton.MaterialRadioButton;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -31,10 +40,11 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class OnboardingActivity extends AppCompatActivity {
     TextInputEditText age;
+    TextView inputText;
     MaterialRadioButton male, female;
     MaterialCheckBox cityTour, activityTour, emotionTour, shoppingTour, healingTour,
             historyTour, foodTour, natureTour, experienceTour, festivalTour, parkTour;
-    ImageView onboardingBtn;
+    CardView onboardingBtn;
     String authorization;
     ApiService apiService;
     private MockWebServer mockServer;
@@ -60,26 +70,43 @@ public class OnboardingActivity extends AppCompatActivity {
         experienceTour = findViewById(R.id.experience_tour);
         festivalTour = findViewById(R.id.festival_tour);
         parkTour = findViewById(R.id.park_tour);
+        inputText = findViewById(R.id.onboarding_input_text);
         onboardingBtn.setEnabled(false);
         Runnable setButton = new Runnable() {
             @Override
             public void run() {
                 String birth = age.getText().toString().trim();
-                boolean isSexchecked = male.isChecked() || female.isChecked();
-                boolean isTypechecked = cityTour.isChecked() || activityTour.isChecked() ||
+                boolean isGenderChecked = male.isChecked() || female.isChecked();
+                boolean isTypeChecked = cityTour.isChecked() || activityTour.isChecked() ||
                         emotionTour.isChecked() || shoppingTour.isChecked() || healingTour.isChecked()
                         || historyTour.isChecked() || foodTour.isChecked() || natureTour.isChecked() ||
                         experienceTour.isChecked() || festivalTour.isChecked() || parkTour.isChecked();
 
-                if(isSexchecked && isTypechecked && !birth.isEmpty()){
-                    onboardingBtn.setImageResource(R.drawable.input_activated);
+                if(isGenderChecked && isTypeChecked && !birth.isEmpty()){
+//                    onboardingBtn.setImageResource(R.drawable.input_activated);
+                    onboardingBtn.setCardBackgroundColor(ContextCompat.getColor(OnboardingActivity.this,R.color.color_button1));
+                    inputText.setTextColor(ContextCompat.getColor(OnboardingActivity.this, R.color.color_background));
                     onboardingBtn.setEnabled(true);
                 }else{
-                    onboardingBtn.setImageResource(R.drawable.input_deactivated);
+//                    onboardingBtn.setImageResource(R.drawable.input_deactivated);
+                    onboardingBtn.setCardBackgroundColor(ContextCompat.getColor(OnboardingActivity.this,R.color.gray));
+                    inputText.setTextColor(ContextCompat.getColor(OnboardingActivity.this, R.color.black));
                     onboardingBtn.setEnabled(false);
                 }
             }
         };
+        age.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                setButton.run();
+            }
+            @Override
+            public void afterTextChanged(Editable s) { }
+        });
+
         male.setOnCheckedChangeListener((buttonView, isChecked)-> setButton.run());
         female.setOnCheckedChangeListener((buttonView, isChecked)-> setButton.run());
         cityTour.setOnCheckedChangeListener((buttonView, isChecked)-> setButton.run());
@@ -96,6 +123,15 @@ public class OnboardingActivity extends AppCompatActivity {
         onboardingBtn.setOnClickListener(view -> {
             String gender = male.isChecked() ? "male" : (female.isChecked() ? "female" : "");
             String birth = age.getText().toString().trim();
+            String formattedDate = null;
+            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyyMMdd", Locale.KOREA);
+            SimpleDateFormat outputFormat  = new SimpleDateFormat("yyyy-MM-dd", Locale.KOREA);
+            try {
+                Date birthDate = inputFormat.parse(birth);
+                formattedDate = outputFormat.format(birthDate);
+            }catch (ParseException e){
+                e.printStackTrace();
+            }
             List<String> selectedTypes = new ArrayList<>();
             if (cityTour.isChecked()) selectedTypes.add("도시관광/건축물");
             if (activityTour.isChecked()) selectedTypes.add("레포츠/야외활동");
@@ -108,7 +144,7 @@ public class OnboardingActivity extends AppCompatActivity {
             if (experienceTour.isChecked()) selectedTypes.add("체험관광");
             if (festivalTour.isChecked()) selectedTypes.add("축제/공연/이벤트");
             if (parkTour.isChecked()) selectedTypes.add("테마파크/공원");
-            OnboardingRequest request = new OnboardingRequest(gender, birth, selectedTypes);
+            OnboardingRequest request = new OnboardingRequest(gender, formattedDate, selectedTypes);
             Call<OnboardingResponse> call = apiService.onboarding(authorization, request);
             call.enqueue(new Callback<OnboardingResponse>() {
                 @Override

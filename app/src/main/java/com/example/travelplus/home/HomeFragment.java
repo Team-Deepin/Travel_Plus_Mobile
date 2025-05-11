@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -46,6 +47,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -57,7 +59,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class HomeFragment extends Fragment {
     Spinner locationList;
-    String apiKey = "6340120faacb6462dae3d3b224bf7e37";
+    private String apiKey = "6340120faacb6462dae3d3b224bf7e37";
     TextView todayTemp, tomorrowTemp, TDATTemp, homeTitle, homeDuration, homeMeansTP;
     ImageView todayWeather, tomorrowWeather, TDATWeather;
     private MockWebServer mockServer;
@@ -65,6 +67,7 @@ public class HomeFragment extends Fragment {
     CardView homeList;
     ConstraintLayout weatherList;
     LinearLayout homeWeatherList;
+    HorizontalScrollView homeScroll;
     Map<String, String> weatherLocation;
     String startDateGlobal, areaGlobal, endDateGlobal, authorization;
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -78,6 +81,7 @@ public class HomeFragment extends Fragment {
         View view =inflater.inflate(R.layout.fragment_main,container,false);
         setupMockServer(inflater);
         homeList = view.findViewById(R.id.home_list);
+        homeScroll = view.findViewById(R.id.home_scroll);
         weatherList = view.findViewById(R.id.weather_list);
         homeWeatherList = view.findViewById(R.id.home_weather_list);
         locationList = view.findViewById(R.id.weather_location);
@@ -226,68 +230,114 @@ public class HomeFragment extends Fragment {
                 WeatherResponse weather = gson.fromJson(json, WeatherResponse.class);
 
                 LayoutInflater inflater = LayoutInflater.from(getContext());
-                SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+                SimpleDateFormat kstFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                kstFormat.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
                 SimpleDateFormat outputDateFormat = new SimpleDateFormat("MM/dd", Locale.getDefault());
 
                 homeWeatherList.removeAllViews();
-
+                for (WeatherResponse.ForecastItem item : weather.list) {
+                    Log.d("예보전체", item.dt_txt);
+                    Log.d("온도", String.valueOf(item.main.temp));
+                }
                 List<String> targetDates = getDateRange(startDateGlobal, endDateGlobal);
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-                Date today = new Date();
+                Calendar cal = Calendar.getInstance();
+                cal.set(Calendar.HOUR_OF_DAY, 0);
+                cal.set(Calendar.MINUTE, 0);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+
+                Date today = cal.getTime();
 
                 for (String target : targetDates) {
                     Date targetDate = sdf.parse(target);
                     if (targetDate.before(today)) {
                         continue;
                     }
-
-                    boolean found = false;
+                    WeatherResponse.ForecastItem matchedItem = null;
 
                     for (WeatherResponse.ForecastItem item : weather.list) {
-                        if (item.dt_txt.contains(target + " 12:00:00")) {
-                            View card = inflater.inflate(R.layout.fragment_weather_list, homeWeatherList, false);
-
-                            TextView location = card.findViewById(R.id.home_location);
-                            TextView date = card.findViewById(R.id.home_date);
-                            TextView temp = card.findViewById(R.id.home_temperature);
-                            ImageView weatherImage = card.findViewById(R.id.home_weather_image);
-
-                            location.setText(areaGlobal);
-                            date.setText(outputDateFormat.format(inputFormat.parse(item.dt_txt)));
-                            temp.setText(String.format(Locale.getDefault(), "%.1f°C", item.main.temp));
-                            setWeatherImage(weatherImage, item.weather.get(0).main);
-
-                            homeWeatherList.addView(card);
-                            found = true;
+                        Date utcDate = utcFormat.parse(item.dt_txt);
+                        String kstString = kstFormat.format(utcDate);
+                        Date kstDate = kstFormat.parse(kstString);
+                        String kstDateOnly = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                                .format(kstDate);
+                        if (kstDateOnly.equals(target)) {
+                            matchedItem = item;
                             break;
                         }
                     }
-                    // 예보가 없을 경우
-                    if (!found) {
-                        View card = inflater.inflate(R.layout.fragment_weather_list, homeWeatherList, false);
 
-                        TextView location = card.findViewById(R.id.home_location);
-                        TextView date = card.findViewById(R.id.home_date);
-                        TextView temp = card.findViewById(R.id.home_temperature);
-                        ImageView weatherImage = card.findViewById(R.id.home_weather_image);
+                    View card = inflater.inflate(R.layout.fragment_weather_list, homeWeatherList, false);
 
-                        location.setText(areaGlobal);
-                        SimpleDateFormat display = new SimpleDateFormat("MM/dd");
-                        String displayDate = display.format(sdf.parse(target));
-                        date.setText(displayDate);
+                    TextView location = card.findViewById(R.id.home_location);
+                    TextView date = card.findViewById(R.id.home_date);
+                    TextView temp = card.findViewById(R.id.home_temperature);
+                    ImageView weatherImage = card.findViewById(R.id.home_weather_image);
+
+                    location.setText(areaGlobal);
+
+                    if (matchedItem != null) {
+                        Date matchedUTC = utcFormat.parse(matchedItem.dt_txt);
+                        Date kstDate = new Date(matchedUTC.getTime() + TimeZone.getTimeZone("Asia/Seoul").getRawOffset());
+                        date.setText(outputDateFormat.format(kstDate));
+
+                        Log.d("날짜",outputDateFormat.format(kstDate));
+
+                        temp.setText(String.format(Locale.getDefault(), "%.1f°C", matchedItem.main.temp));
+                        setWeatherImage(weatherImage, matchedItem.weather.get(0).main);
+                    } else {
+                        date.setText(new SimpleDateFormat("MM/dd").format(targetDate));
                         temp.setText("예보 없음");
                         weatherImage.setImageResource(R.drawable.no_image);
-
-                        homeWeatherList.addView(card);
                     }
+
+                    homeWeatherList.addView(card);
+//                    for (WeatherResponse.ForecastItem item : weather.list) {
+//                        if (item.dt_txt.startsWith(target)) {
+//                            View card = inflater.inflate(R.layout.fragment_weather_list, homeWeatherList, false);
+//
+//                            TextView location = card.findViewById(R.id.home_location);
+//                            TextView date = card.findViewById(R.id.home_date);
+//                            TextView temp = card.findViewById(R.id.home_temperature);
+//                            ImageView weatherImage = card.findViewById(R.id.home_weather_image);
+//
+//                            location.setText(areaGlobal);
+//                            date.setText(outputDateFormat.format(inputFormat.parse(item.dt_txt)));
+//                            temp.setText(String.format(Locale.getDefault(), "%.1f°C", item.main.temp));
+//                            setWeatherImage(weatherImage, item.weather.get(0).main);
+//
+//                            homeWeatherList.addView(card);
+//                            found = true;
+//                            break;
+//                        }
+//                    }
+//                    // 예보가 없을 경우
+//                    if (!found) {
+//                        View card = inflater.inflate(R.layout.fragment_weather_list, homeWeatherList, false);
+//
+//                        TextView location = card.findViewById(R.id.home_location);
+//                        TextView date = card.findViewById(R.id.home_date);
+//                        TextView temp = card.findViewById(R.id.home_temperature);
+//                        ImageView weatherImage = card.findViewById(R.id.home_weather_image);
+//
+//                        location.setText(areaGlobal);
+//                        SimpleDateFormat display = new SimpleDateFormat("MM/dd");
+//                        String displayDate = display.format(sdf.parse(target));
+//                        date.setText(displayDate);
+//                        temp.setText("예보 없음");
+//                        weatherImage.setImageResource(R.drawable.no_image);
+//
+//                        homeWeatherList.addView(card);
+//                    }
                 }
 
             } catch (Exception e) {
                 Log.e("Weather", "파싱 오류: " + e.getMessage());
             }
         }
-
-
     }
     private String getTargetDate(int dayOffset) {
         Calendar calendar = Calendar.getInstance();
@@ -346,13 +396,13 @@ public class HomeFragment extends Fragment {
                     HomeResponse res = response.body();
                     Log.d("home",res.resultMessage);
                     if(res.resultCode == 200){
-                        boolean isFirst = res.data.get(0).isFirst;
+                        boolean isFirst = res.data.isFirst;
                         boolean isTraveling = false;
                         Date today = new Date();
-                        startDateGlobal= res.data.get(0).course.get(0).startDate;
-                        endDateGlobal = res.data.get(0).course.get(0).endDate;
+                        startDateGlobal= res.data.course.get(0).startDate;
+                        endDateGlobal = res.data.course.get(0).endDate;
                         String duration="";
-                        areaGlobal = res.data.get(0).course.get(0).area;
+                        areaGlobal = res.data.course.get(0).area;
                         try {
                             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -387,9 +437,10 @@ public class HomeFragment extends Fragment {
                                 homeList.setVisibility(VISIBLE);
                                 weatherList.setVisibility(GONE);
                                 locationList.setVisibility(GONE);
-                                homeTitle.setText(res.data.get(0).course.get(0).title);
+                                homeScroll.setVisibility(VISIBLE);
+                                homeTitle.setText(res.data.course.get(0).title);
                                 homeDuration.setText(duration+",");
-                                homeMeansTP.setText(res.data.get(0).course.get(0).meansTp);
+                                homeMeansTP.setText(res.data.course.get(0).meansTp);
                                 homeWeatherList.removeAllViews();
 
                                 String selectedEnglish = weatherLocation.get(areaGlobal);
@@ -398,10 +449,11 @@ public class HomeFragment extends Fragment {
 
                                 new GetWeatherCourse().execute(url);
                             }else{
-                                homeList.setVisibility(GONE);
                                 weatherList.setVisibility(VISIBLE);
                                 locationList.setVisibility(VISIBLE);
+                                homeList.setVisibility(GONE);
                                 homeWeatherList.setVisibility(GONE);
+                                homeScroll.setVisibility(GONE);
                             }
                         }
                     }else {
@@ -426,8 +478,23 @@ public class HomeFragment extends Fragment {
                 // 응답 설정 (isFirst = true로 테스트)
                 mockServer.enqueue(new MockResponse()
                         .setResponseCode(200)
-                        .setBody("{\"resultCode\":200, \"resultMessage\":\"성공\",\"isFirst\": false,\"title\":\"제주도\",\"area\":\"제주도\"," +
-                                "\"startDate\":\"2025-05-05\",\"endDate\":\"2025-05-06\",\"meansTp\":\"자가용\"}")
+                        .setBody("{"
+                                + "\"resultCode\":200,"
+                                + "\"resultMessage\":\"성공\","
+                                + "\"data\":{"
+                                + "\"isFirst\":false,"
+                                + "\"course\":["
+                                + "{"
+                                + "\"courseId\":101,"
+                                + "\"title\":\"제주도\","
+                                + "\"area\":\"제주도\","
+                                + "\"startDate\":\"2025-05-10\","
+                                + "\"endDate\":\"2025-05-12\","
+                                + "\"meansTp\":\"자가용\""
+                                + "}"
+                                + "]"
+                                + "}"
+                                + "}")
                         .addHeader("Content-Type", "application/json"));
 
                 mockServer.start();

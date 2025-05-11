@@ -1,7 +1,9 @@
 package com.example.travelplus.recommend;
 
+import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.VISIBLE;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
@@ -42,7 +44,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class AIResultFragment extends Fragment {
-    String title, transit, date;
+    String title, transit, date,authorization;
     List<AIRecommendResponse.AIRecommendData> data;
     ApiService apiService;
     private MockWebServer mockServer;
@@ -55,10 +57,13 @@ public class AIResultFragment extends Fragment {
             date = getArguments().getString("date");
             data = (List<AIRecommendResponse.AIRecommendData>) getArguments().getSerializable("data");
         }
+        SharedPreferences prefs = requireActivity().getSharedPreferences("userPrefs", MODE_PRIVATE);
+        authorization = prefs.getString("authorization", null);
     }
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Log.d("result",data.get(0).courseDetails.get(0).area);
         View view = inflater.inflate(R.layout.fragment_ai_recommend_result, container, false);
         TextView titleView = view.findViewById(R.id.ai_title);
         LinearLayout aiList = view.findViewById(R.id.ai_list);
@@ -167,7 +172,7 @@ public class AIResultFragment extends Fragment {
                         selectedData.courseDetails
                 );
 
-                Call<AISaveResponse> call = apiService.aiSave(aiSaveRequest);
+                Call<AISaveResponse> call = apiService.aiSave(authorization, aiSaveRequest);
                 call.enqueue(new Callback<AISaveResponse>() {
                     @Override
                     public void onResponse(Call<AISaveResponse> call, Response<AISaveResponse> response) {

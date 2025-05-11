@@ -1,6 +1,7 @@
 package com.example.travelplus.register;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Editable;
@@ -15,11 +16,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.example.travelplus.login.LoginActivity;
 import com.example.travelplus.R;
 import com.example.travelplus.network.ApiService;
+import com.example.travelplus.onboarding.OnboardingActivity;
 
 import java.io.IOException;
 
@@ -34,15 +38,19 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RegisterActivity extends AppCompatActivity {
-    ImageView back, duplicateCheck, registerBtn;
+    ImageView back;
+    CardView duplicateCheck, registerBtn;
     TextView email, password, passwordCheck, name, checkId, checkPw;
     Typeface font;
     boolean duplicate;
     ApiService apiService;
     private MockWebServer mockServer;
+    String authorization;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+        SharedPreferences prefs = getSharedPreferences("userPrefs", MODE_PRIVATE);
+        authorization = prefs.getString("authorization", null);
         setContentView(R.layout.activity_register);
         setupMockServer();
         back = findViewById(R.id.back_btn);
@@ -102,7 +110,7 @@ public class RegisterActivity extends AppCompatActivity {
             // backend에 중복하는지 보내기
             String id = email.getText().toString().trim();
             DuplicateCheckRequest duplicateCheckRequest = new DuplicateCheckRequest(id);
-            Call<DuplicateCheckResponse> call = apiService.duplicateCheck(duplicateCheckRequest);
+            Call<DuplicateCheckResponse> call = apiService.duplicateCheck(authorization, duplicateCheckRequest);
             call.enqueue(new Callback<DuplicateCheckResponse>() {
                 @Override
                 public void onResponse(Call<DuplicateCheckResponse> call, Response<DuplicateCheckResponse> response) {
@@ -145,7 +153,7 @@ public class RegisterActivity extends AppCompatActivity {
             String nameStr = name.getText().toString().trim();
 
             RegisterRequest request = new RegisterRequest(emailStr, pwStr, nameStr);
-            Call<RegisterResponse> call = apiService.register(request);
+            Call<RegisterResponse> call = apiService.register(authorization, request);
             call.enqueue(new Callback<RegisterResponse>() {
                 @Override
                 public void onResponse(Call<RegisterResponse> call, Response<RegisterResponse> response) {
@@ -195,10 +203,12 @@ public class RegisterActivity extends AppCompatActivity {
             same=false;
         }
         if (same && !id.isEmpty() && !pw.isEmpty() && !pwc.isEmpty() && !user_name.isEmpty() && validEmail(id) && duplicate) {
-            registerBtn.setImageResource(R.drawable.register_button_activate);
+//            registerBtn.setImageResource(R.drawable.register_button_activate);
+            registerBtn.setCardBackgroundColor(ContextCompat.getColor(RegisterActivity.this,R.color.login_button));
             registerBtn.setEnabled(true);
         } else {
-            registerBtn.setImageResource(R.drawable.register_button_deactivate);
+//            registerBtn.setImageResource(R.drawable.register_button_deactivate);
+            registerBtn.setCardBackgroundColor(ContextCompat.getColor(RegisterActivity.this,R.color.gray));
             registerBtn.setEnabled(false);
         }
     }

@@ -1,5 +1,8 @@
 package com.example.travelplus.change;
 
+import static android.content.Context.MODE_PRIVATE;
+
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -33,9 +36,14 @@ public class ChangeThemeFragment extends Fragment {
     MaterialCheckBox cityTour, activityTour, emotionTour, shoppingTour, healingTour,
             historyTour, foodTour, natureTour, experienceTour, festivalTour, parkTour;
     ImageView changeBtn;
-    int userId = 1;
     ApiService apiService;
+    String authorization;
     private MockWebServer mockServer;
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        SharedPreferences prefs = requireActivity().getSharedPreferences("userPrefs", MODE_PRIVATE);
+        authorization = prefs.getString("authorization", null);
+    }
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -95,8 +103,8 @@ public class ChangeThemeFragment extends Fragment {
             if (experienceTour.isChecked()) selectedTypes.add("체험관광");
             if (festivalTour.isChecked()) selectedTypes.add("축제/공연/이벤트");
             if (parkTour.isChecked()) selectedTypes.add("테마파크/공원");
-            ChangeThemeRequest changeThemeRequest = new ChangeThemeRequest(userId, selectedTypes);
-            Call<ChangeThemeResponse> call = apiService.change(changeThemeRequest);
+            ChangeThemeRequest changeThemeRequest = new ChangeThemeRequest(selectedTypes);
+            Call<ChangeThemeResponse> call = apiService.change(authorization, changeThemeRequest);
             call.enqueue(new Callback<ChangeThemeResponse>() {
                 @Override
                 public void onResponse(Call<ChangeThemeResponse> call, Response<ChangeThemeResponse> response) {

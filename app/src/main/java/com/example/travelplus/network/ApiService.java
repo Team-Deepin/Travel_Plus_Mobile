@@ -12,6 +12,7 @@ import com.example.travelplus.course.CourseResponse;
 import com.example.travelplus.inquiry.InquireRequest;
 import com.example.travelplus.inquiry.InquireResponse;
 import com.example.travelplus.inquiry.InquiryResponse;
+import com.example.travelplus.login.KakaoLoginActivity;
 import com.example.travelplus.login.KakaoResponse;
 import com.example.travelplus.login.LoginRequest;
 import com.example.travelplus.login.LoginResponse;
@@ -48,23 +49,23 @@ public interface ApiService {
     @POST("/auth/login")
     Call<LoginResponse> login(@Body LoginRequest request);
     @POST("/auth/register")
-    Call<RegisterResponse> register(@Body RegisterRequest request);
+    Call<RegisterResponse> register(@Header("Authorization") String authorization, @Body RegisterRequest request);
     @POST("/auth/onboarding")
     Call<OnboardingResponse> onboarding(@Header("Authorization") String authorization, @Body OnboardingRequest request);
     @POST("/auth/check")
-    Call<DuplicateCheckResponse> duplicateCheck(@Body DuplicateCheckRequest request);
+    Call<DuplicateCheckResponse> duplicateCheck(@Header("Authorization") String authorization, @Body DuplicateCheckRequest request);
     @POST("/rating")
-    Call<CourseRatingResponse> rate(@Body CourseRatingRequest request);
+    Call<CourseRatingResponse> rate(@Header("Authorization") String authorization, @Body CourseRatingRequest request);
     @POST("/edit/inquire/submit")
-    Call<InquireResponse> inquire(@Body InquireRequest request);
+    Call<InquireResponse> inquire(@Header("Authorization") String authorization, @Body InquireRequest request);
     @POST("/course/recommend")
-    Call<AIRecommendResponse> recommend(@Body AIRecommendRequest request);
+    Call<AIRecommendResponse> recommend(@Header("Authorization") String authorization, @Body AIRecommendRequest request);
     @POST("/course/save")
-    Call<AISaveResponse> aiSave(@Body AISaveRequest request);
+    Call<AISaveResponse> aiSave(@Header("Authorization") String authorization, @Body AISaveRequest request);
     @POST("/course/save")
-    Call<SurveySaveResponse> surveySave(@Body SurveySaveRequest request);
+    Call<SurveySaveResponse> surveySave(@Header("Authorization") String authorization, @Body SurveySaveRequest request);
     @POST("/course/survey")
-    Call<SurveyResponse> survey(@Body SurveyRequest request);
+    Call<SurveyResponse> survey(@Header("Authorization") String authorization, @Body SurveyRequest request);
     @GET("/auth/kakao")
     Call<KakaoResponse> kakao(@Query("code") String code);
     @GET("/auth/logout")
@@ -72,21 +73,21 @@ public interface ApiService {
     @GET("/auth/home")
     Call<HomeResponse> home(@Header("Authorization") String authorization);
     @GET("/course")
-    Call<CourseResponse> course();
+    Call<CourseResponse> course(@Header("Authorization") String authorization);
     @GET("/course/detail/car")
-    Call<CourseDetailCarResponse> detailCar(@Query("userId") long userId, @Query("courseId") int courseId);
+    Call<CourseDetailCarResponse> detailCar(@Header("Authorization") String authorization, @Query("courseId") int courseId);
     @GET("/course/detail/transit")
-    Call<CourseDetailTransitResponse> detailTransit(@Query("userId") long userId, @Query("courseId") int courseId);
+    Call<CourseDetailTransitResponse> detailTransit(@Header("Authorization") String authorization, @Query("courseId") int courseId);
     @GET("/edit/inquire")
-    Call<InquiryResponse> inquiry();
+    Call<InquiryResponse> inquiry(@Header("Authorization") String authorization);
     @GET("/edit/notice")
-    Call<NoticeResponse> getNotices(@Query("page") int page, @Query("size") int size);
+    Call<NoticeResponse> getNotices(@Header("Authorization") String authorization, @Query("page") int page, @Query("size") int size);
     @GET("/edit/notice/{noticeId}")
-    Call<NoticeDetailResponse> getNoticeDetail(@Path("noticeId") int noticeId);
+    Call<NoticeDetailResponse> getNoticeDetail(@Header("Authorization") String authorization, @Path("noticeId") int noticeId);
     @PUT("/edit/userModify")
-    Call<ChangeThemeResponse> change(@Body ChangeThemeRequest request);
+    Call<ChangeThemeResponse> change(@Header("Authorization") String authorization, @Body ChangeThemeRequest request);
     @DELETE("/course/delete/{courseId}")
-    Call<CourseDeleteResponse> deleteCourse(@Path("courseId") int courseId);
+    Call<CourseDeleteResponse> deleteCourse(@Header("Authorization") String authorization, @Path("courseId") int courseId);
     @DELETE("/edit/delete")
     Call<WithdrawResponse> withdraw();
 

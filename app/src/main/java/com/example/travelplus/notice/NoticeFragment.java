@@ -1,8 +1,10 @@
 package com.example.travelplus.notice;
 
+import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -42,11 +44,15 @@ public class NoticeFragment extends Fragment {
     ConstraintLayout noNoticeContainer;
     RecyclerView noticeRecyclerView;
     NoticeAdapter adapter;
-    int currentPage = 1;
-    int pageSize = 7;
-    int totalCount = 0;
+    int currentPage = 1, pageSize = 7, totalCount = 0;
     ApiService apiService;
+    private String authorization;
     private MockWebServer mockServer;
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        SharedPreferences prefs = requireActivity().getSharedPreferences("userPrefs", MODE_PRIVATE);
+        authorization = prefs.getString("authorization", null);
+    }
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -88,7 +94,7 @@ public class NoticeFragment extends Fragment {
         return view;
     }
     private void loadNotices(int page) {
-        apiService.getNotices(page, pageSize).enqueue(new Callback<NoticeResponse>() {
+        apiService.getNotices(authorization, page, pageSize).enqueue(new Callback<NoticeResponse>() {
             @Override
             public void onResponse(Call<NoticeResponse> call, Response<NoticeResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -193,7 +199,7 @@ public class NoticeFragment extends Fragment {
                                 + "\"resultMessage\": \"Success\","
                                 + "\"data\": {"
                                 + "\"totalCount\": 20,"
-                                + "\"notices\": [" + String.join(",", noticesJson.subList(from, to)) + "]"
+                                + "\"notices\": []" //[" + String.join(",", noticesJson.subList(from, to)) + "]"
                                 + "}"
                                 + "}";
 

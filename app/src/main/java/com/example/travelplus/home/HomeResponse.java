@@ -5,7 +5,7 @@ import java.util.List;
 public class HomeResponse {
     public int resultCode;
     public String resultMessage;
-    public List<homeData> data;
+    public homeData data;
 
     public static class homeData{
         public boolean isFirst;

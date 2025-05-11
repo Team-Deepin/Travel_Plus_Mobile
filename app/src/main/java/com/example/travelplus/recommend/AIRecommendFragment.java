@@ -1,8 +1,10 @@
 package com.example.travelplus.recommend;
 
+import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.util.TypedValue;
 import android.os.Bundle;
@@ -22,6 +24,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.travelplus.R;
 import com.example.travelplus.network.ApiService;
+import com.google.android.material.card.MaterialCardView;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -43,13 +46,15 @@ public class AIRecommendFragment extends Fragment {
     String selectTransport, startDate, endDate;
     ApiService apiService;
     private MockWebServer mockServer;
-    String title;
+    String title, authorization;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             title = getArguments().getString("title");
         }
+        SharedPreferences prefs = requireActivity().getSharedPreferences("userPrefs", MODE_PRIVATE);
+        authorization = prefs.getString("authorization", null);
     }
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_ai_recommend, container, false);
@@ -68,16 +73,23 @@ public class AIRecommendFragment extends Fragment {
         CardView dateCheckBtn = view.findViewById(R.id.ai_calendar_check_btn);
         View line1 = view.findViewById(R.id.ai_line1);
         View line2 = view.findViewById(R.id.ai_line2);
-        ImageView aiBtn = view.findViewById(R.id.ai_btn);
+        MaterialCardView aiBtn = view.findViewById(R.id.ai_btn);
+        TextView aiBtnText = view.findViewById(R.id.ai_btn_text);
         aiBtn.setEnabled(false);
 
         Runnable updateAiBtnState = () -> {
             boolean enabled = dateCheck && transportCheck;
             aiBtn.setEnabled(enabled);
             if (enabled) {
-                aiBtn.setImageResource(R.drawable.ai_recommend);
+//                aiBtn.setImageResource(R.drawable.ai_recommend);
+                int color = ContextCompat.getColor(requireContext(), R.color.color_button1);
+                aiBtn.setStrokeColor(color);
+                aiBtnText.setTextColor(color);
             } else {
-                aiBtn.setImageResource(R.drawable.ai_recommend_btn_deactivate);
+//                aiBtn.setImageResource(R.drawable.ai_recommend_btn_deactivate);
+                int color = ContextCompat.getColor(requireContext(), R.color.AIbutton_deactivate);
+                aiBtn.setStrokeColor(color);
+                aiBtnText.setTextColor(color);
             }
         };
 
@@ -199,7 +211,7 @@ public class AIRecommendFragment extends Fragment {
 
         aiBtn.setOnClickListener(view1 -> {
             AIRecommendRequest aiRecommendRequest = new AIRecommendRequest(startDate, endDate, selectTransport);
-            Call<AIRecommendResponse> call = apiService.recommend(aiRecommendRequest);
+            Call<AIRecommendResponse> call = apiService.recommend(authorization, aiRecommendRequest);
             call.enqueue(new Callback<AIRecommendResponse>() {
                 @Override
                 public void onResponse(Call<AIRecommendResponse> call, Response<AIRecommendResponse> response) {

@@ -3,8 +3,8 @@ package com.example.travelplus.inquiry;
 import java.util.List;
 
 public class InquiryResponse {
-    public int result_code;
-    public String result_message;
+    public int resultCode;
+    public String resultMessage;
     public List<Inquiry> data;
 
     public static class Inquiry {

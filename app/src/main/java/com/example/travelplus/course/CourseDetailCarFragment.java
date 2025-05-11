@@ -1,5 +1,6 @@
 package com.example.travelplus.course;
 
+import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
@@ -40,14 +41,14 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class CourseDetailCarFragment extends Fragment {
-    private String title, duration, meansTP, location;
+    String title, duration, meansTP, location, authorization;
     int courseId;
     FloatingActionButton plusFab, cancelFab, deleteFab, rateFab;
     TextView deleteText, rateText, titleView, locationView, durationView, vehicleView;
     View detailBackground;
     LinearLayout detailListLayout;
     ApiService apiService;
-    private MockWebServer mockServer;
+    MockWebServer mockServer;
     SharedPreferences prefs;
     long userId;
 
@@ -61,7 +62,7 @@ public class CourseDetailCarFragment extends Fragment {
             location = getArguments().getString("location");
         }
         prefs = requireContext().getSharedPreferences("userPrefs", Context.MODE_PRIVATE);
-        userId = prefs.getLong("userId", -1);
+        authorization = prefs.getString("authorization", null);
     }
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_course_detail, container, false);
@@ -69,7 +70,7 @@ public class CourseDetailCarFragment extends Fragment {
         locationView = view.findViewById(R.id.detail_location);
         durationView = view.findViewById(R.id.detail_duration);
         vehicleView = view.findViewById(R.id.detail_vehicle);
-        plusFab = view.findViewById(R.id.detail_plus_fab);
+        plusFab = requireActivity().findViewById(R.id.detail_plus_fab);
         cancelFab = requireActivity().findViewById(R.id.detail_cancel_fab);
         deleteFab = requireActivity().findViewById(R.id.detail_delete_fab);
         rateFab = requireActivity().findViewById(R.id.detail_rate_fab);
@@ -77,12 +78,9 @@ public class CourseDetailCarFragment extends Fragment {
         rateText = requireActivity().findViewById(R.id.detail_rate_text);
         detailBackground = requireActivity().findViewById(R.id.detail_background);
         detailListLayout = view.findViewById(R.id.detail_list);
-
+        plusFab.setVisibility(VISIBLE);
         setupMockServer(() -> requireActivity().runOnUiThread(() -> showDetails(inflater)));
-        titleView.setText(title);
-        locationView.setText(location);
-        durationView.setText(duration);
-        vehicleView.setText(meansTP);
+
         plusFab.setOnClickListener(view1 -> {
             plusFab.setVisibility(GONE);
             detailBackground.setVisibility(VISIBLE);
@@ -122,7 +120,7 @@ public class CourseDetailCarFragment extends Fragment {
     }
     private void showDetails(LayoutInflater inflater){
         Log.d("showDetailsCar", "apiService 호출 시작");
-        Call<CourseDetailCarResponse> call = apiService.detailCar(userId, courseId);
+        Call<CourseDetailCarResponse> call = apiService.detailCar(authorization, courseId);
         call.enqueue(new Callback<CourseDetailCarResponse>() {
             @Override
             public void onResponse(Call<CourseDetailCarResponse> call, Response<CourseDetailCarResponse> response) {
@@ -133,7 +131,7 @@ public class CourseDetailCarFragment extends Fragment {
                         titleView.setText(title);
                         locationView.setText(location);
                         vehicleView.setText("자가용");
-                        durationView.setText(duration);
+                        durationView.setText(duration+ ", ");
                         LinearLayout detailCard = new LinearLayout(requireContext());
 
                         detailCard.setTag(courseId);
@@ -227,7 +225,7 @@ public class CourseDetailCarFragment extends Fragment {
         });
         deleteBtn.setOnClickListener(v -> {
             // 코스 삭제 API
-            Call<CourseDeleteResponse> call = apiService.deleteCourse(courseId);
+            Call<CourseDeleteResponse> call = apiService.deleteCourse(authorization, courseId);
             call.enqueue(new Callback<CourseDeleteResponse>() {
                 @Override
                 public void onResponse(Call<CourseDeleteResponse> call, Response<CourseDeleteResponse> response) {
@@ -293,7 +291,7 @@ public class CourseDetailCarFragment extends Fragment {
             // 코스 평가 API
             double score = ratingBar.getRating();
             CourseRatingRequest courseRatingRequest = new CourseRatingRequest(userId, courseId, score);
-            Call<CourseRatingResponse> call = apiService.rate(courseRatingRequest);
+            Call<CourseRatingResponse> call = apiService.rate(authorization, courseRatingRequest);
             call.enqueue(new Callback<CourseRatingResponse>() {
                 @Override
                 public void onResponse(Call<CourseRatingResponse> call, Response<CourseRatingResponse> response) {

@@ -1,5 +1,8 @@
 package com.example.travelplus.notice;
 
+import static android.content.Context.MODE_PRIVATE;
+
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -30,13 +33,17 @@ public class NoticeDetailFragment extends Fragment {
     int id;
     TextView detailTitle, detailDate, detailContent;
     ApiService apiService;
-    private MockWebServer mockServer;
+    private String authorization;
+    MockWebServer mockServer;
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             id = (int) getArguments().get("noticeId");
         }
+        SharedPreferences prefs = requireActivity().getSharedPreferences("userPrefs", MODE_PRIVATE);
+        authorization = prefs.getString("authorization", null);
     }
+
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_notice_detail, container, false);
         detailTitle = view.findViewById(R.id.notice_detail_title);
@@ -96,7 +103,7 @@ public class NoticeDetailFragment extends Fragment {
         }).start();
     }
     private void loadNoticeDetail(int noticeId) {
-        apiService.getNoticeDetail(noticeId).enqueue(new Callback<NoticeDetailResponse>() {
+        apiService.getNoticeDetail(authorization, noticeId).enqueue(new Callback<NoticeDetailResponse>() {
             @Override
             public void onResponse(Call<NoticeDetailResponse> call, Response<NoticeDetailResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
