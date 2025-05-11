@@ -4,26 +4,77 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+    <!-- horizontal -->
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline1"
+        android:id="@+id/guidelineHorizontal1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.4" />
+        app:layout_constraintGuide_percent="0.1" />
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline2"
+        android:id="@+id/guidelineHorizontal23"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.23" />
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineHorizontal35"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.35" />
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineHorizontal5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.5" />
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineHorizontal6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.6"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineHorizontal65"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.65"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineHorizontal8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.8"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineHorizontal85"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.85"/>
+
+    <!-- vertical -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineVertical15"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.2" />
+        app:layout_constraintGuide_percent="0.15" />
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineVertical85"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.85" />
     <ImageView
         android:id="@+id/back_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/guidelineHorizontal1"
         app:layout_constraintStart_toStartOf="parent"
-        android:src="@drawable/arrow_back"
-        android:layout_marginTop="60dp" />
+        android:src="@drawable/arrow_back" />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -32,26 +83,25 @@
         android:textSize="30dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="60dp"
+        app:layout_constraintBottom_toTopOf="@id/guidelineHorizontal1"
         android:textColor="@color/black"/>
     <EditText
         android:id="@+id/register_email"
-        android:layout_width="190dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="이메일"
         android:textSize="15dp"
         android:inputType="textEmailAddress"
         android:fontFamily="@font/bmeuljirottf"
-        app:layout_constraintBottom_toTopOf="@id/register_password"
-        app:layout_constraintStart_toStartOf="@id/guideline2"
-        app:layout_constraintEnd_toStartOf="@id/duplicate_check"
-        android:layout_marginBottom="70dp"/>
+        app:layout_constraintHorizontal_weight="3"
+        app:layout_constraintBottom_toTopOf="@id/guidelineHorizontal23"
+        app:layout_constraintStart_toStartOf="@id/guidelineVertical15"
+        app:layout_constraintEnd_toStartOf="@id/duplicate_check" />
     <TextView
         android:id="@+id/check_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="@id/guideline2"
+        app:layout_constraintStart_toStartOf="@id/guidelineVertical15"
         app:layout_constraintTop_toBottomOf="@id/register_email"
         android:fontFamily="@font/bmeuljirottf"
         android:textSize="10dp"
@@ -59,42 +109,59 @@
         android:layout_marginStart="5dp"
         android:visibility="invisible"
         android:textColor="@color/black"/>
-    <ImageView
+    <androidx.cardview.widget.CardView
         android:id="@+id/duplicate_check"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/duplicate_check_button"
+        android:layout_width="0dp"
+        android:layout_height="45dp"
+        app:cardCornerRadius="10dp"
+        app:cardBackgroundColor="@color/gray"
+        app:layout_constraintHorizontal_weight="1"
         app:layout_constraintStart_toEndOf="@id/register_email"
-        app:layout_constraintBottom_toTopOf="@id/register_password"
-        android:layout_marginBottom="70dp"/>
+        app:layout_constraintEnd_toEndOf="@id/guidelineVertical85"
+        app:layout_constraintBottom_toTopOf="@id/guidelineHorizontal23">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="중복 확인"
+            android:fontFamily="@font/bmeuljirottf"
+            android:layout_gravity="center"/>
+    </androidx.cardview.widget.CardView>
+<!--    <ImageView-->
+<!--        android:id="@+id/duplicate_check"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:src="@drawable/duplicate_check_button"-->
+<!--        app:layout_constraintStart_toEndOf="@id/register_email"-->
+<!--        app:layout_constraintEnd_toEndOf="@id/guidelineVertical85"-->
+<!--        app:layout_constraintBottom_toTopOf="@id/guidelineHorizontal23" />-->
     <EditText
         android:id="@+id/register_password"
-        android:layout_width="260dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="비밀번호"
         android:textSize="15dp"
         android:inputType="textPassword"
         android:fontFamily="@font/bmeuljirottf"
-        app:layout_constraintBottom_toTopOf="@id/guideline1"
-        app:layout_constraintStart_toStartOf="@id/guideline2"
-        android:layout_marginBottom="35dp"/>
+        app:layout_constraintBottom_toTopOf="@id/guidelineHorizontal35"
+        app:layout_constraintStart_toStartOf="@id/guidelineVertical15"
+        app:layout_constraintEnd_toEndOf="@id/guidelineVertical85" />
     <EditText
         android:id="@+id/register_check_password"
-        android:layout_width="260dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="비밀번호 확인"
         android:textSize="15dp"
         android:inputType="textPassword"
         android:fontFamily="@font/bmeuljirottf"
-        app:layout_constraintTop_toBottomOf="@id/guideline1"
-        app:layout_constraintStart_toStartOf="@id/guideline2"
-        android:layout_marginTop="35dp"/>
+        app:layout_constraintBottom_toTopOf="@id/check_pw"
+        app:layout_constraintStart_toStartOf="@id/guidelineVertical15"
+        app:layout_constraintEnd_toEndOf="@id/guidelineVertical85" />
     <TextView
         android:id="@+id/check_pw"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="@id/guideline2"
-        app:layout_constraintTop_toBottomOf="@id/register_check_password"
+        app:layout_constraintStart_toStartOf="@id/guidelineVertical15"
+        app:layout_constraintBottom_toTopOf="@id/guidelineHorizontal5"
         android:fontFamily="@font/bmeuljirottf"
         android:textSize="10dp"
         android:layout_marginStart="5dp"
@@ -103,24 +170,47 @@
         android:text="비밀번호가 일치하지 않습니다."/>
     <EditText
         android:id="@+id/register_name"
-        android:layout_width="260dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="이름"
         android:textSize="15dp"
         android:fontFamily="@font/bmeuljirottf"
-        app:layout_constraintTop_toBottomOf="@id/register_check_password"
-        app:layout_constraintStart_toStartOf="@id/guideline2"
-        android:layout_marginTop="70dp"/>
-    <ImageView
+        app:layout_constraintBottom_toTopOf="@id/guidelineHorizontal6"
+        app:layout_constraintStart_toStartOf="@id/guidelineVertical15"
+        app:layout_constraintEnd_toEndOf="@id/guidelineVertical85" />
+    <androidx.cardview.widget.CardView
         android:id="@+id/register_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/register_button_deactivate"
-        android:enabled="false"
-        app:layout_constraintTop_toBottomOf="@id/register_name"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:cardCornerRadius="15dp"
+        app:cardBackgroundColor="@color/gray"
+        app:layout_constraintStart_toStartOf="@id/guidelineVertical15"
+        app:layout_constraintEnd_toEndOf="@id/guidelineVertical85"
+        app:layout_constraintTop_toTopOf="@id/guidelineHorizontal8"
+        app:layout_constraintBottom_toBottomOf="@id/guidelineHorizontal85">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="회원가입"
+            android:textColor="@color/black"
+            android:textSize="20dp"
+            android:fontFamily="@font/bmeuljirottf"
+            android:layout_gravity="center"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+    </androidx.cardview.widget.CardView>
+<!--    <ImageView-->
+<!--        android:id="@+id/register_button"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:src="@drawable/register_button_deactivate"-->
+<!--        android:enabled="false"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/register_name"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent" />-->
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,9 +1,11 @@
 package com.example.travelplus.course;
 
+import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
 import android.app.Dialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,6 +19,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
@@ -25,6 +28,7 @@ import com.example.travelplus.network.ApiService;
 import com.example.travelplus.recommend.AIRecommendFragment;
 import com.example.travelplus.survey.SurveyFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.card.MaterialCardView;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -41,12 +45,19 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class CourseFragment extends Fragment {
-    ImageView aiRecommend, tripRecommend;
+    CardView tripRecommend;
+    MaterialCardView aiRecommend;
     ScrollView courseScrollView;
     LinearLayout courseListLayout;
     ConstraintLayout noCourseListLayout;
     ApiService apiService;
+    private String authorization;
     private MockWebServer mockServer;
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        SharedPreferences prefs = requireActivity().getSharedPreferences("userPrefs", MODE_PRIVATE);
+        authorization = prefs.getString("authorization", null);
+    }
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -69,6 +80,7 @@ public class CourseFragment extends Fragment {
                 .addOnBackStackChangedListener(()->{
                     if (requireActivity().getSupportFragmentManager().getBackStackEntryCount() == 0){
                         ConstraintLayout courseLayout = view.findViewById(R.id.course_layout);
+                        FloatingActionButton plusFab = requireActivity().findViewById(R.id.detail_plus_fab);
                         FloatingActionButton cancelFab = requireActivity().findViewById(R.id.detail_cancel_fab);
                         FloatingActionButton deleteFab = requireActivity().findViewById(R.id.detail_delete_fab);
                         FloatingActionButton rateFab = requireActivity().findViewById(R.id.detail_rate_fab);
@@ -76,6 +88,7 @@ public class CourseFragment extends Fragment {
                         TextView rateText = requireActivity().findViewById(R.id.detail_rate_text);
                         View detailBackground = requireActivity().findViewById(R.id.detail_background);
                         courseLayout.setVisibility(VISIBLE);
+                        plusFab.setVisibility(GONE);
                         detailBackground.setVisibility(GONE);
                         cancelFab.setVisibility(GONE);
                         deleteFab.setVisibility(GONE);
@@ -87,7 +100,7 @@ public class CourseFragment extends Fragment {
         return view;
     }
     private void courseList(LayoutInflater inflater){
-        Call<CourseResponse> call = apiService.course();
+        Call<CourseResponse> call = apiService.course(authorization);
         call.enqueue(new Callback<CourseResponse>() {
             @Override
             public void onResponse(Call<CourseResponse> call, Response<CourseResponse> response) {

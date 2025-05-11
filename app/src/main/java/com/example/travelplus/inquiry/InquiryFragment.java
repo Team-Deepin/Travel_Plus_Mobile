@@ -1,8 +1,10 @@
 package com.example.travelplus.inquiry;
 
+import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -38,6 +40,12 @@ public class InquiryFragment extends Fragment {
     LinearLayout inquiryList;
     ApiService apiService;
     private MockWebServer mockServer;
+    private String authorization;
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        SharedPreferences prefs = requireActivity().getSharedPreferences("userPrefs", MODE_PRIVATE);
+        authorization = prefs.getString("authorization", null);
+    }
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_inquiry, container, false);
         setupMockServer(inflater);
@@ -70,14 +78,15 @@ public class InquiryFragment extends Fragment {
         return view;
     }
     private void inquiryLists(LayoutInflater inflater) {
-        Call<InquiryResponse> call = apiService.inquiry();
+        Call<InquiryResponse> call = apiService.inquiry(authorization);
         call.enqueue(new Callback<InquiryResponse>() {
             @Override
             public void onResponse(Call<InquiryResponse> call, Response<InquiryResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     InquiryResponse res = response.body();
-                    Log.d("inquiry",res.result_message);
-                    if(res.result_code == 200 && res.data != null && !res.data.isEmpty()){
+                    Log.d("inquiry",res.resultMessage);
+                    Log.d("inquiry",res.data.get(0).answer);
+                    if(res.resultCode == 200 && res.data != null && !res.data.isEmpty()){
                         Log.d("inquiry","성공");
                         inquiryScroll.setVisibility(VISIBLE);
                         noListContainer.setVisibility(GONE);
@@ -117,7 +126,6 @@ public class InquiryFragment extends Fragment {
                                         .replace(R.id.inquiry_fragment_container, inquiryAnswerFragment)
                                         .addToBackStack(null)
                                         .commit();
-                                
                             });
                         }
                     }else {
@@ -147,8 +155,8 @@ public class InquiryFragment extends Fragment {
                 mockServer.enqueue(new MockResponse()
                         .setResponseCode(200)
                         .setBody("{\n" +
-                                "  \"result_code\": 200,\n" +
-                                "  \"result_message\": \"Success\",\n" +
+                                "  \"resultCode\": 200,\n" +
+                                "  \"resultMessage\": \"Success\",\n" +
                                 "  \"data\": [\n" +
                                 "    {\n" +
                                 "      \"inquireId\": 1,\n" +

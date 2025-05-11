@@ -16,26 +16,59 @@
         android:id="@+id/notice_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineHorizontal1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.1" />
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineHorizontal20"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.2" />
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineHorizontal27"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.27" />
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineHorizontal90"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.9" />
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineVertical1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.1" />
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineVertical9"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.9" />
         <TextView
             android:id="@+id/notice_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-            android:layout_marginTop="100dp"
             android:fontFamily="@font/bmeuljirottf"
             android:text="공지사항"
             android:textColor="@color/black"
             android:textSize="30dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintStart_toStartOf="@id/guidelineVertical1"
+            app:layout_constraintTop_toTopOf="@id/guidelineHorizontal1" />
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/notice_no_list"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/notice_text"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="100dp"
+            app:layout_constraintTop_toBottomOf="@id/guidelineHorizontal27"
+            app:layout_constraintStart_toStartOf="@id/guidelineVertical1"
+            app:layout_constraintEnd_toEndOf="@id/guidelineVertical9"
             android:visibility="gone">
             <ImageView
                 android:id="@+id/notice_icon"
@@ -60,16 +93,15 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/notice_list"
-            android:layout_width="330dp"
+            android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_margin="20dp"
             android:clipToPadding="false"
             android:overScrollMode="never"
-            app:layout_constraintTop_toBottomOf="@id/notice_text"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:visibility="visible"/>
+            app:layout_constraintTop_toBottomOf="@id/guidelineHorizontal20"
+            app:layout_constraintBottom_toBottomOf="@id/guidelineHorizontal90"
+            app:layout_constraintStart_toStartOf="@id/guidelineVertical1"
+            app:layout_constraintEnd_toEndOf="@id/guidelineVertical9"
+            android:visibility="gone"/>
         <LinearLayout
             android:id="@+id/pagination_container"
             android:layout_width="wrap_content"
@@ -78,8 +110,8 @@
             android:orientation="horizontal"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginBottom="30dp">
+            app:layout_constraintTop_toBottomOf="@id/guidelineHorizontal90"
+            android:layout_marginTop="10dp">
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,5 +1,8 @@
 package com.example.travelplus.inquiry;
 
+import static android.content.Context.MODE_PRIVATE;
+
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Editable;
@@ -17,6 +20,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
 import com.example.travelplus.R;
@@ -34,10 +38,17 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class InquireFragment extends Fragment {
     EditText inquireTitle, inquireContent;
-    ImageView inquireBtn;
-    String title, content;
+    CardView inquireBtn;
+    String title, content, authorization;
     ApiService apiService;
     private MockWebServer mockServer;
+
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        SharedPreferences prefs = requireActivity().getSharedPreferences("userPrefs", MODE_PRIVATE);
+        authorization = prefs.getString("authorization", null);
+    }
+
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_inquiry_send, container, false);
         setupMockServer();
@@ -75,7 +86,7 @@ public class InquireFragment extends Fragment {
         inquireBtn.setOnClickListener(view1 -> {
             // 내용 보내기
             InquireRequest inquireRequest = new InquireRequest(title, content);
-            Call<InquireResponse> call = apiService.inquire(inquireRequest);
+            Call<InquireResponse> call = apiService.inquire(authorization, inquireRequest);
             call.enqueue(new Callback<InquireResponse>() {
                 @Override
                 public void onResponse(Call<InquireResponse> call, Response<InquireResponse> response) {

@@ -21,10 +21,13 @@ import android.content.SharedPreferences;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.example.travelplus.MainActivity;
 import com.example.travelplus.R;
+import com.example.travelplus.onboarding.OnboardingActivity;
 import com.example.travelplus.register.RegisterActivity;
 import com.example.travelplus.network.ApiService;
 import com.kakao.sdk.auth.model.OAuthToken;
@@ -50,7 +53,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "KakaoLogin";
     EditText email, password;
-    ImageView loginBtn, kakaoLogin;
+    ImageView kakaoLogin;
+    CardView loginBtn;
     TextView register;
     Typeface font;
     ApiService apiService;
@@ -66,45 +70,44 @@ public class LoginActivity extends AppCompatActivity {
         register = findViewById(R.id.register);
         kakaoLogin = findViewById(R.id.kakao_login);
 
-        Function2<OAuthToken,Throwable, Unit> callback =new Function2<OAuthToken, Throwable, Unit>() {
-            @Override
-            // 콜백 메서드 ,
-            public Unit invoke(OAuthToken oAuthToken, Throwable throwable) {
-                Log.e(TAG,"CallBack Method");
-                //oAuthToken != null 이라면 로그인 성공
-                if(oAuthToken!=null){
-                    // 토큰이 전달된다면 로그인이 성공한 것이고 토큰이 전달되지 않으면 로그인 실패한다.
-                    String accessToken = oAuthToken.getAccessToken();
-                    Log.d(TAG, "카카오 로그인 성공, 토큰: " + accessToken);
-                    checkAgreements(LoginActivity.this);
-                    Log.d(TAG, "checkAgreements 호출됨");
-                    UserApiClient.getInstance().me((user, error)->{
-                        if (error != null) {
-                            Log.e(TAG, "사용자 정보 요청 실패", error);
-                        } else if (user != null) {
-                            String kakaoEmail = user.getKakaoAccount().getEmail();
-                            String nickname = user.getKakaoAccount().getProfile().getNickname();
-
-                            Log.d(TAG, "카카오 이메일: " + kakaoEmail);
-                            Log.d(TAG, "닉네임: " + nickname);
-                            SharedPreferences prefs = getSharedPreferences("userPrefs", MODE_PRIVATE);
-                            SharedPreferences.Editor editor = prefs.edit();
-                            editor.putLong("userId", 1);
-                            editor.apply();
-                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                            startActivity(intent);
-                            finish();
-                        }
-                        return null;
-                    });
-                }else {
-                    //로그인 실패
-                    Log.e(TAG, "invoke: login fail" );
-                }
-                return null;
-            }
-        };
-
+//        Function2<OAuthToken,Throwable, Unit> callback =new Function2<OAuthToken, Throwable, Unit>() {
+//            @Override
+//            // 콜백 메서드 ,
+//            public Unit invoke(OAuthToken oAuthToken, Throwable throwable) {
+//                Log.e(TAG,"CallBack Method");
+//                //oAuthToken != null 이라면 로그인 성공
+//                if(oAuthToken!=null){
+//                    // 토큰이 전달된다면 로그인이 성공한 것이고 토큰이 전달되지 않으면 로그인 실패한다.
+//                    String accessToken = oAuthToken.getAccessToken();
+//                    Log.d(TAG, "카카오 로그인 성공, 토큰: " + accessToken);
+//                    checkAgreements(LoginActivity.this);
+//                    Log.d(TAG, "checkAgreements 호출됨");
+//                    UserApiClient.getInstance().me((user, error)->{
+//                        if (error != null) {
+//                            Log.e(TAG, "사용자 정보 요청 실패", error);
+//                        } else if (user != null) {
+//                            String kakaoEmail = user.getKakaoAccount().getEmail();
+//                            String nickname = user.getKakaoAccount().getProfile().getNickname();
+//
+//                            Log.d(TAG, "카카오 이메일: " + kakaoEmail);
+//                            Log.d(TAG, "닉네임: " + nickname);
+//                            SharedPreferences prefs = getSharedPreferences("userPrefs", MODE_PRIVATE);
+//                            SharedPreferences.Editor editor = prefs.edit();
+//                            editor.putLong("userId", 1);
+//                            editor.apply();
+//                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+//                            startActivity(intent);
+//                            finish();
+//                        }
+//                        return null;
+//                    });
+//                }else {
+//                    //로그인 실패
+//                    Log.e(TAG, "invoke: login fail" );
+//                }
+//                return null;
+//            }
+//        };
 
         font = ResourcesCompat.getFont(this,R.font.bmeuljirottf);
         loginBtn.setEnabled(false);
@@ -200,13 +203,7 @@ public class LoginActivity extends AppCompatActivity {
 
         // 카카오 로그인 클릭
         kakaoLogin.setOnClickListener(view -> {
-            String kakaoAppKey = "4f903fc74917f6a8970285622c94b491";
-            String redirectUri = "http://182.230.40.124:8080/auth/kakao";
-            String authUrl = "https://kauth.kakao.com/oauth/authorize"
-                    + "?client_id=" + kakaoAppKey
-                    + "&redirect_uri=" + redirectUri
-                    + "&response_type=code";
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(authUrl));
+            Intent intent = new Intent(this, KakaoLoginActivity.class);
             startActivity(intent);
 
 //            if (UserApiClient.getInstance().isKakaoTalkLoginAvailable(LoginActivity.this)) {
@@ -303,10 +300,12 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         if (!id.isEmpty() && !pw.isEmpty() && validEmail(id)) {
-            loginBtn.setImageResource(R.drawable.login_button_activate);
+//            loginBtn.setImageResource(R.drawable.login_button_activate);
+            loginBtn.setCardBackgroundColor(ContextCompat.getColor(this,R.color.login_button));
             loginBtn.setEnabled(true);
         } else {
-            loginBtn.setImageResource(R.drawable.login_button_deactivate);
+//            loginBtn.setImageResource(R.drawable.login_button_deactivate);
+            loginBtn.setCardBackgroundColor(ContextCompat.getColor(this,R.color.gray));
             loginBtn.setEnabled(false);
         }
     }
@@ -320,7 +319,8 @@ public class LoginActivity extends AppCompatActivity {
                 mockServer = new MockWebServer();
                 mockServer.enqueue(new MockResponse()
                         .setResponseCode(200)
-                        .setBody("{\"resultCode\":200,\"resultMessage\":\"Success\", \"userId\":1}"));
+                        .addHeader("Authorization", "Bearer dummy_token_ABC123")
+                        .setBody("{\"resultCode\":200,\"resultMessage\":\"Success\"}"));
                 mockServer.start();
 
                 Retrofit retrofit = new Retrofit.Builder()
