@@ -9,6 +9,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,17 +41,16 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class RegisterActivity extends AppCompatActivity {
     ImageView back;
     CardView duplicateCheck, registerBtn;
-    TextView email, password, passwordCheck, name, checkId, checkPw;
+    TextView checkId, checkPw;
+    EditText email, password, passwordCheck, name;
     Typeface font;
-    boolean duplicate;
+    boolean isUsable;
     ApiService apiService;
     private MockWebServer mockServer;
     String authorization;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        SharedPreferences prefs = getSharedPreferences("userPrefs", MODE_PRIVATE);
-        authorization = prefs.getString("authorization", null);
         setContentView(R.layout.activity_register);
         setupMockServer();
         back = findViewById(R.id.back_btn);
@@ -64,7 +64,7 @@ public class RegisterActivity extends AppCompatActivity {
         checkId = findViewById(R.id.check_text);
         checkPw = findViewById(R.id.check_pw);
         font = ResourcesCompat.getFont(this,R.font.bmeuljirottf);
-        duplicate=false;
+        isUsable=false;
         back.setOnClickListener(view -> {
             Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -120,20 +120,20 @@ public class RegisterActivity extends AppCompatActivity {
                         if(res.resultCode == 200){
                             checkId.setVisibility(TextView.VISIBLE);
                             if(res.data.duplication){
-                                checkId.setText("사용가능한 이메일입니다.");
-                                duplicate = true;
-                            }else {
                                 checkId.setText("중복된 이메일입니다. 다시 시도해 주십시오.");
-                                duplicate = false;
+                                isUsable = false;
+                            }else {
+                                checkId.setText("사용가능한 이메일입니다.");
+                                isUsable = true;
                             }
                         }else {
                             runOnUiThread(() -> Toast.makeText(RegisterActivity.this, "중복확인 실패", Toast.LENGTH_SHORT).show());
-                            duplicate = false;
+                            isUsable = false;
                             Log.d("Duplicate","중복확인 실패\n"+"ResultCode : "+res.resultCode+" ResultMessage : "+res.resultMessage);
                         }
                     }else {
                         runOnUiThread(() -> Toast.makeText(RegisterActivity.this, "중복확인 실패", Toast.LENGTH_SHORT).show());
-                        duplicate = false;
+                        isUsable = false;
                         Log.d("Duplicate","중복확인 실패");
                     }
                 }
@@ -141,7 +141,7 @@ public class RegisterActivity extends AppCompatActivity {
                 @Override
                 public void onFailure(Call<DuplicateCheckResponse> call, Throwable t) {
                     runOnUiThread(() -> Toast.makeText(RegisterActivity.this, "네트워크 연결 실패", Toast.LENGTH_SHORT).show());
-                    duplicate = false;
+                    isUsable = false;
                     t.printStackTrace();
                 }
             });
@@ -202,7 +202,7 @@ public class RegisterActivity extends AppCompatActivity {
             checkPw.setVisibility(TextView.VISIBLE);
             same=false;
         }
-        if (same && !id.isEmpty() && !pw.isEmpty() && !pwc.isEmpty() && !user_name.isEmpty() && validEmail(id) && duplicate) {
+        if (same && !id.isEmpty() && !pw.isEmpty() && !pwc.isEmpty() && !user_name.isEmpty() && validEmail(id) && isUsable) {
 //            registerBtn.setImageResource(R.drawable.register_button_activate);
             registerBtn.setCardBackgroundColor(ContextCompat.getColor(RegisterActivity.this,R.color.login_button));
             registerBtn.setEnabled(true);

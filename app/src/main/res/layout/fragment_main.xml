@@ -11,12 +11,6 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.1" />
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guidelineHorizontal2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.2" />
-    <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guidelineHorizontal32"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -55,17 +49,15 @@
         android:textColor="@color/black"
         android:fontFamily="@font/bmeuljiro10yearslater"
         app:layout_constraintTop_toTopOf="@id/guidelineHorizontal1"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginStart="90dp" />
+        app:layout_constraintStart_toEndOf="@id/home_logo" />
     <ImageView
         android:id="@+id/home_logo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/home_logo"
         app:layout_constraintTop_toTopOf="@id/guidelineHorizontal1"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="5dp"
-        app:layout_constraintEnd_toStartOf="@id/title"
+        app:layout_constraintBottom_toBottomOf="@id/title"
+        app:layout_constraintStart_toStartOf="@id/guidelineVertical1"
         />
     <Spinner
         android:id="@+id/weather_location"
@@ -82,121 +74,263 @@
     </Spinner>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/weather_list"
-        android:layout_width="wrap_content"
-        android:layout_height="550dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         app:layout_constraintTop_toBottomOf="@id/weather_location"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="50dp"
+        app:layout_constraintStart_toStartOf="@id/guidelineVertical1"
+        app:layout_constraintEnd_toEndOf="@id/guidelineVertical9"
+        app:layout_constraintBottom_toBottomOf="@id/guidelineHorizontal9"
+        android:layout_marginTop="10dp"
         android:visibility="gone">
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineHorizontal3_inner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.3" />
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineHorizontal33_inner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.33" />
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineHorizontal63_inner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.63" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineHorizontal66_inner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.66" />
         <androidx.cardview.widget.CardView
             android:id="@+id/today_card"
-            android:layout_width="330dp"
-            android:layout_height="150dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             app:cardCornerRadius="20dp"
             app:cardElevation="4dp"
             app:cardBackgroundColor="@color/login_button"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/guidelineHorizontal3_inner"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="오늘의 날씨"
-                android:fontFamily="@font/bmeuljirottf"
-                android:textColor="@color/color_text"
-                android:layout_marginStart="17dp"
-                android:layout_marginTop="17dp"
-                android:textSize="25dp" />
-            <TextView
-                android:id="@+id/today_temperature"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/bmeuljirottf"
-                android:textSize="30dp"
-                android:textColor="@color/color_background"
-                android:layout_marginStart="25dp"
-                android:layout_marginTop="58dp"/>
-            <ImageView
-                android:id="@+id/today_weather"
-                android:layout_width="110dp"
-                android:layout_height="110dp"
-                android:layout_marginStart="190dp"
-                android:layout_marginTop="20dp"/>
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guidelineHorizontal2_today"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_percent="0.2"/>
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guidelineHorizontal8_today"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_percent="0.7"/>
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guidelineVertical05_today"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.05" />
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guidelineVertical55_today"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.55" />
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guidelineVertical9_today"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.9" />
+                <TextView
+                    android:id="@+id/today_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/bmeuljirottf"
+                    android:text="오늘의 날씨"
+                    android:textSize="25dp"
+                    android:textColor="@color/color_text"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="@id/guidelineVertical05_today"
+                    android:layout_marginTop="22dp" />
+                <TextView
+                    android:id="@+id/today_temperature"
+                    android:text=""
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/bmeuljirottf"
+                    android:textSize="30dp"
+                    android:textColor="@color/color_background"
+                    app:layout_constraintTop_toBottomOf="@id/today_date"
+                    app:layout_constraintStart_toStartOf="@id/guidelineVertical05_today" />
+                <ImageView
+                    android:id="@+id/today_weather"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintTop_toTopOf="@id/guidelineHorizontal2_today"
+                    app:layout_constraintBottom_toBottomOf="@id/guidelineHorizontal8_today"
+                    app:layout_constraintStart_toStartOf="@id/guidelineVertical55_today"
+                    app:layout_constraintEnd_toEndOf="@id/guidelineVertical9_today" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
         <androidx.cardview.widget.CardView
             android:id="@+id/tomorrow_card"
-            android:layout_width="330dp"
-            android:layout_height="150dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             app:cardCornerRadius="20dp"
             app:cardElevation="4dp"
             app:cardBackgroundColor="@color/login_button"
-            app:layout_constraintTop_toBottomOf="@id/today_card"
+            app:layout_constraintTop_toBottomOf="@id/guidelineHorizontal33_inner"
+            app:layout_constraintBottom_toBottomOf="@id/guidelineHorizontal63_inner"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="30dp">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="내일의 날씨"
-                android:fontFamily="@font/bmeuljirottf"
-                android:textColor="@color/color_text"
-                android:layout_marginStart="17dp"
-                android:layout_marginTop="17dp"
-                android:textSize="25dp" />
-            <TextView
-                android:id="@+id/tomorrow_temperature"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/bmeuljirottf"
-                android:textSize="30dp"
-                android:textColor="@color/color_background"
-                android:layout_marginStart="25dp"
-                android:layout_marginTop="58dp"/>
-            <ImageView
-                android:id="@+id/tomorrow_weather"
-                android:layout_width="110dp"
-                android:layout_height="110dp"
-                android:layout_marginStart="190dp"
-                android:layout_marginTop="20dp"/>
+            app:layout_constraintEnd_toEndOf="parent">
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guidelineHorizontal2_tomorrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_percent="0.2"/>
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guidelineHorizontal8_tomorrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_percent="0.7"/>
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guidelineVertical05_tomorrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.05" />
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guidelineVertical55_tomorrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.55" />
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guidelineVertical9_tomorrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.9" />
+                <TextView
+                    android:id="@+id/tomorrow_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/bmeuljirottf"
+                    android:text="내일의 날씨"
+                    android:textSize="25dp"
+                    android:textColor="@color/color_text"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="@id/guidelineVertical05_tomorrow"
+                    android:layout_marginTop="22dp" />
+                <TextView
+                    android:id="@+id/tomorrow_temperature"
+                    android:text=""
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/bmeuljirottf"
+                    android:textSize="30dp"
+                    android:textColor="@color/color_background"
+                    app:layout_constraintTop_toBottomOf="@id/tomorrow_date"
+                    app:layout_constraintStart_toStartOf="@id/guidelineVertical05_tomorrow" />
+                <ImageView
+                    android:id="@+id/tomorrow_weather"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintTop_toTopOf="@id/guidelineHorizontal2_tomorrow"
+                    app:layout_constraintBottom_toBottomOf="@id/guidelineHorizontal8_tomorrow"
+                    app:layout_constraintStart_toStartOf="@id/guidelineVertical55_tomorrow"
+                    app:layout_constraintEnd_toEndOf="@id/guidelineVertical9_tomorrow" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
         <androidx.cardview.widget.CardView
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
             android:id="@+id/the_day_after_tomorrow_card"
-            android:layout_width="330dp"
-            android:layout_height="150dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             app:cardCornerRadius="20dp"
             app:cardElevation="4dp"
             app:cardBackgroundColor="@color/login_button"
-            app:layout_constraintTop_toBottomOf="@id/tomorrow_card"
+            app:layout_constraintTop_toBottomOf="@id/guidelineHorizontal66_inner"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="30dp">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="모레의 날씨"
-                android:fontFamily="@font/bmeuljirottf"
-                android:textColor="@color/color_text"
-                android:layout_marginStart="17dp"
-                android:layout_marginTop="17dp"
-                android:textSize="25dp" />
-            <TextView
-                android:id="@+id/the_day_after_tomorrow_temperature"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/bmeuljirottf"
-                android:textSize="30dp"
-                android:textColor="@color/color_background"
-                android:layout_marginStart="25dp"
-                android:layout_marginTop="58dp"/>
-            <ImageView
-                android:id="@+id/the_day_after_tomorrow_weather"
-                android:layout_width="110dp"
-                android:layout_height="110dp"
-                android:layout_marginStart="190dp"
-                android:layout_marginTop="20dp"/>
+            app:layout_constraintEnd_toEndOf="parent">
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guidelineHorizontal2_day_after"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_percent="0.2"/>
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guidelineHorizontal8_day_after"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_percent="0.7"/>
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guidelineVertical05_day_after"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.05" />
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guidelineVertical55_day_after"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.55" />
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guidelineVertical9_day_after"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.9" />
+                <TextView
+                    android:id="@+id/the_day_after_tomorrow_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/bmeuljirottf"
+                    android:text="모레의 날씨"
+                    android:textSize="25dp"
+                    android:textColor="@color/color_text"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="@id/guidelineVertical05_day_after"
+                    android:layout_marginTop="22dp" />
+                <TextView
+                    android:id="@+id/the_day_after_tomorrow_temperature"
+                    android:text=""
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/bmeuljirottf"
+                    android:textSize="30dp"
+                    android:textColor="@color/color_background"
+                    app:layout_constraintTop_toBottomOf="@id/the_day_after_tomorrow_date"
+                    app:layout_constraintStart_toStartOf="@id/guidelineVertical05_day_after" />
+                <ImageView
+                    android:id="@+id/the_day_after_tomorrow_weather"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintTop_toTopOf="@id/guidelineHorizontal2_day_after"
+                    app:layout_constraintBottom_toBottomOf="@id/guidelineHorizontal8_day_after"
+                    app:layout_constraintStart_toStartOf="@id/guidelineVertical55_day_after"
+                    app:layout_constraintEnd_toEndOf="@id/guidelineVertical9_day_after" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
     </androidx.constraintlayout.widget.ConstraintLayout>
     <androidx.cardview.widget.CardView
@@ -206,7 +340,7 @@
         app:cardCornerRadius="20dp"
         app:cardElevation="4dp"
         app:cardBackgroundColor="@color/login_button"
-        app:layout_constraintTop_toBottomOf="@id/guidelineHorizontal2"
+        app:layout_constraintTop_toBottomOf="@id/title"
         app:layout_constraintBottom_toBottomOf="@id/guidelineHorizontal32"
         app:layout_constraintStart_toStartOf="@id/guidelineVertical1"
         app:layout_constraintEnd_toEndOf="@id/guidelineVertical9"

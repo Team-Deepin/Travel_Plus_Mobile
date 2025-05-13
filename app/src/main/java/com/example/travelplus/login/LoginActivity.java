@@ -27,6 +27,7 @@ import androidx.core.content.res.ResourcesCompat;
 
 import com.example.travelplus.MainActivity;
 import com.example.travelplus.R;
+import com.example.travelplus.network.RetrofitClient;
 import com.example.travelplus.onboarding.OnboardingActivity;
 import com.example.travelplus.register.RegisterActivity;
 import com.example.travelplus.network.ApiService;
@@ -333,6 +334,7 @@ public class LoginActivity extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+//            apiService = RetrofitClient.getInstance().create(ApiService.class);
         }).start();
     }
 }

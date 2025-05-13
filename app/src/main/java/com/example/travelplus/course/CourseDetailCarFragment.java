@@ -26,6 +26,7 @@ import android.content.SharedPreferences;
 
 import com.example.travelplus.R;
 import com.example.travelplus.network.ApiService;
+import com.example.travelplus.network.RetrofitClient;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.IOException;
@@ -399,6 +400,8 @@ public class CourseDetailCarFragment extends Fragment {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+//            apiService = RetrofitClient.getInstance().create(ApiService.class);
+//            onReady.run();
         }).start();
     }
 }

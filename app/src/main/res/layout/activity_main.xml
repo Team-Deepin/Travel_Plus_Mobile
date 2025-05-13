@@ -32,7 +32,7 @@
         android:elevation="5dp"
         app:backgroundTint="@color/color_button1"
         app:tint="@null"
-        app:layout_constraintTop_toTopOf="@id/guidelineHorizontal85"
+        app:layout_constraintBottom_toTopOf="@id/appBarLayout"
         app:layout_constraintEnd_toEndOf="@id/guidelineVertical95"
         android:visibility="gone"/>
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -44,7 +44,7 @@
         android:elevation="6dp"
         app:backgroundTint="@color/color_button1"
         app:tint="@null"
-        app:layout_constraintTop_toTopOf="@id/guidelineHorizontal85"
+        app:layout_constraintBottom_toTopOf="@id/appBarLayout"
         app:layout_constraintEnd_toEndOf="@id/guidelineVertical95"
         android:visibility="gone"/>
     <com.google.android.material.floatingactionbutton.FloatingActionButton

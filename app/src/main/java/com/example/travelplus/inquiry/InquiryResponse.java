@@ -8,11 +8,11 @@ public class InquiryResponse {
     public List<Inquiry> data;
 
     public static class Inquiry {
-        public int inquireId;
+        public int id;
         public String title;
         public String content;
-        public String createDate;
-        public boolean isAnswered;
+        public String createdDate;
+        public boolean answered;
         public String answer;
         public String answerDate;
 
