@@ -11,12 +11,6 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.1" />
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guidelineHorizontal15"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.15" />
-    <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guidelineHorizontal95"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -58,7 +52,7 @@
         android:background="@drawable/rounded_background"
         app:layout_constraintStart_toStartOf="@id/guidelineVertical1"
         app:layout_constraintEnd_toEndOf="@id/guidelineVertical9"
-        app:layout_constraintTop_toBottomOf="@id/guidelineHorizontal15">
+        app:layout_constraintTop_toBottomOf="@id/change_theme_text">
         <TextView
             android:id="@+id/change_theme"
             android:layout_width="wrap_content"

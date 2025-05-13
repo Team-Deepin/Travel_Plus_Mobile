@@ -25,6 +25,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.travelplus.R;
 import com.example.travelplus.network.ApiService;
+import com.example.travelplus.network.RetrofitClient;
 import com.example.travelplus.recommend.AIRecommendFragment;
 import com.example.travelplus.survey.SurveyFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -32,7 +33,6 @@ import com.google.android.material.card.MaterialCardView;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
@@ -51,6 +51,7 @@ public class CourseFragment extends Fragment {
     LinearLayout courseListLayout;
     ConstraintLayout noCourseListLayout;
     ApiService apiService;
+    ImageView pastCourseBtn;
     private String authorization;
     private MockWebServer mockServer;
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -58,6 +59,15 @@ public class CourseFragment extends Fragment {
         SharedPreferences prefs = requireActivity().getSharedPreferences("userPrefs", MODE_PRIVATE);
         authorization = prefs.getString("authorization", null);
     }
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (apiService != null) {
+            courseListLayout.removeAllViews();
+            courseList(LayoutInflater.from(requireContext()));
+        }
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -68,6 +78,7 @@ public class CourseFragment extends Fragment {
         noCourseListLayout = view.findViewById(R.id.course_no_list);
         aiRecommend = view.findViewById(R.id.course_AI);
         tripRecommend = view.findViewById(R.id.course_trip);
+        pastCourseBtn = view.findViewById(R.id.past_course_btn);
 
         aiRecommend.setOnClickListener(view1 -> {
             ai_recommend_click();
@@ -75,7 +86,9 @@ public class CourseFragment extends Fragment {
         tripRecommend.setOnClickListener(view1 -> {
             survey_click();
         });
-
+        pastCourseBtn.setOnClickListener(view1 -> {
+            showPast();
+        });
         requireActivity().getSupportFragmentManager()
                 .addOnBackStackChangedListener(()->{
                     if (requireActivity().getSupportFragmentManager().getBackStackEntryCount() == 0){
@@ -116,12 +129,12 @@ public class CourseFragment extends Fragment {
 
                             TextView title = card.findViewById(R.id.course_title);
                             TextView duration = card.findViewById(R.id.course_duration);
-                            TextView meansTP = card.findViewById(R.id.course_meansTP);
+                            TextView meansTp = card.findViewById(R.id.course_meansTP);
                             String durationText = calculateDuration(course.startDate, course.endDate);
 
                             title.setText(course.title);
                             duration.setText(durationText);
-                            meansTP.setText(course.meansTP);
+                            meansTp.setText(course.meansTp);
 
                             courseListLayout.addView(card);
                             card.setOnClickListener(view1 -> {
@@ -131,13 +144,13 @@ public class CourseFragment extends Fragment {
                                 bundle.putString("title", course.title);
                                 bundle.putString("location", course.area);
                                 bundle.putString("duration", durationText);
-                                bundle.putString("meansTP", course.meansTP);
-                                bundle.putStringArrayList("type", new ArrayList<>(course.courseType));
+                                bundle.putString("meansTp", course.meansTp);
+                                bundle.putString("type", course.tripType);
 
                                 ConstraintLayout courseLayout = requireView().findViewById(R.id.course_layout);
                                 courseLayout.setVisibility(GONE);
 
-                                if (course.meansTP.equals("자가용")){
+                                if (course.meansTp.equals("자가용")){
                                     CourseDetailCarFragment detailCarFragment = new CourseDetailCarFragment();
                                     detailCarFragment.setArguments(bundle);
                                     requireActivity().getSupportFragmentManager()
@@ -145,7 +158,7 @@ public class CourseFragment extends Fragment {
                                             .replace(R.id.course_fragment_container, detailCarFragment)
                                             .addToBackStack(null)
                                             .commit();
-                                } else if (course.meansTP.equals("대중교통")) {
+                                } else if (course.meansTp.equals("대중교통")) {
                                     CourseDetailTransitFragment detailTransitFragment = new CourseDetailTransitFragment();
                                     detailTransitFragment.setArguments(bundle);
                                     requireActivity().getSupportFragmentManager()
@@ -250,6 +263,17 @@ public class CourseFragment extends Fragment {
         });
         dialog.show();
     }
+    private void showPast(){
+        ConstraintLayout courseLayout = requireView().findViewById(R.id.course_layout);
+        courseLayout.setVisibility(GONE);
+        CoursePastFragment coursePastFragment = new CoursePastFragment();
+
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.course_fragment_container, coursePastFragment)
+                .addToBackStack(null)
+                .commit();
+    }
     private void setupMockServer(LayoutInflater inflater) {
         new Thread(() -> {
             try {
@@ -267,7 +291,7 @@ public class CourseFragment extends Fragment {
                                 "      \"courseType\": [\"힐링\", \"쇼핑\"],\n" +
                                 "      \"startDate\": \"2025-03-01\",\n" +
                                 "      \"endDate\": \"2025-03-05\",\n" +
-                                "      \"meansTP\": \"자가용\"\n" +
+                                "      \"meansTp\": \"자가용\"\n" +
                                 "    },\n" +
                                 "    {\n" +
                                 "      \"courseId\": 2,\n" +
@@ -276,7 +300,7 @@ public class CourseFragment extends Fragment {
                                 "      \"courseType\": [\"힐링\", \"쇼핑\"],\n" +
                                 "      \"startDate\": \"2025-06-15\",\n" +
                                 "      \"endDate\": \"2025-06-20\",\n" +
-                                "      \"meansTP\": \"대중교통\"\n" +
+                                "      \"meansTp\": \"대중교통\"\n" +
                                 "    }\n" +
                                 "  ]\n" +
                                 "}"));
@@ -294,6 +318,8 @@ public class CourseFragment extends Fragment {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+//            apiService = RetrofitClient.getInstance().create(ApiService.class);
+//            getActivity().runOnUiThread(() -> courseList(inflater));
         }).start();
     }
 }

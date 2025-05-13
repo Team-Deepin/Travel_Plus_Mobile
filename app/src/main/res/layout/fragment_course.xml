@@ -28,6 +28,14 @@
             android:textSize="30dp"
             app:layout_constraintStart_toStartOf="@id/guidelineVertical1"
             app:layout_constraintTop_toTopOf="@id/guidelineHorizontal1" />
+        <ImageView
+            android:id="@+id/past_course_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/past_course_btn"
+            app:layout_constraintTop_toTopOf="@id/guidelineHorizontal1"
+            app:layout_constraintEnd_toEndOf="@id/guidelineVertical9"
+            app:layout_constraintBottom_toBottomOf="@id/title"/>
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guidelineHorizontal1"
@@ -36,23 +44,11 @@
             android:orientation="horizontal"
             app:layout_constraintGuide_percent="0.1"/>
         <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guidelineHorizontal15"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.15"/>
-        <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guidelineHorizontal27"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             app:layout_constraintGuide_percent="0.27"/>
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guidelineHorizontal5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.5" />
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guidelineHorizontal75"
             android:layout_width="wrap_content"
@@ -133,7 +129,7 @@
             android:visibility="gone"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            app:layout_constraintTop_toBottomOf="@id/guidelineHorizontal15"
+            app:layout_constraintTop_toBottomOf="@id/title"
             app:layout_constraintBottom_toBottomOf="@id/guidelineHorizontal75"
             app:layout_constraintStart_toStartOf="@id/guidelineVertical1"
             app:layout_constraintEnd_toEndOf="@id/guidelineVertical9">

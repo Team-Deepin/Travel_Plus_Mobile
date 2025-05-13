@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.travelplus.R;
 import com.example.travelplus.network.ApiService;
+import com.example.travelplus.network.RetrofitClient;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -52,6 +53,13 @@ public class NoticeFragment extends Fragment {
         super.onCreate(savedInstanceState);
         SharedPreferences prefs = requireActivity().getSharedPreferences("userPrefs", MODE_PRIVATE);
         authorization = prefs.getString("authorization", null);
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (apiService != null) {
+            loadNotices(currentPage-1);
+        }
     }
     @Nullable
     @Override
@@ -98,8 +106,8 @@ public class NoticeFragment extends Fragment {
             @Override
             public void onResponse(Call<NoticeResponse> call, Response<NoticeResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    List<NoticeResponse.Notice> notices = response.body().data.notices;
-                    totalCount = response.body().data.totalCount;
+                    List<NoticeResponse.Notice> notices = response.body().data.content;
+                    totalCount = response.body().data.totalElements;
 
                     if (notices.isEmpty()) {
                         noticeRecyclerView.setVisibility(GONE);
@@ -129,7 +137,8 @@ public class NoticeFragment extends Fragment {
             TextView prevBtn = createPageButton("◀ ");
             prevBtn.setOnClickListener(v -> {
                 currentPage = startPage - 1;
-                loadNotices(currentPage);
+                int sendPage = currentPage -1;
+                loadNotices(sendPage);
             });
             paginationContainer.addView(prevBtn);
         }
@@ -141,7 +150,8 @@ public class NoticeFragment extends Fragment {
             pageBtn.setTypeface(null, page == currentPage ? Typeface.BOLD : Typeface.NORMAL);
             pageBtn.setOnClickListener(v -> {
                 currentPage = page;
-                loadNotices(currentPage);
+                int sendPage = currentPage -1;
+                loadNotices(sendPage);
             });
             paginationContainer.addView(pageBtn);
         }
@@ -150,7 +160,8 @@ public class NoticeFragment extends Fragment {
             TextView nextBtn = createPageButton(" ▶");
             nextBtn.setOnClickListener(v -> {
                 currentPage = endPage + 1;
-                loadNotices(currentPage);
+                int sendPage = currentPage -1;
+                loadNotices(sendPage);
             });
             paginationContainer.addView(nextBtn);
         }
@@ -179,7 +190,7 @@ public class NoticeFragment extends Fragment {
                     @Override
                     public MockResponse dispatch(RecordedRequest request) {
                         String path = request.getPath(); // 예: /edit/notice?page=2&size=7
-                        int page = 1;
+                        int page = 0;
 
                         try {
                             String[] query = path.split("\\?")[1].split("&");
@@ -192,14 +203,14 @@ public class NoticeFragment extends Fragment {
                             e.printStackTrace();
                         }
 
-                        int from = (page - 1) * 7;
+                        int from = page * 7;
                         int to = Math.min(from + 7, noticesJson.size());
                         String body = "{"
                                 + "\"resultCode\": 200,"
                                 + "\"resultMessage\": \"Success\","
                                 + "\"data\": {"
                                 + "\"totalCount\": 20,"
-                                + "\"notices\": []" //[" + String.join(",", noticesJson.subList(from, to)) + "]"
+                                + "\"notices\": [" + String.join(",", noticesJson.subList(from, to)) + "]" //[]"
                                 + "}"
                                 + "}";
 
@@ -216,11 +227,13 @@ public class NoticeFragment extends Fragment {
 
                 apiService = retrofit.create(ApiService.class);
 
-                requireActivity().runOnUiThread(() -> loadNotices(currentPage));
+                requireActivity().runOnUiThread(() -> loadNotices(currentPage-1));
 
             } catch (IOException e) {
                 e.printStackTrace();
             }
+//            apiService = RetrofitClient.getInstance().create(ApiService.class);
+//            requireActivity().runOnUiThread(() -> loadNotices(currentPage));
         }).start();
     }
 }

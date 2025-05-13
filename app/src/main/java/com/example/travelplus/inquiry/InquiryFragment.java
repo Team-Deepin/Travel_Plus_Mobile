@@ -46,6 +46,14 @@ public class InquiryFragment extends Fragment {
         SharedPreferences prefs = requireActivity().getSharedPreferences("userPrefs", MODE_PRIVATE);
         authorization = prefs.getString("authorization", null);
     }
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (apiService != null) {
+            inquiryList.removeAllViews();
+            inquiryLists(LayoutInflater.from(requireContext()));
+        }
+    }
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_inquiry, container, false);
         setupMockServer(inflater);
@@ -99,7 +107,7 @@ public class InquiryFragment extends Fragment {
                             TextView complete = card.findViewById(R.id.inquiry_complete);
 
                             title.setText(inquiry.title);
-                            if(inquiry.isAnswered){
+                            if(inquiry.answered){
                                 complete.setText("[답변 완료]");
                                 complete.setTextColor(completeColor);
                             }else {
@@ -111,10 +119,10 @@ public class InquiryFragment extends Fragment {
                             card.setOnClickListener(view -> {
                                 // 문의 답변 띄우기
                                 Bundle bundle = new Bundle();
-                                bundle.putInt("inquiryId",inquiry.inquireId);
+                                bundle.putInt("inquiryId",inquiry.id);
                                 bundle.putString("title",inquiry.title);
                                 bundle.putString("content",inquiry.content);
-                                if(inquiry.isAnswered){
+                                if(inquiry.answered){
                                     bundle.putString("answer",inquiry.answer);
                                 }
                                 InquiryAnswerFragment inquiryAnswerFragment = new InquiryAnswerFragment();

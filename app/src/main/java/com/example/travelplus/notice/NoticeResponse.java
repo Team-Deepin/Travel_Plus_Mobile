@@ -8,8 +8,8 @@ public class NoticeResponse {
     public Data data;
 
     public static class Data {
-        public int totalCount;
-        public List<Notice> notices;
+        public int totalElements;
+        public List<Notice> content;
     }
     public static class Notice {
         public int noticeId;

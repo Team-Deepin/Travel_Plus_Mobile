@@ -28,6 +28,7 @@ import androidx.fragment.app.FragmentManager;
 import com.example.travelplus.R;
 import com.example.travelplus.course.CourseResponse;
 import com.example.travelplus.network.ApiService;
+import com.example.travelplus.network.RetrofitClient;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -218,6 +219,7 @@ public class AIResultFragment extends Fragment {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+//            apiService = RetrofitClient.getInstance().create(ApiService.class);
         }).start();
     }
 }

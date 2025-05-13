@@ -1,5 +1,6 @@
 package com.example.travelplus.network;
 
+import com.example.travelplus.course.CoursePastResponse;
 import com.example.travelplus.home.HomeResponse;
 import com.example.travelplus.change.ChangeThemeRequest;
 import com.example.travelplus.change.ChangeThemeResponse;
@@ -74,6 +75,8 @@ public interface ApiService {
     Call<HomeResponse> home(@Header("Authorization") String authorization);
     @GET("/course")
     Call<CourseResponse> course(@Header("Authorization") String authorization);
+    @GET("/course/past")
+    Call<CoursePastResponse> coursePast(@Header("Authorization") String authorization);
     @GET("/course/detail/car")
     Call<CourseDetailCarResponse> detailCar(@Header("Authorization") String authorization, @Query("courseId") int courseId);
     @GET("/course/detail/transit")

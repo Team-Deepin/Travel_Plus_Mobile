@@ -125,16 +125,16 @@
             android:orientation="horizontal"
             app:layout_constraintGuide_percent="0.12" />
         <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guidelineHorizontal75_inner_age"
+            android:id="@+id/guidelineHorizontal85_inner_age"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.75" />
+            app:layout_constraintGuide_percent="0.85" />
         <TextView
             android:id="@+id/onboarding_age"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="나이"
+            android:text="생년월일"
             android:fontFamily="@font/bmeuljirottf"
             android:textSize="25dp"
             android:textColor="@color/color_text"
@@ -153,7 +153,7 @@
             app:layout_constraintStart_toStartOf="@id/guidelineVertical08_inner_age"
             app:layout_constraintEnd_toEndOf="@id/guidelineVertical92_inner_age"
             app:layout_constraintTop_toBottomOf="@id/onboarding_age"
-            app:layout_constraintBottom_toBottomOf="@id/guidelineHorizontal75_inner_age"
+            app:layout_constraintBottom_toBottomOf="@id/guidelineHorizontal85_inner_age"
             android:layout_marginTop="5dp"
             android:paddingStart="10dp"/>
 

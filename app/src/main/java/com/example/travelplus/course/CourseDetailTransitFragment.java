@@ -26,6 +26,7 @@ import android.content.SharedPreferences;
 
 import com.example.travelplus.R;
 import com.example.travelplus.network.ApiService;
+import com.example.travelplus.network.RetrofitClient;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.IOException;
@@ -171,6 +172,10 @@ public class CourseDetailTransitFragment extends Fragment {
                                     int hourTime = (time / 60 >= 60) ? (time / 60) / 60 : 0;
                                     int minTime = (time / 60 >= 60) ? (time % 60) : (time / 60);
                                     String timeText = hourTime !=0 ? "약 "+hourTime+"시간 "+minTime+"분 소요" : "약 "+minTime+"분 소요";
+                                    pathText.setLayoutParams(new LinearLayout.LayoutParams(
+                                            ViewGroup.LayoutParams.MATCH_PARENT,
+                                            ViewGroup.LayoutParams.WRAP_CONTENT
+                                    ));
                                     pathText.setText(path.start+" -> "+path.end+" "+mode+" "+timeText);
                                     detailCard.addView(pathCard);
                                 }
@@ -515,6 +520,8 @@ public class CourseDetailTransitFragment extends Fragment {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+//            apiService = RetrofitClient.getInstance().create(ApiService.class);
+//            onReady.run();
         }).start();
     }
 }

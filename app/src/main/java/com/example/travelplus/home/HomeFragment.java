@@ -28,6 +28,7 @@ import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
+import com.example.travelplus.network.RetrofitClient;
 import com.example.travelplus.onboarding.OnboardingActivity;
 import com.example.travelplus.R;
 import com.example.travelplus.WeatherResponse;
@@ -237,10 +238,7 @@ public class HomeFragment extends Fragment {
                 SimpleDateFormat outputDateFormat = new SimpleDateFormat("MM/dd", Locale.getDefault());
 
                 homeWeatherList.removeAllViews();
-                for (WeatherResponse.ForecastItem item : weather.list) {
-                    Log.d("예보전체", item.dt_txt);
-                    Log.d("온도", String.valueOf(item.main.temp));
-                }
+
                 List<String> targetDates = getDateRange(startDateGlobal, endDateGlobal);
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
                 Calendar cal = Calendar.getInstance();
@@ -395,69 +393,75 @@ public class HomeFragment extends Fragment {
                 if (response.isSuccessful() && response.body() != null) {
                     HomeResponse res = response.body();
                     Log.d("home",res.resultMessage);
-                    if(res.resultCode == 200){
-                        boolean isFirst = res.data.isFirst;
-                        boolean isTraveling = false;
-                        Date today = new Date();
-                        startDateGlobal= res.data.course.get(0).startDate;
-                        endDateGlobal = res.data.course.get(0).endDate;
-                        String duration="";
-                        areaGlobal = res.data.course.get(0).area;
-                        try {
-                            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
-                            Date startDate = dateFormat.parse(startDateGlobal);
-                            Date endDate = dateFormat.parse(endDateGlobal);
-
-                            long diffInMillis = endDate.getTime() - startDate.getTime();
-                            long diffTodayStart = today.getTime() - startDate.getTime();
-                            long diffTodayEnd = endDate.getTime() - today.getTime();
-                            long diffInDays = diffInMillis / (1000 * 60 * 60 * 24);
-                            if (diffInDays == 0) {
-                                duration = "당일치기";
-                            } else if (diffInDays == 1) {
-                                duration = "1박 2일";
-                            }
-                            else {
-                                duration = diffInDays + "박 " + (diffInDays + 1) + "일";
-                            }
-                            if (diffTodayStart >= 0 && diffTodayEnd >= 0) {
-                                isTraveling = true;
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        Log.d("home", "isFirst : " + isFirst);
-                        if (isFirst) {
-                            Intent onboardingIntent = new Intent(getContext(), OnboardingActivity.class);
-                            startActivity(onboardingIntent);
-                            requireActivity().finish();
-                        }else {
-                            if(isTraveling){
-                                homeList.setVisibility(VISIBLE);
-                                weatherList.setVisibility(GONE);
-                                locationList.setVisibility(GONE);
-                                homeScroll.setVisibility(VISIBLE);
-                                homeTitle.setText(res.data.course.get(0).title);
-                                homeDuration.setText(duration+",");
-                                homeMeansTP.setText(res.data.course.get(0).meansTp);
-                                homeWeatherList.removeAllViews();
-
-                                String selectedEnglish = weatherLocation.get(areaGlobal);
-                                String url = "https://api.openweathermap.org/data/2.5/forecast?q=" + selectedEnglish
-                                        + "&appid=" + apiKey + "&units=metric&lang=kr";
-
-                                new GetWeatherCourse().execute(url);
-                            }else{
-                                weatherList.setVisibility(VISIBLE);
-                                locationList.setVisibility(VISIBLE);
-                                homeList.setVisibility(GONE);
-                                homeWeatherList.setVisibility(GONE);
-                                homeScroll.setVisibility(GONE);
-                            }
-                        }
+                    boolean isFirst = res.data.isFirst;
+                    if (isFirst) {
+                        Intent onboardingIntent = new Intent(getContext(), OnboardingActivity.class);
+                        startActivity(onboardingIntent);
+                        requireActivity().finish();
                     }else {
-                        Log.d("home", "Result Code: " + res.resultCode + ", Result Message: " + res.resultMessage);
+                        if(res.resultCode == 200 && !res.data.course.isEmpty()){
+                            boolean isTraveling = false;
+                            Date today = new Date();
+                            startDateGlobal= res.data.course.get(0).startDate;
+                            endDateGlobal = res.data.course.get(0).endDate;
+                            String duration="";
+                            areaGlobal = res.data.course.get(0).area;
+                            try {
+                                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+                                Date startDate = dateFormat.parse(startDateGlobal);
+                                Date endDate = dateFormat.parse(endDateGlobal);
+                                endDate.setTime(endDate.getTime() + (1000 * 60 * 60 * 24));
+
+                                long diffInMillis = endDate.getTime() - startDate.getTime();
+                                long diffTodayStart = today.getTime() - startDate.getTime();
+                                long diffTodayEnd = endDate.getTime() - today.getTime();
+                                long diffInDays = diffInMillis / (1000 * 60 * 60 * 24);
+                                if (diffInDays == 0) {
+                                    duration = "당일치기";
+                                } else if (diffInDays == 1) {
+                                    duration = "1박 2일";
+                                }
+                                else {
+                                    duration = diffInDays + "박 " + (diffInDays + 1) + "일";
+                                }
+                                if (diffTodayStart >= 0 && diffTodayEnd >= 0) {
+                                    isTraveling = true;
+                                }
+                                if(isTraveling){
+                                    homeList.setVisibility(VISIBLE);
+                                    weatherList.setVisibility(GONE);
+                                    locationList.setVisibility(GONE);
+                                    homeScroll.setVisibility(VISIBLE);
+                                    homeTitle.setText(res.data.course.get(0).title);
+                                    homeDuration.setText(duration+",");
+                                    homeMeansTP.setText(res.data.course.get(0).meansTp);
+                                    homeWeatherList.removeAllViews();
+
+                                    String selectedEnglish = weatherLocation.get(areaGlobal);
+                                    String url = "https://api.openweathermap.org/data/2.5/forecast?q=" + selectedEnglish
+                                            + "&appid=" + apiKey + "&units=metric&lang=kr";
+
+                                    new GetWeatherCourse().execute(url);
+                                }else{
+                                    weatherList.setVisibility(VISIBLE);
+                                    locationList.setVisibility(VISIBLE);
+                                    homeList.setVisibility(GONE);
+                                    homeWeatherList.setVisibility(GONE);
+                                    homeScroll.setVisibility(GONE);
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            Log.d("home", "isFirst : " + isFirst);
+                        }else {
+                            weatherList.setVisibility(VISIBLE);
+                            locationList.setVisibility(VISIBLE);
+                            homeList.setVisibility(GONE);
+                            homeWeatherList.setVisibility(GONE);
+                            homeScroll.setVisibility(GONE);
+                            Log.d("home", "Result Code: " + res.resultCode + ", Result Message: " + res.resultMessage);
+                        }
                     }
                 } else {
                     Log.e("home", "Response failed: " + response.message());
@@ -506,17 +510,13 @@ public class HomeFragment extends Fragment {
 
                 apiService = retrofit.create(ApiService.class);
 
-                // mock 서버 준비되면 사용자 ID로 테스트 시작
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        checkIsFirst(inflater);
-                    }
-                });
+                getActivity().runOnUiThread(()->checkIsFirst(inflater));
 
             } catch (IOException e) {
                 Log.e("home", "MockServer setup failed: " + e.getMessage());
             }
+//            apiService = RetrofitClient.getInstance().create(ApiService.class);
+//            getActivity().runOnUiThread(()->checkIsFirst(inflater));
         }).start();
     }
 

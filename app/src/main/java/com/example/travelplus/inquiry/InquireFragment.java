@@ -25,6 +25,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.travelplus.R;
 import com.example.travelplus.network.ApiService;
+import com.example.travelplus.network.RetrofitClient;
 
 import java.io.IOException;
 
@@ -147,6 +148,7 @@ public class InquireFragment extends Fragment {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+//            apiService = RetrofitClient.getInstance().create(ApiService.class);
         }).start();
     }
 }

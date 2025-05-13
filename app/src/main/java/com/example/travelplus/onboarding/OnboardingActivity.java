@@ -18,6 +18,7 @@ import androidx.core.content.ContextCompat;
 import com.example.travelplus.MainActivity;
 import com.example.travelplus.R;
 import com.example.travelplus.network.ApiService;
+import com.example.travelplus.network.RetrofitClient;
 import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.radiobutton.MaterialRadioButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -194,6 +195,7 @@ public class OnboardingActivity extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+//            apiService = RetrofitClient.getInstance().create(ApiService.class);
         }).start();
     }
 }

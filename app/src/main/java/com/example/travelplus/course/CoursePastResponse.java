@@ -2,7 +2,7 @@ package com.example.travelplus.course;
 
 import java.util.List;
 
-public class CourseResponse {
+public class CoursePastResponse {
     public int resultCode;
     public String resultMessage;
     public List<Course> data;
@@ -14,6 +14,6 @@ public class CourseResponse {
         public String tripType;
         public String startDate;
         public String endDate;
-        public String meansTp;
+        public String meansTP;
     };
 }
