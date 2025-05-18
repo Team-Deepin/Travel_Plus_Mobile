@@ -17,6 +17,9 @@ public class CourseDetailCarResponse {
         public String end;
         public int sectionTime;
         public double distance;
-
+        public double startLat;
+        public double startLon;
+        public double endLat;
+        public double endLon;
     }
 }

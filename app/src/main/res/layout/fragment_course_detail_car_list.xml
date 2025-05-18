@@ -17,7 +17,7 @@
         android:id="@+id/detail_car_place_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="asdf"
+        android:text=""
         android:textSize="25dp"
         android:textColor="@color/color_text"
         android:fontFamily="@font/bmeuljirottf"
@@ -25,12 +25,11 @@
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginStart="30dp"
         android:layout_marginTop="5dp"/>
-
     <TextView
-        android:id="@+id/detail_car_meanstp"
+        android:id="@+id/detail_car_distance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="asdf"
+        android:text=""
         android:textSize="14dp"
         android:textColor="@color/text_sub"
         android:fontFamily="@font/bmeuljirottf"
@@ -42,12 +41,12 @@
         android:id="@+id/detail_car_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="asdf"
+        android:text=""
         android:textSize="14dp"
         android:textColor="@color/text_sub"
         android:fontFamily="@font/bmeuljirottf"
         app:layout_constraintTop_toBottomOf="@id/detail_car_place_name"
-        app:layout_constraintStart_toEndOf="@id/detail_car_meanstp"
+        app:layout_constraintStart_toEndOf="@id/detail_car_distance"
         android:layout_marginTop="5dp"
         android:layout_marginStart="5dp"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

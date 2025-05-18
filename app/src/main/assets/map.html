@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Tmap Route by Date</title>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://apis.openapi.sk.com/tmap/jsv2?version=1&appKey=dMoLEoYBxY8E2eMD4N0V31dNEEBOHaKX3vgD9Qn4"></script>
+    <style>
+        #map_div { width: 100%; height: 400px; margin-top: 10px; }
+    </style>
+</head>
+<body onload="initMap()">
+<div>
+    <button onclick="showPrevious()">이전</button>
+    <span id="dateDisplay" style="font-size: 18px; margin: 0 10px;"></span>
+    <button onclick="showNext()">다음</button>
+</div>
+<div id="map_div"></div>
+
+<script>
+    let map, routeData = [], currentIndex = 0;
+    let markers = [], lines = [];
+
+    function initMap() {
+        map = new Tmapv2.Map("map_div", {
+            center: new Tmapv2.LatLng(37.5665, 126.9780),
+            width: "100%",
+            height: "400px",
+            zoom: 14
+        });
+
+        window.setRouteData = function(data) {
+            routeData = JSON.parse(data);
+            currentIndex = 0;
+            drawRouteForDate(currentIndex);
+        };
+    }
+
+    function drawRouteForDate(index) {
+        clearMap();
+        if (!routeData[index]) return;
+
+        document.getElementById("dateDisplay").innerText = routeData[index].day;
+        const details = routeData[index].carLocations;
+        console.log("받은 데이터", routeData);
+
+        details.forEach(detail => {
+            const from = new Tmapv2.LatLng(detail.fromLat, detail.fromLon);
+            const to = new Tmapv2.LatLng(detail.toLat, detail.toLon);
+
+            markers.push(new Tmapv2.Marker({ position: from, icon: "https://tmapapi.sktelecom.com/upload/tmap/marker/pin_r_m_s.png", iconSize: new Tmapv2.Size(24, 38), map }));
+            markers.push(new Tmapv2.Marker({ position: to, icon: "https://tmapapi.sktelecom.com/upload/tmap/marker/pin_r_m_e.png", iconSize: new Tmapv2.Size(24, 38), map }));
+
+            lines.push(new Tmapv2.Polyline({ path: [from, to], strokeColor: "#FF0000", strokeWeight: 6, map }));
+        });
+    }
+
+    function clearMap() {
+        markers.forEach(m => m.setMap(null));
+        lines.forEach(l => l.setMap(null));
+        markers = [];
+        lines = [];
+    }
+
+    function showNext() {
+        if (currentIndex < routeData.length - 1) {
+            currentIndex++;
+            drawRouteForDate(currentIndex);
+        }
+    }
+
+    function showPrevious() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            drawRouteForDate(currentIndex);
+        }
+    }
+</script>
+</body>
+</html></html>

@@ -13,7 +13,7 @@ import com.example.travelplus.course.CourseResponse;
 import com.example.travelplus.inquiry.InquireRequest;
 import com.example.travelplus.inquiry.InquireResponse;
 import com.example.travelplus.inquiry.InquiryResponse;
-import com.example.travelplus.login.KakaoLoginActivity;
+import com.example.travelplus.login.KakaoLoginRequest;
 import com.example.travelplus.login.KakaoResponse;
 import com.example.travelplus.login.LoginRequest;
 import com.example.travelplus.login.LoginResponse;
@@ -49,6 +49,8 @@ import retrofit2.http.Query;
 public interface ApiService {
     @POST("/auth/login")
     Call<LoginResponse> login(@Body LoginRequest request);
+    @POST("/auth/kakao")
+    Call<KakaoResponse> kakao(@Body KakaoLoginRequest request);
     @POST("/auth/register")
     Call<RegisterResponse> register(@Header("Authorization") String authorization, @Body RegisterRequest request);
     @POST("/auth/onboarding")
@@ -67,8 +69,6 @@ public interface ApiService {
     Call<SurveySaveResponse> surveySave(@Header("Authorization") String authorization, @Body SurveySaveRequest request);
     @POST("/course/survey")
     Call<SurveyResponse> survey(@Header("Authorization") String authorization, @Body SurveyRequest request);
-    @GET("/auth/kakao")
-    Call<KakaoResponse> kakao(@Query("code") String code);
     @GET("/auth/logout")
     Call<LogoutResponse> logout();
     @GET("/auth/home")

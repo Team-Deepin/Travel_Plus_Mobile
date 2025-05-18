@@ -50,7 +50,7 @@ public class SurveyFragment extends Fragment {
             peopleFlag = true, themeFlag = true;
     boolean placeCheck = false, dateCheck = false, transportCheck = false,
             peopleCheck = false, themeCheck = false;
-    String title, area, meansTp, startDate, endDate, person, authorization;
+    String title, area, meansTp, startDate, endDate, person, authorization, personSend;
     List<String> tripType = new ArrayList<>();
     MaterialCardView surveyBtn;
     ApiService apiService;
@@ -66,6 +66,7 @@ public class SurveyFragment extends Fragment {
     }
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_survey, container, false);
+//        apiService = RetrofitClient.getApiInstance(requireContext()).create(ApiService.class);
         setupMockServer();
         // 장소 요소
         CardView cardPlace = view.findViewById(R.id.card_place);
@@ -399,41 +400,49 @@ public class SurveyFragment extends Fragment {
 
         people2.setOnClickListener(view1 -> {
             person = "가족외 2인 여행";
+            personSend = "2인 여행(가족 외)";
             peopleCheck = true;
             setText(person, peopleSelectText, peopleSelect);
         });
         people2Family.setOnClickListener(view1 -> {
             person = "2인 가족 여행";
+            personSend = "2인 가족 여행";
             peopleCheck = true;
             setText(person, peopleSelectText, peopleSelect);
         });
         people3Gen.setOnClickListener(view1 -> {
             person = "3대 동반 여행";
+            personSend = "3대 동반 여행(친척 포함)";
             peopleCheck = true;
             setText(person, peopleSelectText, peopleSelect);
         });
         peopleOver3.setOnClickListener(view1 -> {
             person = "3인 이상 가족 여행";
+            personSend = "3인 이상 가족 여행(친척 포함)";
             peopleCheck = true;
             setText(person, peopleSelectText, peopleSelect);
         });
         people3.setOnClickListener(view1 -> {
             person = "가족외 3인 여행";
+            personSend = "3인 이상 여행(가족 외)";
             peopleCheck = true;
             setText(person, peopleSelectText, peopleSelect);
         });
         peopleSolo.setOnClickListener(view1 -> {
             person = "나홀로 여행";
+            personSend = "나홀로 여행";
             peopleCheck = true;
             setText(person, peopleSelectText, peopleSelect);
         });
         peopleParents.setOnClickListener(view1 -> {
             person = "부모 동반 여행";
+            personSend = "부모 동반 여행";
             peopleCheck = true;
             setText(person, peopleSelectText, peopleSelect);
         });
         peopleKids.setOnClickListener(view1 -> {
             person = "자녀 동반 여행";
+            personSend = "자녀 동반 여행";
             peopleCheck = true;
             setText(person, peopleSelectText, peopleSelect);
         });
@@ -508,7 +517,7 @@ public class SurveyFragment extends Fragment {
             if (experienceTour.isChecked()) tripType.add("체험관광");
             if (festivalTour.isChecked()) tripType.add("축제/공연/이벤트");
             if (parkTour.isChecked()) tripType.add("테마파크/공원");
-            SurveyRequest surveyRequest = new SurveyRequest(title, area, meansTp, person, startDate, endDate, tripType);
+            SurveyRequest surveyRequest = new SurveyRequest(title, area, meansTp, personSend, startDate, endDate, tripType);
             Call<SurveyResponse> call = apiService.survey(authorization, surveyRequest);
             call.enqueue(new Callback<SurveyResponse>() {
                 @Override

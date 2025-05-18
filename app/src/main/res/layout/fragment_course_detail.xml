@@ -29,6 +29,12 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.1" />
     <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineVertical8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.8" />
+    <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guidelineVertical9"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -40,6 +46,15 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.95" />
+    <ImageView
+        android:id="@+id/detail_map"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:src="@drawable/map_icon"
+        app:layout_constraintTop_toTopOf="@id/detail_title"
+        app:layout_constraintBottom_toBottomOf="@id/detail_title"
+        app:layout_constraintEnd_toEndOf="@id/guidelineVertical9"
+        app:layout_constraintStart_toStartOf="@id/guidelineVertical8"/>
     <TextView
         android:id="@+id/detail_title"
         android:layout_width="0dp"
@@ -50,7 +65,7 @@
         android:textColor="@color/black"
         app:layout_constraintTop_toTopOf="@id/guidelineHorizontal1"
         app:layout_constraintStart_toStartOf="@id/guidelineVertical1"
-        app:layout_constraintEnd_toEndOf="@id/guidelineVertical9" />
+        app:layout_constraintEnd_toEndOf="@id/guidelineVertical8" />
     <TextView
         android:id="@+id/detail_location"
         android:layout_width="0dp"
