@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
@@ -81,6 +82,7 @@ public class CourseDetailTransitFragment extends Fragment {
         detailBackground = requireActivity().findViewById(R.id.detail_background);
         detailListLayout = view.findViewById(R.id.detail_list);
         plusFab.setVisibility(VISIBLE);
+        ImageView mapView = view.findViewById(R.id.detail_map);
         setupMockServer(() -> requireActivity().runOnUiThread(() -> showDetails(inflater)));
 
         plusFab.setOnClickListener(view1 -> {
@@ -116,9 +118,34 @@ public class CourseDetailTransitFragment extends Fragment {
         rateFab.setOnClickListener(view1 -> {
             showRatingPopup();
         });
+        mapView.setOnClickListener(view1 -> {
+            showMapDialog();
+        });
 
 
         return view;
+    }
+    private void showMapDialog() {
+        Dialog dialog = new Dialog(requireContext());
+        dialog.setContentView(R.layout.pop_up_map);
+
+        // 크기 조정
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setLayout(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+        }
+        TextView quit = dialog.findViewById(R.id.quit);
+        quit.setOnClickListener(view -> {
+            dialog.dismiss();
+        });
+
+        WebView webView = dialog.findViewById(R.id.pop_up_webview);
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.loadUrl("file:///android_asset/map.html");
+
+        dialog.show();
     }
     private void showDetails(LayoutInflater inflater){
         Log.d("showDetailsTransit", "apiService 호출 시작");
@@ -168,6 +195,10 @@ public class CourseDetailTransitFragment extends Fragment {
                                     View pathCard = inflater.inflate(R.layout.fragment_course_detail_transit_path_list, detailCard, false);
                                     TextView pathText = pathCard.findViewById(R.id.detail_transit_path);
                                     String mode = path.mode.equals("WALK") ? "도보" : path.mode.equals("BUS") ? "버스" : path.mode.equals("SUBWAY") ? "지하철" : "기타";
+                                    String route = "";
+                                    if (path.route != null){
+                                        route = path.route;
+                                    }
                                     int time = path.sectionTime;
                                     int hourTime = (time / 60 >= 60) ? (time / 60) / 60 : 0;
                                     int minTime = (time / 60 >= 60) ? (time % 60) : (time / 60);
@@ -176,7 +207,13 @@ public class CourseDetailTransitFragment extends Fragment {
                                             ViewGroup.LayoutParams.MATCH_PARENT,
                                             ViewGroup.LayoutParams.WRAP_CONTENT
                                     ));
-                                    pathText.setText(path.start+" -> "+path.end+" "+mode+" "+timeText);
+
+                                    if (route == ""){
+                                        pathText.setText(path.start+" -> "+path.end+" "+mode+" "+timeText);
+                                    }else {
+                                        pathText.setText(path.start+" -> "+path.end+" ("+mode+") "+route+" "+timeText);
+                                    }
+
                                     detailCard.addView(pathCard);
                                 }
                             }
@@ -289,7 +326,7 @@ public class CourseDetailTransitFragment extends Fragment {
         rateApplyBtn.setOnClickListener(v -> {
             // 코스 평가 API
             double score = ratingBar.getRating();
-            CourseRatingRequest courseRatingRequest = new CourseRatingRequest(userId, courseId, score);
+            CourseRatingRequest courseRatingRequest = new CourseRatingRequest(courseId, score);
             Call<CourseRatingResponse> call = apiService.rate(authorization, courseRatingRequest);
             call.enqueue(new Callback<CourseRatingResponse>() {
                 @Override

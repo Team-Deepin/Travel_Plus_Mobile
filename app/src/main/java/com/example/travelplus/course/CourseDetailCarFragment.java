@@ -1,6 +1,5 @@
 package com.example.travelplus.course;
 
-import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
@@ -11,6 +10,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
@@ -24,12 +25,19 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import android.content.SharedPreferences;
 
+import com.example.travelplus.CarDay;
+import com.example.travelplus.CarLocation;
 import com.example.travelplus.R;
 import com.example.travelplus.network.ApiService;
-import com.example.travelplus.network.RetrofitClient;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.gson.Gson;
+
+import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
@@ -51,7 +59,7 @@ public class CourseDetailCarFragment extends Fragment {
     ApiService apiService;
     MockWebServer mockServer;
     SharedPreferences prefs;
-    long userId;
+    List<CarDay> carDays = new ArrayList<>();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -79,6 +87,7 @@ public class CourseDetailCarFragment extends Fragment {
         rateText = requireActivity().findViewById(R.id.detail_rate_text);
         detailBackground = requireActivity().findViewById(R.id.detail_background);
         detailListLayout = view.findViewById(R.id.detail_list);
+        ImageView mapView = view.findViewById(R.id.detail_map);
         plusFab.setVisibility(VISIBLE);
         setupMockServer(() -> requireActivity().runOnUiThread(() -> showDetails(inflater)));
 
@@ -115,9 +124,43 @@ public class CourseDetailCarFragment extends Fragment {
         rateFab.setOnClickListener(view1 -> {
             showRatingPopup();
         });
-
+        mapView.setOnClickListener(view1 -> {
+            showMapDialog();
+        });
 
         return view;
+    }
+    private void showMapDialog() {
+        Dialog dialog = new Dialog(requireContext());
+        dialog.setContentView(R.layout.pop_up_map);
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setLayout(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+        }
+        TextView quit = dialog.findViewById(R.id.quit);
+        quit.setOnClickListener(view -> {
+            dialog.dismiss();
+        });
+
+        WebView webView = dialog.findViewById(R.id.pop_up_webview);
+        webView.getSettings().setJavaScriptEnabled(true);
+
+        String json = new Gson().toJson(carDays);
+        String safeJson = JSONObject.quote(json);
+
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                webView.evaluateJavascript("setRouteData(" + safeJson + ");", null);
+            }
+        });
+
+        webView.loadUrl("file:///android_asset/map.html");
+
+        dialog.show();
     }
     private void showDetails(LayoutInflater inflater){
         Log.d("showDetailsCar", "apiService 호출 시작");
@@ -146,6 +189,7 @@ public class CourseDetailCarFragment extends Fragment {
                         detailCard.setLayoutParams(courseParams);
 
                         for (CourseDetailCarResponse.carData carData : res.data){
+                            List<CarLocation> carLocations = new ArrayList<>();
                             TextView dayText = new TextView(requireContext());
                             LinearLayout.LayoutParams dayParams = new LinearLayout.LayoutParams(
                                     ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -158,14 +202,24 @@ public class CourseDetailCarFragment extends Fragment {
                             dayText.setTextColor(ContextCompat.getColor(requireContext(), R.color.color_text));
                             dayText.setTypeface(ResourcesCompat.getFont(requireContext(), R.font.bmeuljirottf));
                             detailCard.addView(dayText);
+
                             for (CourseDetailCarResponse.route route : carData.routes) {
                                 View placeCard = inflater.inflate(R.layout.fragment_course_detail_car_list, detailCard, false);
                                 TextView placeText = placeCard.findViewById(R.id.detail_car_place_name);
-                                TextView meansTpText = placeCard.findViewById(R.id.detail_car_meanstp);
+                                TextView distanceText = placeCard.findViewById(R.id.detail_car_distance);
                                 TextView timeText = placeCard.findViewById(R.id.detail_car_time);
+                                carLocations.add(new CarLocation(
+                                        route.startLat,
+                                        route.startLon,
+                                        route.endLat,
+                                        route.endLon
+                                ));
 
+                                double distance = route.distance;
+                                double km = distance / 1000.0;
+                                DecimalFormat df = new DecimalFormat("#.#");
+                                distanceText.setText(df.format(km)+"km");
                                 placeText.setText(route.start);
-                                meansTpText.setText(res.meansTp);
                                 int time = route.sectionTime;
                                 int hourTime = (time / 60 >= 60) ? (time / 60) / 60 : 0;
                                 int minTime = (time / 60 >= 60) ? (time % 60) : (time / 60);
@@ -177,13 +231,12 @@ public class CourseDetailCarFragment extends Fragment {
                                 }
                                 detailCard.addView(placeCard);
                             }
+                            carDays.add(new CarDay(carData.day, carLocations));
                             CourseDetailCarResponse.route lastDetail = carData.routes.get(carData.routes.size() - 1);
                             View endPlaceCard = inflater.inflate(R.layout.fragment_course_detail_car_list, detailCard, false);
                             TextView placeText = endPlaceCard.findViewById(R.id.detail_car_place_name);
-                            TextView meansTpText = endPlaceCard.findViewById(R.id.detail_car_meanstp);
                             TextView timeText = endPlaceCard.findViewById(R.id.detail_car_time);
                             placeText.setText(lastDetail.end);
-                            meansTpText.setText("");
                             timeText.setText("");
                             detailCard.addView(endPlaceCard);
                         }
@@ -221,7 +274,6 @@ public class CourseDetailCarFragment extends Fragment {
             rateFab.setVisibility(GONE);
             deleteText.setVisibility(GONE);
             rateText.setVisibility(GONE);
-            dialog.dismiss();
             dialog.dismiss();
         });
         deleteBtn.setOnClickListener(v -> {
@@ -291,7 +343,7 @@ public class CourseDetailCarFragment extends Fragment {
         rateApplyBtn.setOnClickListener(v -> {
             // 코스 평가 API
             double score = ratingBar.getRating();
-            CourseRatingRequest courseRatingRequest = new CourseRatingRequest(userId, courseId, score);
+            CourseRatingRequest courseRatingRequest = new CourseRatingRequest(courseId, score);
             Call<CourseRatingResponse> call = apiService.rate(authorization, courseRatingRequest);
             call.enqueue(new Callback<CourseRatingResponse>() {
                 @Override
@@ -344,30 +396,57 @@ public class CourseDetailCarFragment extends Fragment {
                                     .setBody("{\n" +
                                             "  \"resultCode\": 200,\n" +
                                             "  \"resultMessage\": \"success\",\n" +
-                                            "  \"meansTp\": \"car\",\n" +
                                             "  \"data\": [\n" +
                                             "    {\n" +
-                                            "      \"day\": \"2025-10-15\",\n" +
+                                            "      \"meansTp\": \"자가용\",\n" +
+                                            "      \"day\": \"2025-06-01\",\n" +
                                             "      \"routes\": [\n" +
-                                            "        { \"start\": \"서울시청\", \"end\": \"국립현대미술관\", \"distance\": \"1768\", \"sectionTime\": 431},\n" +
-                                            "        { \"start\": \"국립현대미술관\", \"end\": \"이태원\", \"distance\": \"6320\", \"sectionTime\": 1130 },\n" +
-                                            "        { \"start\": \"이태원\", \"end\": \"홍대입구\", \"distance\": \"12246\", \"sectionTime\": 1300 }\n" +
+                                            "        {\n" +
+                                            "          \"start\": \"첨성대\",\n" +
+                                            "          \"end\": \"국립경주박물관\",\n" +
+                                            "          \"startLat\": 35.8341,\n" +
+                                            "          \"startLon\": 129.217,\n" +
+                                            "          \"endLat\": 35.8294,\n" +
+                                            "          \"endLon\": 129.2101,\n" +
+                                            "          \"distance\": 1109,\n" +
+                                            "          \"sectionTime\": 210\n" +
+                                            "        },\n" +
+                                            "        {\n" +
+                                            "          \"start\": \"국립경주박물관\",\n" +
+                                            "          \"end\": \"안압지\",\n" +
+                                            "          \"startLat\": 35.8294,\n" +
+                                            "          \"startLon\": 129.2101,\n" +
+                                            "          \"endLat\": 35.8348,\n" +
+                                            "          \"endLon\": 129.213,\n" +
+                                            "          \"distance\": 1317,\n" +
+                                            "          \"sectionTime\": 220\n" +
+                                            "        }\n" +
                                             "      ]\n" +
                                             "    },\n" +
                                             "    {\n" +
-                                            "      \"day\": \"2025-10-16\",\n" +
+                                            "      \"meansTp\": \"자가용\",\n" +
+                                            "      \"day\": \"2025-06-02\",\n" +
                                             "      \"routes\": [\n" +
-                                            "        { \"start\": \"서울시청\", \"end\": \"국립현대미술관\", \"distance\": \"1768\", \"sectionTime\": 431 },\n" +
-                                            "        { \"start\": \"국립현대미술관\", \"end\": \"이태원\", \"distance\": \"6320\", \"sectionTime\": 1130 },\n" +
-                                            "        { \"start\": \"이태원\", \"end\": \"홍대입구\", \"distance\": \"12246\", \"sectionTime\": 1300 }\n" +
-                                            "      ]\n" +
-                                            "    },\n" +
-                                            "    {\n" +
-                                            "      \"day\": \"2025-10-17\",\n" +
-                                            "      \"routes\": [\n" +
-                                            "        { \"start\": \"서울시청\", \"end\": \"국립현대미술관\", \"distance\": \"1768\", \"sectionTime\": 431 },\n" +
-                                            "        { \"start\": \"국립현대미술관\", \"end\": \"이태원\", \"distance\": \"6320\", \"sectionTime\": 1130 },\n" +
-                                            "        { \"start\": \"이태원\", \"end\": \"홍대입구\", \"distance\": \"12246\", \"sectionTime\": 1300 }\n" +
+                                            "        {\n" +
+                                            "          \"start\": \"포석정\",\n" +
+                                            "          \"end\": \"오릉\",\n" +
+                                            "          \"startLat\": 35.8312,\n" +
+                                            "          \"startLon\": 129.219,\n" +
+                                            "          \"endLat\": 35.833,\n" +
+                                            "          \"endLon\": 129.2145,\n" +
+                                            "          \"distance\": 894,\n" +
+                                            "          \"sectionTime\": 167\n" +
+                                            "        },\n" +
+                                            "        {\n" +
+                                            "          \"start\": \"오릉\",\n" +
+                                            "          \"end\": \"교촌마을\",\n" +
+                                            "          \"startLat\": 35.833,\n" +
+                                            "          \"startLon\": 129.2145,\n" +
+                                            "          \"endLat\": 35.829,\n" +
+                                            "          \"endLon\": 129.218,\n" +
+                                            "          \"distance\": 2794,\n" +
+                                            "          \"sectionTime\": 407\n" +
+                                            "        }\n" +
                                             "      ]\n" +
                                             "    }\n" +
                                             "  ]\n" +

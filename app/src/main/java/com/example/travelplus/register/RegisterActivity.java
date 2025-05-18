@@ -24,6 +24,7 @@ import androidx.core.content.res.ResourcesCompat;
 import com.example.travelplus.login.LoginActivity;
 import com.example.travelplus.R;
 import com.example.travelplus.network.ApiService;
+import com.example.travelplus.network.RetrofitClient;
 import com.example.travelplus.onboarding.OnboardingActivity;
 
 import java.io.IOException;
@@ -52,6 +53,7 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+        apiService = RetrofitClient.getApiInstance(this).create(ApiService.class);
         setupMockServer();
         back = findViewById(R.id.back_btn);
         duplicateCheck = findViewById(R.id.duplicate_check);

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <TextView
+        android:id="@+id/quit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="X"
+        android:textColor="@color/incomplete"
+        android:fontFamily="@font/bmeuljirottf"
+        android:textSize="30dp"
+        android:layout_gravity="end|top"
+        android:padding="0dp"
+        android:elevation="3dp"/>
+    <WebView
+        android:id="@+id/pop_up_webview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+</FrameLayout>
