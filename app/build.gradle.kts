@@ -49,4 +49,5 @@ dependencies {
     implementation ("com.squareup.okhttp3:mockwebserver:4.11.0")
     implementation ("com.applandeo:material-calendar-view:1.9.0")
     implementation("com.kakao.sdk:v2-user:2.21.2")
+    implementation ("com.facebook.shimmer:shimmer:0.5.0")
 }

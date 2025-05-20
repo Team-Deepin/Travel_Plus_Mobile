@@ -14,7 +14,7 @@ public class NoticeResponse {
     public static class Notice {
         public int noticeId;
         public String title;
-        public String date;
+        public String noticeType;
     }
 
 }

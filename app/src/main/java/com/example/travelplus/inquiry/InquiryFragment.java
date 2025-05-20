@@ -23,6 +23,8 @@ import androidx.fragment.app.Fragment;
 
 import com.example.travelplus.R;
 import com.example.travelplus.network.ApiService;
+import com.example.travelplus.network.RetrofitClient;
+import com.facebook.shimmer.ShimmerFrameLayout;
 
 import java.io.IOException;
 
@@ -39,12 +41,10 @@ public class InquiryFragment extends Fragment {
     ScrollView inquiryScroll;
     LinearLayout inquiryList;
     ApiService apiService;
-    private MockWebServer mockServer;
-    private String authorization;
+    ShimmerFrameLayout inquirySkeleton;
+
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        SharedPreferences prefs = requireActivity().getSharedPreferences("userPrefs", MODE_PRIVATE);
-        authorization = prefs.getString("authorization", null);
     }
     @Override
     public void onResume() {
@@ -56,11 +56,12 @@ public class InquiryFragment extends Fragment {
     }
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_inquiry, container, false);
-        setupMockServer(inflater);
+        apiService = RetrofitClient.getApiInstance(requireContext()).create(ApiService.class);
         noListContainer = view.findViewById(R.id.inquiry_no_list_container);
         ImageView inquiryBtn = view.findViewById(R.id.inquiry_btn);
         inquiryScroll = view.findViewById(R.id.inquiry_scroll);
         inquiryList = view.findViewById(R.id.inquiry_list);
+        inquirySkeleton = view.findViewById(R.id.inquiry_skeleton);
         inquiryBtn.setOnClickListener(view1 -> {
             // 문의하기 이동
             InquireFragment inquireFragment = new InquireFragment();
@@ -86,18 +87,21 @@ public class InquiryFragment extends Fragment {
         return view;
     }
     private void inquiryLists(LayoutInflater inflater) {
-        Call<InquiryResponse> call = apiService.inquiry(authorization);
+        inquirySkeleton.setVisibility(VISIBLE);
+        inquirySkeleton.startShimmer();
+        inquiryScroll.setVisibility(GONE);
+        noListContainer.setVisibility(GONE);
+        Call<InquiryResponse> call = apiService.inquiry();
         call.enqueue(new Callback<InquiryResponse>() {
             @Override
             public void onResponse(Call<InquiryResponse> call, Response<InquiryResponse> response) {
+                inquirySkeleton.stopShimmer();
+                inquirySkeleton.setVisibility(GONE);
                 if (response.isSuccessful() && response.body() != null) {
                     InquiryResponse res = response.body();
-                    Log.d("inquiry",res.resultMessage);
-                    Log.d("inquiry",res.data.get(0).answer);
                     if(res.resultCode == 200 && res.data != null && !res.data.isEmpty()){
                         Log.d("inquiry","성공");
                         inquiryScroll.setVisibility(VISIBLE);
-                        noListContainer.setVisibility(GONE);
                         int incompleteColor = ContextCompat.getColor(requireContext(), R.color.incomplete);
                         int completeColor = ContextCompat.getColor(requireContext(), R.color.complete);
                         for (InquiryResponse.Inquiry inquiry : res.data) {
@@ -150,55 +154,12 @@ public class InquiryFragment extends Fragment {
 
             @Override
             public void onFailure(Call<InquiryResponse> call, Throwable t) {
+                inquirySkeleton.stopShimmer();
+                inquirySkeleton.setVisibility(GONE);
                 inquiryScroll.setVisibility(GONE);
                 noListContainer.setVisibility(VISIBLE);
                 Log.e("inquiry", "API call failed: " + t);
             }
         });
-    }
-    private void setupMockServer(LayoutInflater inflater) {
-        new Thread(() -> {
-            try {
-                mockServer = new MockWebServer();
-                mockServer.enqueue(new MockResponse()
-                        .setResponseCode(200)
-                        .setBody("{\n" +
-                                "  \"resultCode\": 200,\n" +
-                                "  \"resultMessage\": \"Success\",\n" +
-                                "  \"data\": [\n" +
-                                "    {\n" +
-                                "      \"inquireId\": 1,\n" +
-                                "      \"title\": \"여행 일정 변경 문의 합니다. 제목을 늘려봐요\",\n" +
-                                "      \"content\": \"예약한 여행 일정 변경이 가능한가요?\",\n" +
-                                "      \"createDate\": \"2024-03-30T10:15:00\",\n" +
-                                "      \"isAnswered\": true,\n" +
-                                "      \"answer\": \"네, 변경 가능합니다. 자세한 내용은 고객센터로 문의해주세요.\",\n" +
-                                "      \"answerDate\": \"2024-03-31T09:00:00\"\n" +
-                                "    },\n" +
-                                "    {\n" +
-                                "      \"inquireId\": 2,\n" +
-                                "      \"title\": \"탈퇴 관련 문의\",\n" +
-                                "      \"content\": \"회원 탈퇴 요청드립니다\",\n" +
-                                "      \"createDate\": \"2024-03-28T14:20:00\",\n" +
-                                "      \"isAnswered\": false,\n" +
-                                "      \"answer\": null,\n" +
-                                "      \"answerDate\": null\n" +
-                                "    }\n" +
-                                "  ]\n" +
-                                "}"));
-                mockServer.start();
-
-                Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl(mockServer.url("/"))
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build();
-
-                apiService = retrofit.create(ApiService.class);
-
-                getActivity().runOnUiThread(() -> inquiryLists(inflater));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }).start();
     }
 }

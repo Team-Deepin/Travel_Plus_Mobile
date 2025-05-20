@@ -3,6 +3,8 @@ package com.example.travelplus.network;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.util.concurrent.TimeUnit;
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import retrofit2.Retrofit;
@@ -11,7 +13,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class RetrofitClient {
     private static Retrofit loginRetrofit;
     private static Retrofit apiRetrofit;
-    private static final String BASE_URL = "http://182.230.40.124:8080/";
+    private static final String BASE_URL = "http://ceprj.gachon.ac.kr:60008/";
 
     public static Retrofit getLoginInstance() {
         if (loginRetrofit == null) {
@@ -28,13 +30,16 @@ public class RetrofitClient {
             OkHttpClient client = new OkHttpClient.Builder()
                     .addInterceptor(chain -> {
                         SharedPreferences prefs = context.getSharedPreferences("userPrefs", Context.MODE_PRIVATE);
-                        String token = prefs.getString("authorization", null);
+                        String authorization = prefs.getString("authorization", null);
 
                         Request request = chain.request().newBuilder()
-                                .addHeader("Authorization", "Bearer " + token)
+                                .addHeader("Authorization", authorization)
                                 .build();
                         return chain.proceed(request);
                     })
+                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .readTimeout(30, TimeUnit.SECONDS)
+                    .writeTimeout(30, TimeUnit.SECONDS)
                     .build();
 
             apiRetrofit = new Retrofit.Builder()

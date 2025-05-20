@@ -28,6 +28,7 @@ import android.content.SharedPreferences;
 import com.example.travelplus.R;
 import com.example.travelplus.network.ApiService;
 import com.example.travelplus.network.RetrofitClient;
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.IOException;
@@ -43,16 +44,14 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class CourseDetailTransitFragment extends Fragment {
-    String title, duration, meansTP, location, authorization;
+    String title, duration, location;
     int courseId;
     FloatingActionButton plusFab, cancelFab, deleteFab, rateFab;
     TextView deleteText, rateText, titleView, locationView, durationView, vehicleView;
     View detailBackground;
     LinearLayout detailListLayout;
     ApiService apiService;
-    MockWebServer mockServer;
-    SharedPreferences prefs;
-    long userId;
+    ShimmerFrameLayout detailSkeleton;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -63,9 +62,6 @@ public class CourseDetailTransitFragment extends Fragment {
             duration = getArguments().getString("duration");
             location = getArguments().getString("location");
         }
-        prefs = requireContext().getSharedPreferences("userPrefs", Context.MODE_PRIVATE);
-        authorization = prefs.getString("authorization", null);
-
     }
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_course_detail, container, false);
@@ -83,7 +79,9 @@ public class CourseDetailTransitFragment extends Fragment {
         detailListLayout = view.findViewById(R.id.detail_list);
         plusFab.setVisibility(VISIBLE);
         ImageView mapView = view.findViewById(R.id.detail_map);
-        setupMockServer(() -> requireActivity().runOnUiThread(() -> showDetails(inflater)));
+        detailSkeleton = view.findViewById(R.id.detail_skeleton);
+        apiService = RetrofitClient.getApiInstance(requireContext()).create(ApiService.class);
+        showDetails(inflater);
 
         plusFab.setOnClickListener(view1 -> {
             plusFab.setVisibility(GONE);
@@ -129,7 +127,6 @@ public class CourseDetailTransitFragment extends Fragment {
         Dialog dialog = new Dialog(requireContext());
         dialog.setContentView(R.layout.pop_up_map);
 
-        // 크기 조정
         if (dialog.getWindow() != null) {
             dialog.getWindow().setLayout(
                     ViewGroup.LayoutParams.MATCH_PARENT,
@@ -148,18 +145,23 @@ public class CourseDetailTransitFragment extends Fragment {
         dialog.show();
     }
     private void showDetails(LayoutInflater inflater){
+        detailSkeleton.setVisibility(View.VISIBLE);
+        detailSkeleton.startShimmer();
+        detailListLayout.removeAllViews();
         Log.d("showDetailsTransit", "apiService 호출 시작");
-        Call<CourseDetailTransitResponse> call = apiService.detailTransit(authorization, courseId);
+        Call<CourseDetailTransitResponse> call = apiService.detailTransit(courseId);
         call.enqueue(new Callback<CourseDetailTransitResponse>() {
             @Override
             public void onResponse(Call<CourseDetailTransitResponse> call, Response<CourseDetailTransitResponse> response) {
+                detailSkeleton.stopShimmer();
+                detailSkeleton.setVisibility(View.GONE);
                 if (response.isSuccessful() && response.body() != null) {
                     CourseDetailTransitResponse res = response.body();
                     Log.d("courseDetailTransit",res.resultMessage);
                     if(res.resultCode == 200 && res.data != null && !res.data.isEmpty()) {
                         titleView.setText(title);
                         locationView.setText(location);
-                        vehicleView.setText("대중교통");
+                        vehicleView.setText(res.data.get(0).meansTp);
                         durationView.setText(duration+", ");
                         LinearLayout detailCard = new LinearLayout(requireContext());
 
@@ -217,11 +219,13 @@ public class CourseDetailTransitFragment extends Fragment {
                                     detailCard.addView(pathCard);
                                 }
                             }
-                            CourseDetailTransitResponse.transitDetail lastDetail = transitData.transitDetails.get(transitData.transitDetails.size() - 1);
-                            View toPlaceCard = inflater.inflate(R.layout.fragment_course_detail_transit_place_list, detailCard, false);
-                            TextView placeText = toPlaceCard.findViewById(R.id.detail_transit_place_name);
-                            placeText.setText(lastDetail.to);
-                            detailCard.addView(toPlaceCard);
+                            if (transitData.transitDetails != null && !transitData.transitDetails.isEmpty()) {
+                                CourseDetailTransitResponse.transitDetail lastDetail = transitData.transitDetails.get(transitData.transitDetails.size() - 1);
+                                View toPlaceCard = inflater.inflate(R.layout.fragment_course_detail_transit_place_list, detailCard, false);
+                                TextView placeText = toPlaceCard.findViewById(R.id.detail_transit_place_name);
+                                placeText.setText(lastDetail.to);
+                                detailCard.addView(toPlaceCard);
+                            }
                         }
                         detailListLayout.addView(detailCard);
                     }else {
@@ -232,6 +236,8 @@ public class CourseDetailTransitFragment extends Fragment {
 
             @Override
             public void onFailure(Call<CourseDetailTransitResponse> call, Throwable t) {
+                detailSkeleton.stopShimmer();
+                detailSkeleton.setVisibility(View.GONE);
                 t.printStackTrace();
             }
         });
@@ -261,7 +267,7 @@ public class CourseDetailTransitFragment extends Fragment {
         });
         deleteBtn.setOnClickListener(v -> {
             // 코스 삭제 API
-            Call<CourseDeleteResponse> call = apiService.deleteCourse(authorization, courseId);
+            Call<CourseDeleteResponse> call = apiService.deleteCourse(courseId);
             call.enqueue(new Callback<CourseDeleteResponse>() {
                 @Override
                 public void onResponse(Call<CourseDeleteResponse> call, Response<CourseDeleteResponse> response) {
@@ -327,7 +333,7 @@ public class CourseDetailTransitFragment extends Fragment {
             // 코스 평가 API
             double score = ratingBar.getRating();
             CourseRatingRequest courseRatingRequest = new CourseRatingRequest(courseId, score);
-            Call<CourseRatingResponse> call = apiService.rate(authorization, courseRatingRequest);
+            Call<CourseRatingResponse> call = apiService.rate(courseRatingRequest);
             call.enqueue(new Callback<CourseRatingResponse>() {
                 @Override
                 public void onResponse(Call<CourseRatingResponse> call, Response<CourseRatingResponse> response) {
@@ -360,205 +366,5 @@ public class CourseDetailTransitFragment extends Fragment {
             });
         });
         dialog.show();
-    }
-    private void setupMockServer(Runnable onReady) {
-        new Thread(() -> {
-            try {
-                mockServer = new MockWebServer();
-                Log.d("mockServer", "Mock 서버 시작");
-                mockServer.setDispatcher(new Dispatcher() {
-                    @NonNull
-                    @Override
-                    public MockResponse dispatch(@NonNull RecordedRequest request) {
-                        String path = request.getPath();
-                        Log.d("mockServer", "요청됨: " + request.getPath());
-                        if (path.contains("course/detail/transit")) {
-                            return new MockResponse()
-                                    .setResponseCode(200)
-                                    .addHeader("Content-Type", "application/json")
-                                    .setBody("{\n" +
-                                            "  \"resultCode\": 200,\n" +
-                                            "  \"resultMessage\": \"전체 대중교통 경로 조회 성공\",\n" +
-                                            "  \"meansTp\": \"transit\",\n" +
-                                            "  \"data\": [\n" +
-                                            "    {\n" +
-                                            "      \"day\": \"2025-07-18\",\n" +
-                                            "      \"transitDetails\": [\n" +
-                                            "        {\n" +
-                                            "          \"from\": \"서울시청\",\n" +
-                                            "          \"to\": \"국립현대미술관\",\n" +
-                                            "          \"paths\": [\n" +
-                                            "            {\n" +
-                                            "              \"mode\": \"WALK\",\n" +
-                                            "              \"start\": \"출발지\",\n" +
-                                            "              \"end\": \"프레스센터\",\n" +
-                                            "              \"route\": null,\n" +
-                                            "              \"sectionTime\": 156\n" +
-                                            "            },\n" +
-                                            "            {\n" +
-                                            "              \"mode\": \"BUS\",\n" +
-                                            "              \"start\": \"프레스센터\",\n" +
-                                            "              \"end\": \"정독도서관\",\n" +
-                                            "              \"route\": \"마을:종로11\",\n" +
-                                            "              \"sectionTime\": 429\n" +
-                                            "            },\n" +
-                                            "            {\n" +
-                                            "              \"mode\": \"WALK\",\n" +
-                                            "              \"start\": \"정독도서관\",\n" +
-                                            "              \"end\": \"도착지\",\n" +
-                                            "              \"route\": null,\n" +
-                                            "              \"sectionTime\": 378\n" +
-                                            "            }\n" +
-                                            "          ]\n" +
-                                            "        },\n" +
-                                            "        {\n" +
-                                            "          \"from\": \"국립현대미술관\",\n" +
-                                            "          \"to\": \"이태원\",\n" +
-                                            "          \"paths\": [\n" +
-                                            "            {\n" +
-                                            "              \"mode\": \"WALK\",\n" +
-                                            "              \"start\": \"출발지\",\n" +
-                                            "              \"end\": \"경복궁\",\n" +
-                                            "              \"route\": null,\n" +
-                                            "              \"sectionTime\": 575\n" +
-                                            "            },\n" +
-                                            "            {\n" +
-                                            "              \"mode\": \"SUBWAY\",\n" +
-                                            "              \"start\": \"경복궁\",\n" +
-                                            "              \"end\": \"약수\",\n" +
-                                            "              \"route\": \"수도권3호선\",\n" +
-                                            "              \"sectionTime\": 608\n" +
-                                            "            },\n" +
-                                            "            {\n" +
-                                            "              \"mode\": \"WALK\",\n" +
-                                            "              \"start\": \"약수\",\n" +
-                                            "              \"end\": \"약수\",\n" +
-                                            "              \"route\": null,\n" +
-                                            "              \"sectionTime\": 170\n" +
-                                            "            },\n" +
-                                            "            {\n" +
-                                            "              \"mode\": \"SUBWAY\",\n" +
-                                            "              \"start\": \"약수\",\n" +
-                                            "              \"end\": \"이태원\",\n" +
-                                            "              \"route\": \"수도권6호선\",\n" +
-                                            "              \"sectionTime\": 304\n" +
-                                            "            },\n" +
-                                            "            {\n" +
-                                            "              \"mode\": \"WALK\",\n" +
-                                            "              \"start\": \"이태원\",\n" +
-                                            "              \"end\": \"도착지\",\n" +
-                                            "              \"route\": null,\n" +
-                                            "              \"sectionTime\": 150\n" +
-                                            "            }\n" +
-                                            "          ]\n" +
-                                            "        }\n" +
-                                            "      ]\n" +
-                                            "    },\n" +
-                                            "    {\n" +
-                                            "      \"day\": \"2025-07-19\",\n" +
-                                            "      \"transitDetails\": [\n" +
-                                            "        {\n" +
-                                            "          \"from\": \"서울시청\",\n" +
-                                            "          \"to\": \"국립현대미술관\",\n" +
-                                            "          \"paths\": [\n" +
-                                            "            {\n" +
-                                            "              \"mode\": \"WALK\",\n" +
-                                            "              \"start\": \"출발지\",\n" +
-                                            "              \"end\": \"프레스센터\",\n" +
-                                            "              \"route\": null,\n" +
-                                            "              \"sectionTime\": 156\n" +
-                                            "            },\n" +
-                                            "            {\n" +
-                                            "              \"mode\": \"BUS\",\n" +
-                                            "              \"start\": \"프레스센터\",\n" +
-                                            "              \"end\": \"정독도서관\",\n" +
-                                            "              \"route\": \"마을:종로11\",\n" +
-                                            "              \"sectionTime\": 429\n" +
-                                            "            },\n" +
-                                            "            {\n" +
-                                            "              \"mode\": \"WALK\",\n" +
-                                            "              \"start\": \"정독도서관\",\n" +
-                                            "              \"end\": \"도착지\",\n" +
-                                            "              \"route\": null,\n" +
-                                            "              \"sectionTime\": 378\n" +
-                                            "            }\n" +
-                                            "          ]\n" +
-                                            "        },\n" +
-                                            "        {\n" +
-                                            "          \"from\": \"국립현대미술관\",\n" +
-                                            "          \"to\": \"이태원\",\n" +
-                                            "          \"paths\": [\n" +
-                                            "            {\n" +
-                                            "              \"mode\": \"WALK\",\n" +
-                                            "              \"start\": \"출발지\",\n" +
-                                            "              \"end\": \"경복궁\",\n" +
-                                            "              \"route\": null,\n" +
-                                            "              \"sectionTime\": 575\n" +
-                                            "            },\n" +
-                                            "            {\n" +
-                                            "              \"mode\": \"SUBWAY\",\n" +
-                                            "              \"start\": \"경복궁\",\n" +
-                                            "              \"end\": \"약수\",\n" +
-                                            "              \"route\": \"수도권3호선\",\n" +
-                                            "              \"sectionTime\": 608\n" +
-                                            "            },\n" +
-                                            "            {\n" +
-                                            "              \"mode\": \"WALK\",\n" +
-                                            "              \"start\": \"약수\",\n" +
-                                            "              \"end\": \"약수\",\n" +
-                                            "              \"route\": null,\n" +
-                                            "              \"sectionTime\": 170\n" +
-                                            "            },\n" +
-                                            "            {\n" +
-                                            "              \"mode\": \"SUBWAY\",\n" +
-                                            "              \"start\": \"약수\",\n" +
-                                            "              \"end\": \"이태원\",\n" +
-                                            "              \"route\": \"수도권6호선\",\n" +
-                                            "              \"sectionTime\": 304\n" +
-                                            "            },\n" +
-                                            "            {\n" +
-                                            "              \"mode\": \"WALK\",\n" +
-                                            "              \"start\": \"이태원\",\n" +
-                                            "              \"end\": \"도착지\",\n" +
-                                            "              \"route\": null,\n" +
-                                            "              \"sectionTime\": 150\n" +
-                                            "            }\n" +
-                                            "          ]\n" +
-                                            "        }\n" +
-                                            "      ]\n" +
-                                            "    }\n" +
-                                            "  ]\n" +
-                                            "}");
-                        } else if (path.contains("/course/delete/{courseId}")) {
-                            return new MockResponse()
-                                    .setResponseCode(200)
-                                    .addHeader("Content-Type", "application/json")
-                                    .setBody("{\"resultCode\":200,\"resultMessage\":\"코스 삭제 성공\"}");
-                        } else if (path.contains("/rating")) {
-                            return new MockResponse()
-                                    .setResponseCode(200)
-                                    .addHeader("Content-Type", "application/json")
-                                    .setBody("{\"resultCode\":200,\"resultMessage\":\"평가 완료\"}");
-                        }
-
-                        return new MockResponse().setResponseCode(404);
-                    }
-                });
-
-                mockServer.start();
-
-                Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl(mockServer.url("/"))
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build();
-
-                apiService = retrofit.create(ApiService.class);
-                onReady.run();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-//            apiService = RetrofitClient.getInstance().create(ApiService.class);
-//            onReady.run();
-        }).start();
     }
 }

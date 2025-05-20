@@ -1,10 +1,12 @@
 package com.example.travelplus.fragment;
 
+import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
@@ -45,12 +47,13 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MoreFragment extends Fragment {
     CardView notice, inquiry, changeTheme, logout, withdraw;
     ApiService apiService;
-    private MockWebServer mockServer;
+    ApiService logoutService;
     @Override
     @Nullable
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_more,container,false);
-        setupMockServer();
+        apiService = RetrofitClient.getApiInstance(requireContext()).create(ApiService.class);
+        logoutService = RetrofitClient.getLoginInstance().create(ApiService.class);
         notice = view.findViewById(R.id.more_notice);
         inquiry = view.findViewById(R.id.more_inquiry);
         changeTheme = view.findViewById(R.id.more_change_theme);
@@ -115,8 +118,7 @@ public class MoreFragment extends Fragment {
         ImageView checkBtn = dialog.findViewById(R.id.check_button);
         cancelBtn.setOnClickListener(v -> dialog.dismiss());
         checkBtn.setOnClickListener(v -> {
-            // 로그아웃 API
-            Call<LogoutResponse> call = apiService.logout();
+            Call<LogoutResponse> call = logoutService.logout();
             call.enqueue(new Callback<LogoutResponse>() {
                 @Override
                 public void onResponse(Call<LogoutResponse> call, Response<LogoutResponse> response) {
@@ -126,6 +128,11 @@ public class MoreFragment extends Fragment {
                         if (res.resultCode == 200) {
                             Toast.makeText(getActivity(), "로그아웃 되었습니다", Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
+                            SharedPreferences preferences = requireContext().getSharedPreferences("userPrefs", MODE_PRIVATE);
+                            SharedPreferences.Editor editor = preferences.edit();
+                            editor.remove("authorization");
+                            editor.apply();
+
                             Intent intent = new Intent(requireActivity(), LoginActivity.class);
                             startActivity(intent);
                             requireActivity().finish();
@@ -209,27 +216,5 @@ public class MoreFragment extends Fragment {
 
         });
         dialog.show();
-    }
-    private void setupMockServer() {
-        new Thread(() -> {
-            try {
-                mockServer = new MockWebServer();
-                mockServer.enqueue(new MockResponse()
-                        .setResponseCode(200)
-                        .setBody("{\"resultCode\":200,\"resultMessage\":\"Success\"}"));
-                mockServer.start();
-
-                Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl(mockServer.url("/"))
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build();
-
-                apiService = retrofit.create(ApiService.class);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-//            apiService = RetrofitClient.getInstance().create(ApiService.class);
-        }).start();
     }
 }

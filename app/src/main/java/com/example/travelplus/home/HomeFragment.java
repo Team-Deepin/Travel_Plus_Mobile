@@ -33,6 +33,7 @@ import com.example.travelplus.onboarding.OnboardingActivity;
 import com.example.travelplus.R;
 import com.example.travelplus.WeatherResponse;
 import com.example.travelplus.network.ApiService;
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.gson.Gson;
 
 import java.io.BufferedReader;
@@ -63,24 +64,21 @@ public class HomeFragment extends Fragment {
     private String apiKey = "6340120faacb6462dae3d3b224bf7e37";
     TextView todayTemp, tomorrowTemp, TDATTemp, homeTitle, homeDuration, homeMeansTP;
     ImageView todayWeather, tomorrowWeather, TDATWeather;
-    private MockWebServer mockServer;
     ApiService apiService;
     CardView homeList;
     ConstraintLayout weatherList;
     LinearLayout homeWeatherList;
+    ShimmerFrameLayout weatherSkeleton, homeListSkeleton, homeWeatherSkeleton;
     HorizontalScrollView homeScroll;
     Map<String, String> weatherLocation;
-    String startDateGlobal, areaGlobal, endDateGlobal, authorization;
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        SharedPreferences prefs = requireActivity().getSharedPreferences("userPrefs", MODE_PRIVATE);
-        authorization = prefs.getString("authorization", null);
-    }
+    String startDateGlobal, areaGlobal, endDateGlobal;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view =inflater.inflate(R.layout.fragment_main,container,false);
-        setupMockServer(inflater);
+        apiService = RetrofitClient.getApiInstance(requireContext()).create(ApiService.class);
+        checkIsFirst();
         homeList = view.findViewById(R.id.home_list);
         homeScroll = view.findViewById(R.id.home_scroll);
         weatherList = view.findViewById(R.id.weather_list);
@@ -95,6 +93,9 @@ public class HomeFragment extends Fragment {
         homeTitle = view.findViewById(R.id.home_title);
         homeDuration = view.findViewById(R.id.home_duration);
         homeMeansTP = view.findViewById(R.id.home_meansTP);
+        weatherSkeleton = view.findViewById(R.id.weather_skeleton);
+        homeListSkeleton = view.findViewById(R.id.home_list_skeleton);
+        homeWeatherSkeleton = view.findViewById(R.id.home_weather_skeleton);
 
         String[] items = {"서울", "경기도", "강원도", "충청북도", "충청남도", "전라북도", "전라남도", "경상북도", "경상남도", "제주도"};
         weatherLocation = new LinkedHashMap<>();
@@ -136,6 +137,12 @@ public class HomeFragment extends Fragment {
     }
     private class GetWeatherNoCourse extends AsyncTask<String, Void, String> {
         @Override
+        protected void onPreExecute() {
+            weatherSkeleton.setVisibility(View.VISIBLE);
+            weatherSkeleton.startShimmer();
+            weatherList.setVisibility(View.GONE);
+        }
+        @Override
         protected String doInBackground(String... urls) {
             StringBuilder result = new StringBuilder();
             try {
@@ -162,7 +169,9 @@ public class HomeFragment extends Fragment {
                 Toast.makeText(getContext(), "날씨 정보를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show();
                 return;
             }
-
+            weatherSkeleton.stopShimmer();
+            weatherSkeleton.setVisibility(View.GONE);
+            weatherList.setVisibility(View.VISIBLE);
             try {
                 // JSON 파싱
                 Gson gson = new Gson();
@@ -200,6 +209,13 @@ public class HomeFragment extends Fragment {
     }
     private class GetWeatherCourse extends AsyncTask<String, Void, String> {
         @Override
+        protected void onPreExecute() {
+            homeWeatherSkeleton.setVisibility(View.VISIBLE);
+            homeWeatherSkeleton.startShimmer();
+            homeWeatherList.setVisibility(View.GONE);
+        }
+
+        @Override
         protected String doInBackground(String... urls) {
             StringBuilder result = new StringBuilder();
             try {
@@ -226,6 +242,9 @@ public class HomeFragment extends Fragment {
                 Toast.makeText(getContext(), "날씨 정보를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show();
                 return;
             }
+            homeWeatherSkeleton.stopShimmer();
+            homeWeatherSkeleton.setVisibility(View.GONE);
+            homeWeatherList.setVisibility(View.VISIBLE);
             try {
                 Gson gson = new Gson();
                 WeatherResponse weather = gson.fromJson(json, WeatherResponse.class);
@@ -291,47 +310,8 @@ public class HomeFragment extends Fragment {
                         temp.setText("예보 없음");
                         weatherImage.setImageResource(R.drawable.no_image);
                     }
-
                     homeWeatherList.addView(card);
-//                    for (WeatherResponse.ForecastItem item : weather.list) {
-//                        if (item.dt_txt.startsWith(target)) {
-//                            View card = inflater.inflate(R.layout.fragment_weather_list, homeWeatherList, false);
-//
-//                            TextView location = card.findViewById(R.id.home_location);
-//                            TextView date = card.findViewById(R.id.home_date);
-//                            TextView temp = card.findViewById(R.id.home_temperature);
-//                            ImageView weatherImage = card.findViewById(R.id.home_weather_image);
-//
-//                            location.setText(areaGlobal);
-//                            date.setText(outputDateFormat.format(inputFormat.parse(item.dt_txt)));
-//                            temp.setText(String.format(Locale.getDefault(), "%.1f°C", item.main.temp));
-//                            setWeatherImage(weatherImage, item.weather.get(0).main);
-//
-//                            homeWeatherList.addView(card);
-//                            found = true;
-//                            break;
-//                        }
-//                    }
-//                    // 예보가 없을 경우
-//                    if (!found) {
-//                        View card = inflater.inflate(R.layout.fragment_weather_list, homeWeatherList, false);
-//
-//                        TextView location = card.findViewById(R.id.home_location);
-//                        TextView date = card.findViewById(R.id.home_date);
-//                        TextView temp = card.findViewById(R.id.home_temperature);
-//                        ImageView weatherImage = card.findViewById(R.id.home_weather_image);
-//
-//                        location.setText(areaGlobal);
-//                        SimpleDateFormat display = new SimpleDateFormat("MM/dd");
-//                        String displayDate = display.format(sdf.parse(target));
-//                        date.setText(displayDate);
-//                        temp.setText("예보 없음");
-//                        weatherImage.setImageResource(R.drawable.no_image);
-//
-//                        homeWeatherList.addView(card);
-//                    }
                 }
-
             } catch (Exception e) {
                 Log.e("Weather", "파싱 오류: " + e.getMessage());
             }
@@ -385,8 +365,8 @@ public class HomeFragment extends Fragment {
                 view.setImageResource(R.drawable.sunny);
         }
     }
-    private void checkIsFirst(LayoutInflater inflater) {
-        Call<HomeResponse> call = apiService.home(authorization);
+    private void checkIsFirst() {
+        Call<HomeResponse> call = apiService.home();
         call.enqueue(new Callback<HomeResponse>() {
             @Override
             public void onResponse(Call<HomeResponse> call, Response<HomeResponse> response) {
@@ -428,6 +408,7 @@ public class HomeFragment extends Fragment {
                                 if (diffTodayStart >= 0 && diffTodayEnd >= 0) {
                                     isTraveling = true;
                                 }
+
                                 if(isTraveling){
                                     homeList.setVisibility(VISIBLE);
                                     weatherList.setVisibility(GONE);
@@ -474,50 +455,4 @@ public class HomeFragment extends Fragment {
             }
         });
     }
-    private void setupMockServer(LayoutInflater inflater) {
-        new Thread(() -> {
-            try {
-                mockServer = new MockWebServer();
-
-                // 응답 설정 (isFirst = true로 테스트)
-                mockServer.enqueue(new MockResponse()
-                        .setResponseCode(200)
-                        .setBody("{"
-                                + "\"resultCode\":200,"
-                                + "\"resultMessage\":\"성공\","
-                                + "\"data\":{"
-                                + "\"isFirst\":false,"
-                                + "\"course\":["
-                                + "{"
-                                + "\"courseId\":101,"
-                                + "\"title\":\"제주도\","
-                                + "\"area\":\"제주도\","
-                                + "\"startDate\":\"2025-05-10\","
-                                + "\"endDate\":\"2025-05-12\","
-                                + "\"meansTp\":\"자가용\""
-                                + "}"
-                                + "]"
-                                + "}"
-                                + "}")
-                        .addHeader("Content-Type", "application/json"));
-
-                mockServer.start();
-
-                Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl(mockServer.url("/")) // mock 서버 URL 사용
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build();
-
-                apiService = retrofit.create(ApiService.class);
-
-                getActivity().runOnUiThread(()->checkIsFirst(inflater));
-
-            } catch (IOException e) {
-                Log.e("home", "MockServer setup failed: " + e.getMessage());
-            }
-//            apiService = RetrofitClient.getInstance().create(ApiService.class);
-//            getActivity().runOnUiThread(()->checkIsFirst(inflater));
-        }).start();
-    }
-
 }

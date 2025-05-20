@@ -27,9 +27,11 @@ public class NoticeAdapter extends RecyclerView.Adapter<NoticeAdapter.NoticeView
     }
 
     public void setItems(List<NoticeResponse.Notice> items) {
-        noticeList.clear();
-        noticeList.addAll(items);
-        notifyDataSetChanged();
+        if (noticeList != null){
+            noticeList.clear();
+            noticeList.addAll(items);
+            notifyDataSetChanged();
+        }
     }
 
     @NonNull
@@ -43,9 +45,7 @@ public class NoticeAdapter extends RecyclerView.Adapter<NoticeAdapter.NoticeView
     @Override
     public void onBindViewHolder(@NonNull NoticeViewHolder holder, int position) {
         NoticeResponse.Notice notice = noticeList.get(position);
-        String rawDate = notice.date;
-        String formatted = rawDate.split("T")[0].replace("-", ".");
-        holder.noticeDate.setText(formatted);
+        holder.noticeType.setText("["+notice.noticeType+"]");
         holder.noticeTitle.setText(notice.title);
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
@@ -61,12 +61,12 @@ public class NoticeAdapter extends RecyclerView.Adapter<NoticeAdapter.NoticeView
 
     static class NoticeViewHolder extends RecyclerView.ViewHolder {
         TextView noticeTitle;
-        TextView noticeDate;
+        TextView noticeType;
 
         public NoticeViewHolder(@NonNull View itemView) {
             super(itemView);
             noticeTitle = itemView.findViewById(R.id.notice_title);
-            noticeDate = itemView.findViewById(R.id.notice_date);
+            noticeType = itemView.findViewById(R.id.notice_type);
         }
     }
 }

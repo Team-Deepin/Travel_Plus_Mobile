@@ -3,22 +3,20 @@ package com.example.travelplus.survey;
 import java.util.List;
 
 public class SurveyRequest {
-    public String title;
     public String area;
     public String meansTp;
     public String person;
-    public String startDate;
-    public String endDate;
+    public String start_date;
+    public String end_date;
     public List<String> tripType;
 
-    public SurveyRequest(String title, String area, String meansTp, String person,
-                         String startDate, String endDate, List<String> tripType){
-        this.title = title;
+    public SurveyRequest(String area, String meansTp, String person,
+                         String start_date, String end_date, List<String> tripType){
         this.area = area;
         this.meansTp = meansTp;
         this.person = person;
-        this.startDate = startDate;
-        this.endDate = endDate;
+        this.start_date = start_date;
+        this.end_date = end_date;
         this.tripType = tripType;
     }
 }

@@ -60,13 +60,11 @@ public class LoginActivity extends AppCompatActivity {
     TextView register;
     Typeface font;
     ApiService apiService;
-    private MockWebServer mockServer;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-//        apiService = RetrofitClient.getLoginInstance().create(ApiService.class);
-        setupMockServer();
+        apiService = RetrofitClient.getLoginInstance().create(ApiService.class);
         email = findViewById(R.id.login_email);
         password = findViewById(R.id.login_password);
         loginBtn = findViewById(R.id.login_button);
@@ -192,7 +190,6 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                     if (response.isSuccessful() && response.body() != null) {
-
                         String authorization = response.headers().get("Authorization");
                         if (authorization != null) {
                             SharedPreferences prefs = getSharedPreferences("userPrefs", MODE_PRIVATE);
@@ -207,9 +204,10 @@ public class LoginActivity extends AppCompatActivity {
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             startActivity(intent);
                             finish();
-                            runOnUiThread(() -> Toast.makeText(LoginActivity.this,
-                                    "환영합니다! "+emailStr+"님!", Toast.LENGTH_SHORT).show());
-                        }else{
+                        } else if (res.resultCode == 401) {
+                            runOnUiThread(() -> Toast.makeText(LoginActivity.this, "로그인 실패", Toast.LENGTH_SHORT).show());
+                            Log.d("Login",String.valueOf(res.resultCode));
+                        }else {
                             runOnUiThread(() -> Toast.makeText(LoginActivity.this, "로그인 실패", Toast.LENGTH_SHORT).show());
                             Log.d("Login",String.valueOf(res.resultCode));
                         }
@@ -338,28 +336,5 @@ public class LoginActivity extends AppCompatActivity {
     private boolean validEmail(String email){
         String emailPatern = "[a-zA-Z0-9._-]+@[a-zA-Z]+\\.+[a-zA-Z]+$";
         return email.matches(emailPatern);
-    }
-    private void setupMockServer() {
-        new Thread(() -> {
-            try {
-                mockServer = new MockWebServer();
-                mockServer.enqueue(new MockResponse()
-                        .setResponseCode(200)
-                        .addHeader("Authorization", "Bearer dummy_token_ABC123")
-                        .setBody("{\"resultCode\":200,\"resultMessage\":\"Success\"}"));
-                mockServer.start();
-
-                Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl(mockServer.url("/"))
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build();
-
-                apiService = retrofit.create(ApiService.class);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-//            apiService = RetrofitClient.getInstance().create(ApiService.class);
-        }).start();
     }
 }

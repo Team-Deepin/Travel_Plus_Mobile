@@ -123,7 +123,35 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/search_image"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
+        <com.facebook.shimmer.ShimmerFrameLayout
+            android:id="@+id/course_skeleton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/title"
+            app:layout_constraintStart_toStartOf="@id/guidelineVertical1"
+            app:layout_constraintEnd_toEndOf="@id/guidelineVertical9"
+            app:shimmer_auto_start="true">
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:background="@drawable/skeleton_bg" />
+
+                <View
+                    android:layout_width="wrap_content"
+                    android:layout_height="20dp"
+                    android:background="@drawable/skeleton_bg" />
+            </LinearLayout>
+        </com.facebook.shimmer.ShimmerFrameLayout>
         <ScrollView
             android:id="@+id/course_scroll"
             android:visibility="gone"
@@ -162,16 +190,7 @@
                 android:textColor="@color/color_button1"
                 android:layout_gravity="center"/>
         </com.google.android.material.card.MaterialCardView>
-<!--        <ImageView-->
-<!--            android:id="@+id/course_AI"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:src="@drawable/ai_recommend"-->
-<!--            app:layout_constraintBottom_toTopOf="@id/course_trip"-->
-<!--            app:layout_constraintEnd_toEndOf="@id/guidelineVertical9"-->
-<!--            app:layout_constraintStart_toStartOf="@id/guidelineVertical1"-->
-<!--            android:adjustViewBounds="true"-->
-<!--            android:scaleType="centerInside"/>-->
+
         <androidx.cardview.widget.CardView
             android:id="@+id/course_trip"
             android:layout_width="0dp"
@@ -192,16 +211,6 @@
                 android:textColor="@color/color_background"
                 android:layout_gravity="center"/>
         </androidx.cardview.widget.CardView>
-<!--        <ImageView-->
-<!--            android:id="@+id/course_trip"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="0dp"-->
-<!--            android:src="@drawable/survey_btn_activate"-->
-<!--            app:layout_constraintTop_toTopOf="@id/guidelineHorizontal9"-->
-<!--            app:layout_constraintBottom_toBottomOf="@id/guidelineHorizontal95"-->
-<!--            app:layout_constraintEnd_toEndOf="@id/guidelineVertical9"-->
-<!--            app:layout_constraintStart_toStartOf="@id/guidelineVertical1"-->
-<!--            android:adjustViewBounds="true"-->
-<!--            android:scaleType="centerInside"/>-->
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

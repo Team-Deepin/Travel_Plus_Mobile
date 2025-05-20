@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.travelplus.R;
 import com.example.travelplus.network.ApiService;
 import com.example.travelplus.network.RetrofitClient;
+import com.facebook.shimmer.ShimmerFrameLayout;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,13 +48,8 @@ public class NoticeFragment extends Fragment {
     NoticeAdapter adapter;
     int currentPage = 1, pageSize = 7, totalCount = 0;
     ApiService apiService;
-    private String authorization;
-    private MockWebServer mockServer;
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        SharedPreferences prefs = requireActivity().getSharedPreferences("userPrefs", MODE_PRIVATE);
-        authorization = prefs.getString("authorization", null);
-    }
+    ShimmerFrameLayout noticeSkeleton;
+
     @Override
     public void onResume() {
         super.onResume();
@@ -68,8 +64,8 @@ public class NoticeFragment extends Fragment {
         paginationContainer = view.findViewById(R.id.pagination_container);
         noNoticeContainer = view.findViewById(R.id.notice_no_list);
         noticeRecyclerView = view.findViewById(R.id.notice_list);
-
-
+        apiService = RetrofitClient.getApiInstance(requireContext()).create(ApiService.class);
+        noticeSkeleton = view.findViewById(R.id.notice_skeleton);
         adapter = new NoticeAdapter();
         noticeRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         noticeRecyclerView.setAdapter(adapter);
@@ -97,19 +93,22 @@ public class NoticeFragment extends Fragment {
                         }
                     }
                 });
-        setupMockServer();
 
         return view;
     }
     private void loadNotices(int page) {
-        apiService.getNotices(authorization, page, pageSize).enqueue(new Callback<NoticeResponse>() {
+        noticeSkeleton.setVisibility(VISIBLE);
+        noticeSkeleton.startShimmer();
+        noticeRecyclerView.setVisibility(GONE);
+        apiService.getNotices(page, pageSize).enqueue(new Callback<NoticeResponse>() {
             @Override
             public void onResponse(Call<NoticeResponse> call, Response<NoticeResponse> response) {
+                noticeSkeleton.stopShimmer();
+                noticeSkeleton.setVisibility(GONE);
                 if (response.isSuccessful() && response.body() != null) {
                     List<NoticeResponse.Notice> notices = response.body().data.content;
                     totalCount = response.body().data.totalElements;
-
-                    if (notices.isEmpty()) {
+                    if (notices != null && notices.isEmpty()) {
                         noticeRecyclerView.setVisibility(GONE);
                         noNoticeContainer.setVisibility(View.VISIBLE);
                     } else {
@@ -118,11 +117,17 @@ public class NoticeFragment extends Fragment {
                         noticeRecyclerView.setVisibility(View.VISIBLE);
                         noNoticeContainer.setVisibility(GONE);
                     }
+                }else {
+                    noticeRecyclerView.setVisibility(GONE);
+                    noNoticeContainer.setVisibility(View.VISIBLE);
+                    Log.d("notice", "연결 실패");
                 }
             }
 
             @Override
             public void onFailure(Call<NoticeResponse> call, Throwable t) {
+                noticeSkeleton.stopShimmer();
+                noticeSkeleton.setVisibility(GONE);
                 Log.e("notice", "불러오기 실패", t);
             }
         });
@@ -173,67 +178,5 @@ public class NoticeFragment extends Fragment {
         btn.setPadding(24, 12, 24, 12);
         btn.setTextColor(Color.GRAY);
         return btn;
-    }
-    private void setupMockServer() {
-        new Thread(() -> {
-            try {
-                mockServer = new MockWebServer();
-
-                // JSON 데이터를 페이지별로 미리 생성
-                List<String> noticesJson = new ArrayList<>();
-                for (int i = 1; i <= 20; i++) {
-                    noticesJson.add("{\"noticeId\":" + i + ",\"title\":\"공지사항 " + i + "\",\"date\":\"2025-04-" + (i < 10 ? "0" + i : i) + "\"}");
-                }
-
-                // Dispatcher 설정
-                mockServer.setDispatcher(new Dispatcher() {
-                    @Override
-                    public MockResponse dispatch(RecordedRequest request) {
-                        String path = request.getPath(); // 예: /edit/notice?page=2&size=7
-                        int page = 0;
-
-                        try {
-                            String[] query = path.split("\\?")[1].split("&");
-                            for (String q : query) {
-                                if (q.startsWith("page=")) {
-                                    page = Integer.parseInt(q.split("=")[1]);
-                                }
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
-                        int from = page * 7;
-                        int to = Math.min(from + 7, noticesJson.size());
-                        String body = "{"
-                                + "\"resultCode\": 200,"
-                                + "\"resultMessage\": \"Success\","
-                                + "\"data\": {"
-                                + "\"totalCount\": 20,"
-                                + "\"notices\": [" + String.join(",", noticesJson.subList(from, to)) + "]" //[]"
-                                + "}"
-                                + "}";
-
-                        return new MockResponse().setResponseCode(200).setBody(body);
-                    }
-                });
-
-                mockServer.start();
-
-                Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl(mockServer.url("/"))
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build();
-
-                apiService = retrofit.create(ApiService.class);
-
-                requireActivity().runOnUiThread(() -> loadNotices(currentPage-1));
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-//            apiService = RetrofitClient.getInstance().create(ApiService.class);
-//            requireActivity().runOnUiThread(() -> loadNotices(currentPage));
-        }).start();
     }
 }

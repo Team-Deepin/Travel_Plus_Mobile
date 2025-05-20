@@ -38,18 +38,12 @@ public class ChangeThemeFragment extends Fragment {
             historyTour, foodTour, natureTour, experienceTour, festivalTour, parkTour;
     ImageView changeBtn;
     ApiService apiService;
-    String authorization;
-    private MockWebServer mockServer;
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        SharedPreferences prefs = requireActivity().getSharedPreferences("userPrefs", MODE_PRIVATE);
-        authorization = prefs.getString("authorization", null);
-    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_change_theme, container, false);
-        setupMockServer();
+        apiService = RetrofitClient.getApiInstance(requireContext()).create(ApiService.class);
         cityTour = view.findViewById(R.id.change_city_tour);
         activityTour = view.findViewById(R.id.change_activity_tour);
         emotionTour = view.findViewById(R.id.change_emotion_tour);
@@ -105,10 +99,12 @@ public class ChangeThemeFragment extends Fragment {
             if (festivalTour.isChecked()) selectedTypes.add("축제/공연/이벤트");
             if (parkTour.isChecked()) selectedTypes.add("테마파크/공원");
             ChangeThemeRequest changeThemeRequest = new ChangeThemeRequest(selectedTypes);
-            Call<ChangeThemeResponse> call = apiService.change(authorization, changeThemeRequest);
+            Call<ChangeThemeResponse> call = apiService.change(changeThemeRequest);
             call.enqueue(new Callback<ChangeThemeResponse>() {
                 @Override
                 public void onResponse(Call<ChangeThemeResponse> call, Response<ChangeThemeResponse> response) {
+                    Log.d("change theme", String.valueOf(selectedTypes));
+                    Log.d("change theme", "응답 코드: " + response.code());
                     if (response.isSuccessful() && response.body() != null) {
                         ChangeThemeResponse res = response.body();
                         Log.d("change theme",res.resultMessage);
@@ -119,7 +115,12 @@ public class ChangeThemeFragment extends Fragment {
                             }
                         }
                     }else {
-                        Log.d("change theme", "실패");
+                        if (!response.isSuccessful()){
+                            Log.d("change theme", "isSuccessful 실패");
+                        }else {
+                            Log.d("change theme", "body 실패");
+                        }
+
                     }
                 }
 
@@ -130,27 +131,5 @@ public class ChangeThemeFragment extends Fragment {
             });
         });
         return view;
-    }
-    private void setupMockServer() {
-        new Thread(() -> {
-            try {
-                mockServer = new MockWebServer();
-                mockServer.enqueue(new MockResponse()
-                        .setResponseCode(200)
-                        .setBody("{\"resultCode\":200,\"resultMessage\":\"Success\"}"));
-                mockServer.start();
-
-                Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl(mockServer.url("/"))
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build();
-
-                apiService = retrofit.create(ApiService.class);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-//            apiService = RetrofitClient.getInstance().create(ApiService.class);
-        }).start();
     }
 }
