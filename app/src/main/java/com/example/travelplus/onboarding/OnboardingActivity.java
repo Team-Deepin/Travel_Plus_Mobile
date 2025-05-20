@@ -46,16 +46,12 @@ public class OnboardingActivity extends AppCompatActivity {
     MaterialCheckBox cityTour, activityTour, emotionTour, shoppingTour, healingTour,
             historyTour, foodTour, natureTour, experienceTour, festivalTour, parkTour;
     CardView onboardingBtn;
-    String authorization;
     ApiService apiService;
-    private MockWebServer mockServer;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        SharedPreferences prefs = getSharedPreferences("userPrefs", MODE_PRIVATE);
-        authorization = prefs.getString("authorization", null);
+        apiService = RetrofitClient.getApiInstance(this).create(ApiService.class);
         setContentView(R.layout.activity_onboarding);
-        setupMockServer();
         age = findViewById(R.id.onboarding_birth);
         male = findViewById(R.id.male);
         female = findViewById(R.id.female);
@@ -83,7 +79,7 @@ public class OnboardingActivity extends AppCompatActivity {
                         || historyTour.isChecked() || foodTour.isChecked() || natureTour.isChecked() ||
                         experienceTour.isChecked() || festivalTour.isChecked() || parkTour.isChecked();
 
-                if(isGenderChecked && isTypeChecked && !birth.isEmpty()){
+                if(isGenderChecked && isTypeChecked && birth.length() == 8){
 //                    onboardingBtn.setImageResource(R.drawable.input_activated);
                     onboardingBtn.setCardBackgroundColor(ContextCompat.getColor(OnboardingActivity.this,R.color.color_button1));
                     inputText.setTextColor(ContextCompat.getColor(OnboardingActivity.this, R.color.color_background));
@@ -146,10 +142,11 @@ public class OnboardingActivity extends AppCompatActivity {
             if (festivalTour.isChecked()) selectedTypes.add("축제/공연/이벤트");
             if (parkTour.isChecked()) selectedTypes.add("테마파크/공원");
             OnboardingRequest request = new OnboardingRequest(gender, formattedDate, selectedTypes);
-            Call<OnboardingResponse> call = apiService.onboarding(authorization, request);
+            Call<OnboardingResponse> call = apiService.onboarding(request);
             call.enqueue(new Callback<OnboardingResponse>() {
                 @Override
                 public void onResponse(Call<OnboardingResponse> call, Response<OnboardingResponse> response) {
+                    Log.d("Onboarding", "응답 코드: " + response.code());
                     if (response.isSuccessful() && response.body() != null) {
                         OnboardingResponse res = response.body();
                         Log.d("Onboarding",res.resultMessage);
@@ -165,6 +162,11 @@ public class OnboardingActivity extends AppCompatActivity {
                     } else {
                         runOnUiThread(() -> Toast.makeText(OnboardingActivity.this, "입력 실패", Toast.LENGTH_SHORT).show());
                         Log.d("Onboarding","온보딩 실패");
+                        try {
+                            Log.e("Onboarding", "Response error: " + response.errorBody().string());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
 
@@ -175,27 +177,5 @@ public class OnboardingActivity extends AppCompatActivity {
                 }
             });
         });
-    }
-    private void setupMockServer() {
-        new Thread(() -> {
-            try {
-                mockServer = new MockWebServer();
-                mockServer.enqueue(new MockResponse()
-                        .setResponseCode(200)
-                        .setBody("{\"resultCode\":200,\"resultMessage\":\"Success\"}"));
-                mockServer.start();
-
-                Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl(mockServer.url("/"))
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build();
-
-                apiService = retrofit.create(ApiService.class);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-//            apiService = RetrofitClient.getInstance().create(ApiService.class);
-        }).start();
     }
 }

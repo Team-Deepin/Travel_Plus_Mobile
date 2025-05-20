@@ -40,19 +40,12 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class InquireFragment extends Fragment {
     EditText inquireTitle, inquireContent;
     CardView inquireBtn;
-    String title, content, authorization;
+    String title, content;
     ApiService apiService;
-    private MockWebServer mockServer;
-
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        SharedPreferences prefs = requireActivity().getSharedPreferences("userPrefs", MODE_PRIVATE);
-        authorization = prefs.getString("authorization", null);
-    }
 
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_inquiry_send, container, false);
-        setupMockServer();
+        apiService = RetrofitClient.getApiInstance(requireContext()).create(ApiService.class);
         inquireTitle = view.findViewById(R.id.inquire_title);
         inquireContent = view.findViewById(R.id.inquire_content);
         inquireBtn = view.findViewById(R.id.inquire_btn);
@@ -87,7 +80,7 @@ public class InquireFragment extends Fragment {
         inquireBtn.setOnClickListener(view1 -> {
             // 내용 보내기
             InquireRequest inquireRequest = new InquireRequest(title, content);
-            Call<InquireResponse> call = apiService.inquire(authorization, inquireRequest);
+            Call<InquireResponse> call = apiService.inquire(inquireRequest);
             call.enqueue(new Callback<InquireResponse>() {
                 @Override
                 public void onResponse(Call<InquireResponse> call, Response<InquireResponse> response) {
@@ -128,27 +121,5 @@ public class InquireFragment extends Fragment {
         } else {
             inquireBtn.setEnabled(false);
         }
-    }
-    private void setupMockServer() {
-        new Thread(() -> {
-            try {
-                mockServer = new MockWebServer();
-                mockServer.enqueue(new MockResponse()
-                        .setResponseCode(200)
-                        .setBody("{\"resultCode\":200,\"resultMessage\":\"Success\"}"));
-                mockServer.start();
-
-                Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl(mockServer.url("/"))
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build();
-
-                apiService = retrofit.create(ApiService.class);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-//            apiService = RetrofitClient.getInstance().create(ApiService.class);
-        }).start();
     }
 }

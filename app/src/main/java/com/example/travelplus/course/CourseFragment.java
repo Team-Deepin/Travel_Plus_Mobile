@@ -1,11 +1,9 @@
 package com.example.travelplus.course;
 
-import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
 import android.app.Dialog;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,21 +26,17 @@ import com.example.travelplus.network.ApiService;
 import com.example.travelplus.network.RetrofitClient;
 import com.example.travelplus.recommend.AIRecommendFragment;
 import com.example.travelplus.survey.SurveyFragment;
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.card.MaterialCardView;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class CourseFragment extends Fragment {
     CardView tripRecommend;
@@ -52,18 +46,12 @@ public class CourseFragment extends Fragment {
     ConstraintLayout noCourseListLayout;
     ApiService apiService;
     ImageView pastCourseBtn;
-    private String authorization;
-    private MockWebServer mockServer;
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        SharedPreferences prefs = requireActivity().getSharedPreferences("userPrefs", MODE_PRIVATE);
-        authorization = prefs.getString("authorization", null);
-    }
+    ShimmerFrameLayout skeletonUI;
+
     @Override
     public void onResume() {
         super.onResume();
         if (apiService != null) {
-            courseListLayout.removeAllViews();
             courseList(LayoutInflater.from(requireContext()));
         }
     }
@@ -72,13 +60,14 @@ public class CourseFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_course, container, false);
-        setupMockServer(inflater);
         courseListLayout = view.findViewById(R.id.course_list);
         courseScrollView = view.findViewById(R.id.course_scroll);
         noCourseListLayout = view.findViewById(R.id.course_no_list);
         aiRecommend = view.findViewById(R.id.course_AI);
         tripRecommend = view.findViewById(R.id.course_trip);
         pastCourseBtn = view.findViewById(R.id.past_course_btn);
+        apiService = RetrofitClient.getApiInstance(requireContext()).create(ApiService.class);
+        skeletonUI = view.findViewById(R.id.course_skeleton);
 
         aiRecommend.setOnClickListener(view1 -> {
             ai_recommend_click();
@@ -113,15 +102,22 @@ public class CourseFragment extends Fragment {
         return view;
     }
     private void courseList(LayoutInflater inflater){
-        Call<CourseResponse> call = apiService.course(authorization);
+        skeletonUI.setVisibility(View.VISIBLE);
+        skeletonUI.startShimmer();
+        courseScrollView.setVisibility(View.GONE);
+        noCourseListLayout.setVisibility(View.GONE);
+        Call<CourseResponse> call = apiService.course();
         call.enqueue(new Callback<CourseResponse>() {
             @Override
             public void onResponse(Call<CourseResponse> call, Response<CourseResponse> response) {
+                skeletonUI.stopShimmer();
+                skeletonUI.setVisibility(View.GONE);
                 if (response.isSuccessful() && response.body() != null) {
                     CourseResponse res = response.body();
                     Log.d("course",res.resultMessage);
                     if(res.resultCode == 200 && res.data != null && !res.data.isEmpty()){
                         Log.d("course","성공");
+                        courseListLayout.removeAllViews();
                         courseScrollView.setVisibility(VISIBLE);
                         noCourseListLayout.setVisibility(GONE);
                         for (CourseResponse.Course course : res.data) {
@@ -183,6 +179,8 @@ public class CourseFragment extends Fragment {
 
             @Override
             public void onFailure(Call<CourseResponse> call, Throwable t) {
+                skeletonUI.stopShimmer();
+                skeletonUI.setVisibility(View.GONE);
                 courseScrollView.setVisibility(GONE);
                 noCourseListLayout.setVisibility(VISIBLE);
                 Log.d("course","연결 실패");
@@ -194,13 +192,20 @@ public class CourseFragment extends Fragment {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
             Date startDate = sdf.parse(start);
             Date endDate = sdf.parse(end);
+
             long diff = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
-            return diff + "박 " + (diff + 1) + "일";
+
+            if (diff == 0) {
+                return "당일치기";
+            } else {
+                return diff + "박 " + (diff + 1) + "일";
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return "기간 불명";
         }
     }
+
     private void ai_recommend_click(){
         Dialog dialog = new Dialog(getActivity());
         dialog.setContentView(R.layout.pop_up_course_title);
@@ -266,60 +271,12 @@ public class CourseFragment extends Fragment {
     private void showPast(){
         ConstraintLayout courseLayout = requireView().findViewById(R.id.course_layout);
         courseLayout.setVisibility(GONE);
-        CoursePastFragment coursePastFragment = new CoursePastFragment();
+        CourseHistoryFragment coursePastFragment = new CourseHistoryFragment();
 
         requireActivity().getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.course_fragment_container, coursePastFragment)
                 .addToBackStack(null)
                 .commit();
-    }
-    private void setupMockServer(LayoutInflater inflater) {
-        new Thread(() -> {
-            try {
-                mockServer = new MockWebServer();
-                mockServer.enqueue(new MockResponse()
-                        .setResponseCode(200)
-                        .setBody("{\n" +
-                                "  \"resultCode\": 200,\n" +
-                                "  \"resultMessage\": \"Success\",\n" +
-                                "  \"data\": [\n" +
-                                "    {\n" +
-                                "      \"courseId\": 1,\n" +
-                                "      \"title\": \"trip_123\",\n" +
-                                "      \"area\": \"Busan\",\n" +
-                                "      \"courseType\": [\"힐링\", \"쇼핑\"],\n" +
-                                "      \"startDate\": \"2025-03-01\",\n" +
-                                "      \"endDate\": \"2025-03-05\",\n" +
-                                "      \"meansTp\": \"자가용\"\n" +
-                                "    },\n" +
-                                "    {\n" +
-                                "      \"courseId\": 2,\n" +
-                                "      \"title\": \"trip_124\",\n" +
-                                "      \"area\": \"Seoul\",\n" +
-                                "      \"courseType\": [\"힐링\", \"쇼핑\"],\n" +
-                                "      \"startDate\": \"2025-06-15\",\n" +
-                                "      \"endDate\": \"2025-06-20\",\n" +
-                                "      \"meansTp\": \"대중교통\"\n" +
-                                "    }\n" +
-                                "  ]\n" +
-                                "}"));
-
-                mockServer.start();
-
-                Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl(mockServer.url("/"))
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build();
-
-                apiService = retrofit.create(ApiService.class);
-
-                getActivity().runOnUiThread(() -> courseList(inflater));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-//            apiService = RetrofitClient.getInstance().create(ApiService.class);
-//            getActivity().runOnUiThread(() -> courseList(inflater));
-        }).start();
     }
 }

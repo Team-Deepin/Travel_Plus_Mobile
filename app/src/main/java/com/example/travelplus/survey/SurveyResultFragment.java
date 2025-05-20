@@ -1,16 +1,10 @@
 package com.example.travelplus.survey;
 
-import static android.content.Context.MODE_PRIVATE;
-import static android.view.View.VISIBLE;
-
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -18,8 +12,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
@@ -29,36 +21,32 @@ import com.example.travelplus.R;
 import com.example.travelplus.network.ApiService;
 import com.example.travelplus.network.RetrofitClient;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class SurveyResultFragment extends Fragment {
-    String title, transit, date, authorization;
-    List<SurveyResponse.surveyData> data;
+    String title, meansTp, date, area, person;
+    List<String> tripType;
+    SurveyResponse.surveyData data;
     ApiService apiService;
-    private MockWebServer mockServer;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             title = getArguments().getString("title");
-            transit = getArguments().getString("transit");
+            meansTp = getArguments().getString("meansTp");
+            area = getArguments().getString("area");
             date = getArguments().getString("date");
-            data = (List<SurveyResponse.surveyData>) getArguments().getSerializable("data");
+            person = getArguments().getString("person");
+            tripType = getArguments().getStringArrayList("tripType");
+            data = (SurveyResponse.surveyData) getArguments().getSerializable("data");
         }
-        SharedPreferences prefs = requireActivity().getSharedPreferences("userPrefs", MODE_PRIVATE);
-        authorization = prefs.getString("authorization", null);
     }
     @Nullable
     @Override
@@ -67,15 +55,15 @@ public class SurveyResultFragment extends Fragment {
         TextView titleView = view.findViewById(R.id.survey_title);
         LinearLayout surveyList = view.findViewById(R.id.survey_list);
         ImageView surveySelectBtn = view.findViewById(R.id.survey_select_btn);
-        setupMockServer();
+        apiService = RetrofitClient.getApiInstance(requireContext()).create(ApiService.class);
 
         titleView.setText(title);
         if (title.isEmpty()){
-            titleView.setText(data.get(0).courseDetails.get(0).area + " "+date + " "+ transit);
+            titleView.setText(area + " "+date + " "+ meansTp);
         }
-        for (SurveyResponse.surveyData courseData : data) {
+        for (SurveyResponse.CourseDetailGroup group : data.courseDetails) {
             LinearLayout courseCard = new LinearLayout(requireContext());
-            courseCard.setTag(courseData.courseId);
+            courseCard.setTag(group.courseIdx);
             courseCard.setOrientation(LinearLayout.VERTICAL);
             courseCard.setBackgroundResource(R.drawable.ai_background);
             LinearLayout.LayoutParams courseParams = new LinearLayout.LayoutParams(
@@ -90,6 +78,7 @@ public class SurveyResultFragment extends Fragment {
                 }
                 v.setSelected(true);
             });
+
             TextView courseTitle = new TextView(requireContext());
             LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -97,43 +86,43 @@ public class SurveyResultFragment extends Fragment {
             );
             titleParams.setMargins(40, 30, 0, 20);
             courseTitle.setLayoutParams(titleParams);
-            courseTitle.setText(courseData.courseDetails.get(0).area + " (" + date + ") " + transit);
+            courseTitle.setText(area + " (" + date + ") " + meansTp);
             courseTitle.setTextSize(20);
             courseTitle.setTextColor(ContextCompat.getColor(requireContext(), R.color.color_text));
             courseTitle.setTypeface(ResourcesCompat.getFont(requireContext(), R.font.bmeuljirottf));
             courseCard.addView(courseTitle);
 
-            for (SurveyResponse.CourseDetailGroup group : courseData.courseDetails) {
-                Map<String, List<SurveyResponse.detailPlace>> dayGrouped = new LinkedHashMap<>();
-                for (SurveyResponse.detailPlace place : group.places) {
-                    dayGrouped.computeIfAbsent(place.day, k -> new ArrayList<>()).add(place);
-                }
+            // 날짜별로 그룹화
+            Map<String, List<SurveyResponse.detailPlace>> dayGrouped = new LinkedHashMap<>();
+            for (SurveyResponse.detailPlace place : group.places) {
+                dayGrouped.computeIfAbsent(place.day, k -> new ArrayList<>()).add(place);
+            }
 
-                for (Map.Entry<String, List<SurveyResponse.detailPlace>> entry : dayGrouped.entrySet()) {
-                    String day = entry.getKey();
-                    List<SurveyResponse.detailPlace> places = entry.getValue();
+            for (Map.Entry<String, List<SurveyResponse.detailPlace>> entry : dayGrouped.entrySet()) {
+                String day = entry.getKey();
+                List<SurveyResponse.detailPlace> places = entry.getValue();
 
-                    TextView dayText = new TextView(requireContext());
-                    LinearLayout.LayoutParams dayParams = new LinearLayout.LayoutParams(
-                            ViewGroup.LayoutParams.WRAP_CONTENT,
-                            ViewGroup.LayoutParams.WRAP_CONTENT
-                    );
-                    dayParams.setMargins(30, 20, 0, 10);
-                    dayText.setLayoutParams(dayParams);
-                    dayText.setText("📅 " + day);
-                    dayText.setTextSize(18);
-                    dayText.setTextColor(ContextCompat.getColor(requireContext(), R.color.color_text));
-                    dayText.setTypeface(ResourcesCompat.getFont(requireContext(), R.font.bmeuljirottf));
-                    courseCard.addView(dayText);
+                TextView dayText = new TextView(requireContext());
+                LinearLayout.LayoutParams dayParams = new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                );
+                dayParams.setMargins(30, 20, 0, 10);
+                dayText.setLayoutParams(dayParams);
+                dayText.setText("📅 " + day);
+                dayText.setTextSize(18);
+                dayText.setTextColor(ContextCompat.getColor(requireContext(), R.color.color_text));
+                dayText.setTypeface(ResourcesCompat.getFont(requireContext(), R.font.bmeuljirottf));
+                courseCard.addView(dayText);
 
-                    for (SurveyResponse.detailPlace place : places) {
-                        View placeCard = inflater.inflate(R.layout.fragment_survey_result_list, courseCard, false);
-                        TextView placeText = placeCard.findViewById(R.id.survey_result_place);
-                        placeText.setText(place.placeName);
-                        courseCard.addView(placeCard);
-                    }
+                for (SurveyResponse.detailPlace place : places) {
+                    View placeCard = inflater.inflate(R.layout.fragment_survey_result_list, null, false);
+                    TextView placeText = placeCard.findViewById(R.id.survey_result_place);
+                    placeText.setText(place.placeName);
+                    courseCard.addView(placeCard);
                 }
             }
+
             surveyList.addView(courseCard);
         }
 
@@ -155,23 +144,30 @@ public class SurveyResultFragment extends Fragment {
                 return;
             }
 
-            // 선택된 데이터 찾기
-            SurveyResponse.surveyData selectedData = null;
-            for (SurveyResponse.surveyData d : data) {
-                if (d.courseId == selectedCourseId) {
-                    selectedData = d;
+            SurveyResponse.CourseDetailGroup foundData = null;
+            for (SurveyResponse.CourseDetailGroup d : data.courseDetails) {
+                if (d.courseIdx == selectedCourseId) {
+                    foundData = d;
                     break;
                 }
             }
 
-            if (selectedData != null) {
+            if (foundData != null) {
+                SurveyResponse.CourseDetailGroup selectedData = foundData;
                 SurveySaveRequest surveySaveRequest = new SurveySaveRequest(
-                        selectedData.courseId,
-                        "콘텐츠기반",
-                        selectedData.courseDetails
+                        data.model_name,
+                        data.modelType,
+                        area,
+                        meansTp,
+                        person,
+                        (String) titleView.getText(),
+                        tripType,
+                        new ArrayList<SurveyResponse.CourseDetailGroup>() {{
+                            add(selectedData);
+                        }}
                 );
 
-                Call<SurveySaveResponse> call = apiService.surveySave(authorization, surveySaveRequest);
+                Call<SurveySaveResponse> call = apiService.surveySave(surveySaveRequest);
                 call.enqueue(new Callback<SurveySaveResponse>() {
                     @Override
                     public void onResponse(Call<SurveySaveResponse> call, Response<SurveySaveResponse> response) {
@@ -184,40 +180,18 @@ public class SurveyResultFragment extends Fragment {
                                         .popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                             }
                         } else {
-                            Log.d("surveySave", "실패");
+                            Log.d("surveySave", "실패: 응답 오류");
                         }
                     }
 
                     @Override
                     public void onFailure(Call<SurveySaveResponse> call, Throwable t) {
-                        t.printStackTrace();
+                        Log.e("surveySave", "실패: 네트워크 오류", t);
                     }
                 });
             }
         });
 
         return view;
-    }
-    private void setupMockServer() {
-        new Thread(() -> {
-            try {
-                mockServer = new MockWebServer();
-                mockServer.enqueue(new MockResponse()
-                        .setResponseCode(200)
-                        .setBody("{\"resultCode\":200,\"resultMessage\":\"Success\"}"));
-                mockServer.start();
-
-                Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl(mockServer.url("/"))
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build();
-
-                apiService = retrofit.create(ApiService.class);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-//            apiService = RetrofitClient.getInstance().create(ApiService.class);
-        }).start();
     }
 }

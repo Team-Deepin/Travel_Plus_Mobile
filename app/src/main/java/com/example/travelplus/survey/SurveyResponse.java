@@ -1,22 +1,21 @@
 package com.example.travelplus.survey;
 
-import com.example.travelplus.recommend.AIRecommendResponse;
-
 import java.io.Serializable;
 import java.util.List;
 
 public class SurveyResponse {
     public int resultCode;
     public String resultMessage;
-    public List<surveyData> data;
+    public surveyData data;
 
     public static class surveyData implements Serializable {
-        public int courseId;
+        public String model_name;
+        public String modelType;
         public List<CourseDetailGroup> courseDetails;
     }
 
     public static class CourseDetailGroup implements Serializable{
-        public String area;
+        public int courseIdx;
         public List<detailPlace> places;
     }
 

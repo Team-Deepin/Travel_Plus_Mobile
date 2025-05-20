@@ -5,10 +5,10 @@ import java.util.List;
 public class CourseDetailCarResponse {
     public int resultCode;
     public String resultMessage;
-    public String meansTp;
     public List<carData> data;
 
     public static class carData{
+        public String meansTp;
         public String day;
         public List<route> routes;
     }

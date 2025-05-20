@@ -54,7 +54,6 @@ public class SurveyFragment extends Fragment {
     List<String> tripType = new ArrayList<>();
     MaterialCardView surveyBtn;
     ApiService apiService;
-    private MockWebServer mockServer;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,8 +65,8 @@ public class SurveyFragment extends Fragment {
     }
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_survey, container, false);
-//        apiService = RetrofitClient.getApiInstance(requireContext()).create(ApiService.class);
-        setupMockServer();
+        apiService = RetrofitClient.getApiInstance(requireContext()).create(ApiService.class);
+
         // 장소 요소
         CardView cardPlace = view.findViewById(R.id.card_place);
         ImageView placeDown = view.findViewById(R.id.survey_place_down);
@@ -517,19 +516,25 @@ public class SurveyFragment extends Fragment {
             if (experienceTour.isChecked()) tripType.add("체험관광");
             if (festivalTour.isChecked()) tripType.add("축제/공연/이벤트");
             if (parkTour.isChecked()) tripType.add("테마파크/공원");
-            SurveyRequest surveyRequest = new SurveyRequest(title, area, meansTp, personSend, startDate, endDate, tripType);
-            Call<SurveyResponse> call = apiService.survey(authorization, surveyRequest);
+            Log.d("survey", startDate+" "+endDate);
+            SurveyRequest surveyRequest = new SurveyRequest(area, meansTp, personSend, startDate, endDate, tripType);
+            Call<SurveyResponse> call = apiService.survey(surveyRequest);
             call.enqueue(new Callback<SurveyResponse>() {
                 @Override
                 public void onResponse(Call<SurveyResponse> call, Response<SurveyResponse> response) {
                     if (response.isSuccessful() && response.body() != null) {
+                        Log.d("survey", "실패");
+                        Log.d("survey", "응답 코드: " + response.code());
                         SurveyResponse res = response.body();
                         Log.d("survey",res.resultMessage);
                         if (res.resultCode == 200) {
                             Bundle bundle = new Bundle();
                             bundle.putString("title",title);
+                            bundle.putString("area",area);
                             bundle.putString("date", dateSelectText.getText().toString().trim());
-                            bundle.putString("transit",meansTp);
+                            bundle.putString("meansTp",meansTp);
+                            bundle.putString("person",personSend);
+                            bundle.putStringArrayList("tripType",new ArrayList<>(tripType));
                             bundle.putSerializable("data",(Serializable) res.data);
 
                             SurveyResultFragment resultFragment = new SurveyResultFragment();
@@ -547,7 +552,6 @@ public class SurveyFragment extends Fragment {
                         }
                     }
                 }
-
                 @Override
                 public void onFailure(Call<SurveyResponse> call, Throwable t) {
                     t.printStackTrace();
@@ -573,128 +577,5 @@ public class SurveyFragment extends Fragment {
         textView.setText(text);
         cardView.setVisibility(VISIBLE);
         checkInput();
-    }
-    private void setupMockServer() {
-        new Thread(() -> {
-            try {
-                mockServer = new MockWebServer();
-                mockServer.enqueue(new MockResponse()
-                        .setResponseCode(200)
-                        .setBody("{\n" +
-                                "  \"resultCode\": 200,\n" +
-                                "  \"resultMessage\": \"Success\",\n" +
-                                "  \"data\": [\n" +
-                                "    {\n" +
-                                "      \"courseId\": 101,\n" +
-                                "      \"courseDetails\": [\n" +
-                                "        {\n" +
-                                "          \"area\": \"seoul\",\n" +
-                                "          \"places\": [\n" +
-                                "            {\n" +
-                                "              \"day\": \"2025-06-01\",\n" +
-                                "              \"placeName\": \"광장시장\",\n" +
-                                "              \"placeLat\": 37.5704,\n" +
-                                "              \"placeLon\": 126.991,\n" +
-                                "              \"placeAddress\": \"서울 종로구 창경궁로 88\",\n" +
-                                "              \"sequence\": 1,\n" +
-                                "              \"placeType\": \"전통시장\"\n" +
-                                "            }\n" +
-                                "          ]\n" +
-                                "        },\n" +
-                                "        {\n" +
-                                "          \"area\": \"hongdae\",\n" +
-                                "          \"places\": [\n" +
-                                "            {\n" +
-                                "              \"day\": \"2025-06-02\",\n" +
-                                "              \"placeName\": \"홍대 거리\",\n" +
-                                "              \"placeLat\": 37.5563,\n" +
-                                "              \"placeLon\": 126.9229,\n" +
-                                "              \"placeAddress\": \"서울 마포구 와우산로\",\n" +
-                                "              \"sequence\": 1,\n" +
-                                "              \"placeType\": \"문화\"\n" +
-                                "            }\n" +
-                                "          ]\n" +
-                                "        },\n" +
-                                "        {\n" +
-                                "          \"area\": \"itaewon\",\n" +
-                                "          \"places\": [\n" +
-                                "            {\n" +
-                                "              \"day\": \"2025-06-03\",\n" +
-                                "              \"placeName\": \"이태원 거리\",\n" +
-                                "              \"placeLat\": 37.5345,\n" +
-                                "              \"placeLon\": 126.9941,\n" +
-                                "              \"placeAddress\": \"서울 용산구 이태원로\",\n" +
-                                "              \"sequence\": 1,\n" +
-                                "              \"placeType\": \"음식\"\n" +
-                                "            }\n" +
-                                "          ]\n" +
-                                "        }\n" +
-                                "      ]\n" +
-                                "    },\n" +
-                                "    {\n" +
-                                "      \"courseId\": 202,\n" +
-                                "      \"courseDetails\": [\n" +
-                                "        {\n" +
-                                "          \"area\": \"busan\",\n" +
-                                "          \"places\": [\n" +
-                                "            {\n" +
-                                "              \"day\": \"2025-07-01\",\n" +
-                                "              \"placeName\": \"해운대\",\n" +
-                                "              \"placeLat\": 35.1587,\n" +
-                                "              \"placeLon\": 129.1604,\n" +
-                                "              \"placeAddress\": \"부산 해운대구\",\n" +
-                                "              \"sequence\": 1,\n" +
-                                "              \"placeType\": \"해변\"\n" +
-                                "            }\n" +
-                                "          ]\n" +
-                                "        },\n" +
-                                "        {\n" +
-                                "          \"area\": \"gamcheon\",\n" +
-                                "          \"places\": [\n" +
-                                "            {\n" +
-                                "              \"day\": \"2025-07-02\",\n" +
-                                "              \"placeName\": \"감천문화마을\",\n" +
-                                "              \"placeLat\": 35.0975,\n" +
-                                "              \"placeLon\": 129.0108,\n" +
-                                "              \"placeAddress\": \"부산 사하구 감내2로\",\n" +
-                                "              \"sequence\": 1,\n" +
-                                "              \"placeType\": \"문화\"\n" +
-                                "            }\n" +
-                                "          ]\n" +
-                                "        },\n" +
-                                "        {\n" +
-                                "          \"area\": \"nampo\",\n" +
-                                "          \"places\": [\n" +
-                                "            {\n" +
-                                "              \"day\": \"2025-07-03\",\n" +
-                                "              \"placeName\": \"남포동 거리\",\n" +
-                                "              \"placeLat\": 35.0979,\n" +
-                                "              \"placeLon\": 129.0351,\n" +
-                                "              \"placeAddress\": \"부산 중구 남포동\",\n" +
-                                "              \"sequence\": 1,\n" +
-                                "              \"placeType\": \"쇼핑\"\n" +
-                                "            }\n" +
-                                "          ]\n" +
-                                "        }\n" +
-                                "      ]\n" +
-                                "    }\n" +
-                                "  ]\n" +
-                                "}"));
-
-
-                mockServer.start();
-
-                Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl(mockServer.url("/"))
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build();
-
-                apiService = retrofit.create(ApiService.class);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-//            apiService = RetrofitClient.getInstance().create(ApiService.class);
-        }).start();
     }
 }

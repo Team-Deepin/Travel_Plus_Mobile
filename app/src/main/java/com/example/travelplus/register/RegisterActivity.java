@@ -48,13 +48,11 @@ public class RegisterActivity extends AppCompatActivity {
     boolean isUsable;
     ApiService apiService;
     private MockWebServer mockServer;
-    String authorization;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        apiService = RetrofitClient.getApiInstance(this).create(ApiService.class);
-        setupMockServer();
+        apiService = RetrofitClient.getLoginInstance().create(ApiService.class);
         back = findViewById(R.id.back_btn);
         duplicateCheck = findViewById(R.id.duplicate_check);
         registerBtn = findViewById(R.id.register_button);
@@ -112,7 +110,7 @@ public class RegisterActivity extends AppCompatActivity {
             // backend에 중복하는지 보내기
             String id = email.getText().toString().trim();
             DuplicateCheckRequest duplicateCheckRequest = new DuplicateCheckRequest(id);
-            Call<DuplicateCheckResponse> call = apiService.duplicateCheck(authorization, duplicateCheckRequest);
+            Call<DuplicateCheckResponse> call = apiService.duplicateCheck(duplicateCheckRequest);
             call.enqueue(new Callback<DuplicateCheckResponse>() {
                 @Override
                 public void onResponse(Call<DuplicateCheckResponse> call, Response<DuplicateCheckResponse> response) {
@@ -128,6 +126,10 @@ public class RegisterActivity extends AppCompatActivity {
                                 checkId.setText("사용가능한 이메일입니다.");
                                 isUsable = true;
                             }
+                        } else if (res.resultCode == 605) {
+                            checkId.setText("중복된 이메일입니다. 다시 시도해 주십시오.");
+                            isUsable = false;
+                            Log.d("Duplicate","중복된 이메일\n"+"ResultCode : "+res.resultCode+" ResultMessage : "+res.resultMessage);
                         }else {
                             runOnUiThread(() -> Toast.makeText(RegisterActivity.this, "중복확인 실패", Toast.LENGTH_SHORT).show());
                             isUsable = false;
@@ -155,7 +157,7 @@ public class RegisterActivity extends AppCompatActivity {
             String nameStr = name.getText().toString().trim();
 
             RegisterRequest request = new RegisterRequest(emailStr, pwStr, nameStr);
-            Call<RegisterResponse> call = apiService.register(authorization, request);
+            Call<RegisterResponse> call = apiService.register(request);
             call.enqueue(new Callback<RegisterResponse>() {
                 @Override
                 public void onResponse(Call<RegisterResponse> call, Response<RegisterResponse> response) {
@@ -226,44 +228,5 @@ public class RegisterActivity extends AppCompatActivity {
             return true;
         }
         return false;
-    }
-    private void setupMockServer() {
-        new Thread(() -> {
-            try {
-                mockServer = new MockWebServer();
-                mockServer.setDispatcher(new Dispatcher() {
-                    @NonNull
-                    @Override
-                    public MockResponse dispatch(@NonNull RecordedRequest request) {
-                        String path = request.getPath();
-                        Log.d("mockServer", "요청됨: " + request.getPath());
-                        if (path.contains("/auth/register")) {
-                            return new MockResponse()
-                                    .setResponseCode(200)
-                                    .addHeader("Content-Type", "application/json")
-                                    .setBody("{\"resultCode\":200,\"resultMessage\":\"회원가입 성공\"}");
-                        } else if (path.contains("/auth/check")) {
-                            return new MockResponse()
-                                    .setResponseCode(200)
-                                    .addHeader("Content-Type", "application/json")
-                                    .setBody("{\"resultCode\":200,\"resultMessage\":\"중복 체크 성공\",\"data\":{\"duplication\":true}}");
-                        }
-
-                        return new MockResponse().setResponseCode(404);
-                    }
-                });
-                mockServer.start();
-
-                Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl(mockServer.url("/"))
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build();
-
-                apiService = retrofit.create(ApiService.class);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }).start();
     }
 }

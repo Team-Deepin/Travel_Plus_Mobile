@@ -46,20 +46,17 @@ public class AIRecommendFragment extends Fragment {
     boolean dateFlag = true, transportFlag = true, dateCheck = false, transportCheck = false;
     String selectTransport, startDate, endDate;
     ApiService apiService;
-    private MockWebServer mockServer;
-    String title, authorization;
+    String title;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             title = getArguments().getString("title");
         }
-        SharedPreferences prefs = requireActivity().getSharedPreferences("userPrefs", MODE_PRIVATE);
-        authorization = prefs.getString("authorization", null);
     }
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_ai_recommend, container, false);
-        setupMockServer();
+        apiService = RetrofitClient.getApiInstance(requireContext()).create(ApiService.class);
         CardView cardDate = view.findViewById(R.id.card_trip_date);
         ImageView dateDown = view.findViewById(R.id.ai_date_down);
         CalendarView calendarView = view.findViewById(R.id.ai_date);
@@ -212,7 +209,7 @@ public class AIRecommendFragment extends Fragment {
 
         aiBtn.setOnClickListener(view1 -> {
             AIRecommendRequest aiRecommendRequest = new AIRecommendRequest(startDate, endDate, selectTransport);
-            Call<AIRecommendResponse> call = apiService.recommend(authorization, aiRecommendRequest);
+            Call<AIRecommendResponse> call = apiService.recommend(aiRecommendRequest);
             call.enqueue(new Callback<AIRecommendResponse>() {
                 @Override
                 public void onResponse(Call<AIRecommendResponse> call, Response<AIRecommendResponse> response) {
@@ -248,232 +245,6 @@ public class AIRecommendFragment extends Fragment {
         });
 
         return view;
-    }
-    private void setupMockServer() {
-        new Thread(() -> {
-            try {
-                mockServer = new MockWebServer();
-                mockServer.enqueue(new MockResponse()
-                        .setResponseCode(200)
-                        .setBody("{\n" +
-                                "  \"resultCode\": 200,\n" +
-                                "  \"resultMessage\": \"Success\",\n" +
-                                "  \"data\": [\n" +
-                                "    {\n" +
-                                "      \"courseId\": 101,\n" +
-                                "      \"courseDetails\": [\n" +
-                                "        {\n" +
-                                "          \"area\": \"seoul\",\n" +
-                                "          \"places\": [\n" +
-                                "            {\n" +
-                                "              \"day\": \"2025-06-01\",\n" +
-                                "              \"placeName\": \"광장시장\",\n" +
-                                "              \"placeLat\": 37.5704,\n" +
-                                "              \"placeLon\": 126.991,\n" +
-                                "              \"placeAddress\": \"서울 종로구 창경궁로 88\",\n" +
-                                "              \"sequence\": 1,\n" +
-                                "              \"placeType\": \"전통시장\"\n" +
-                                "            }\n" +
-                                "          ]\n" +
-                                "        },\n" +
-                                "        {\n" +
-                                "          \"area\": \"hongdae\",\n" +
-                                "          \"places\": [\n" +
-                                "            {\n" +
-                                "              \"day\": \"2025-06-02\",\n" +
-                                "              \"placeName\": \"홍대 거리\",\n" +
-                                "              \"placeLat\": 37.5563,\n" +
-                                "              \"placeLon\": 126.9229,\n" +
-                                "              \"placeAddress\": \"서울 마포구 와우산로\",\n" +
-                                "              \"sequence\": 1,\n" +
-                                "              \"placeType\": \"문화\"\n" +
-                                "            }\n" +
-                                "          ]\n" +
-                                "        },\n" +
-                                "        {\n" +
-                                "          \"area\": \"itaewon\",\n" +
-                                "          \"places\": [\n" +
-                                "            {\n" +
-                                "              \"day\": \"2025-06-03\",\n" +
-                                "              \"placeName\": \"이태원 거리\",\n" +
-                                "              \"placeLat\": 37.5345,\n" +
-                                "              \"placeLon\": 126.9941,\n" +
-                                "              \"placeAddress\": \"서울 용산구 이태원로\",\n" +
-                                "              \"sequence\": 1,\n" +
-                                "              \"placeType\": \"음식\"\n" +
-                                "            }\n" +
-                                "          ]\n" +
-                                "        }\n" +
-                                "      ]\n" +
-                                "    },\n" +
-                                "    {\n" +
-                                "      \"courseId\": 202,\n" +
-                                "      \"courseDetails\": [\n" +
-                                "        {\n" +
-                                "          \"area\": \"busan\",\n" +
-                                "          \"places\": [\n" +
-                                "            {\n" +
-                                "              \"day\": \"2025-07-01\",\n" +
-                                "              \"placeName\": \"해운대\",\n" +
-                                "              \"placeLat\": 35.1587,\n" +
-                                "              \"placeLon\": 129.1604,\n" +
-                                "              \"placeAddress\": \"부산 해운대구\",\n" +
-                                "              \"sequence\": 1,\n" +
-                                "              \"placeType\": \"해변\"\n" +
-                                "            }\n" +
-                                "          ]\n" +
-                                "        },\n" +
-                                "        {\n" +
-                                "          \"area\": \"gamcheon\",\n" +
-                                "          \"places\": [\n" +
-                                "            {\n" +
-                                "              \"day\": \"2025-07-02\",\n" +
-                                "              \"placeName\": \"감천문화마을\",\n" +
-                                "              \"placeLat\": 35.0975,\n" +
-                                "              \"placeLon\": 129.0108,\n" +
-                                "              \"placeAddress\": \"부산 사하구 감내2로\",\n" +
-                                "              \"sequence\": 1,\n" +
-                                "              \"placeType\": \"문화\"\n" +
-                                "            },\n" +
-                                "            {\n" +
-                                "              \"day\": \"2025-07-02\",\n" +
-                                "              \"placeName\": \"testData\",\n" +
-                                "              \"placeLat\": 35.0975,\n" +
-                                "              \"placeLon\": 129.0108,\n" +
-                                "              \"placeAddress\": \"부산 사하구 감내2로\",\n" +
-                                "              \"sequence\": 2,\n" +
-                                "              \"placeType\": \"문화\"\n" +
-                                "            }\n" +
-                                "          ]\n" +
-                                "        },\n" +
-                                "        {\n" +
-                                "          \"area\": \"nampo\",\n" +
-                                "          \"places\": [\n" +
-                                "            {\n" +
-                                "              \"day\": \"2025-07-03\",\n" +
-                                "              \"placeName\": \"남포동 거리\",\n" +
-                                "              \"placeLat\": 35.0979,\n" +
-                                "              \"placeLon\": 129.0351,\n" +
-                                "              \"placeAddress\": \"부산 중구 남포동\",\n" +
-                                "              \"sequence\": 1,\n" +
-                                "              \"placeType\": \"쇼핑\"\n" +
-                                "            }\n" +
-                                "          ]\n" +
-                                "        }\n" +
-                                "      ]\n" +
-                                "    },\n" +
-                                "    {\n" +
-                                "      \"courseId\": 103,\n" +
-                                "      \"courseDetails\": [\n" +
-                                "        {\n" +
-                                "          \"area\": \"seoul\",\n" +
-                                "          \"places\": [\n" +
-                                "            {\n" +
-                                "              \"day\": \"2025-06-01\",\n" +
-                                "              \"placeName\": \"광장시장\",\n" +
-                                "              \"placeLat\": 37.5704,\n" +
-                                "              \"placeLon\": 126.991,\n" +
-                                "              \"placeAddress\": \"서울 종로구 창경궁로 88\",\n" +
-                                "              \"sequence\": 1,\n" +
-                                "              \"placeType\": \"전통시장\"\n" +
-                                "            }\n" +
-                                "          ]\n" +
-                                "        },\n" +
-                                "        {\n" +
-                                "          \"area\": \"hongdae\",\n" +
-                                "          \"places\": [\n" +
-                                "            {\n" +
-                                "              \"day\": \"2025-06-02\",\n" +
-                                "              \"placeName\": \"홍대 거리\",\n" +
-                                "              \"placeLat\": 37.5563,\n" +
-                                "              \"placeLon\": 126.9229,\n" +
-                                "              \"placeAddress\": \"서울 마포구 와우산로\",\n" +
-                                "              \"sequence\": 1,\n" +
-                                "              \"placeType\": \"문화\"\n" +
-                                "            }\n" +
-                                "          ]\n" +
-                                "        },\n" +
-                                "        {\n" +
-                                "          \"area\": \"itaewon\",\n" +
-                                "          \"places\": [\n" +
-                                "            {\n" +
-                                "              \"day\": \"2025-06-03\",\n" +
-                                "              \"placeName\": \"이태원 거리\",\n" +
-                                "              \"placeLat\": 37.5345,\n" +
-                                "              \"placeLon\": 126.9941,\n" +
-                                "              \"placeAddress\": \"서울 용산구 이태원로\",\n" +
-                                "              \"sequence\": 1,\n" +
-                                "              \"placeType\": \"음식\"\n" +
-                                "            }\n" +
-                                "          ]\n" +
-                                "        }\n" +
-                                "      ]\n" +
-                                "    },\n" +
-                                "    {\n" +
-                                "      \"courseId\": 105,\n" +
-                                "      \"courseDetails\": [\n" +
-                                "        {\n" +
-                                "          \"area\": \"seoul\",\n" +
-                                "          \"places\": [\n" +
-                                "            {\n" +
-                                "              \"day\": \"2025-06-01\",\n" +
-                                "              \"placeName\": \"광장시장\",\n" +
-                                "              \"placeLat\": 37.5704,\n" +
-                                "              \"placeLon\": 126.991,\n" +
-                                "              \"placeAddress\": \"서울 종로구 창경궁로 88\",\n" +
-                                "              \"sequence\": 1,\n" +
-                                "              \"placeType\": \"전통시장\"\n" +
-                                "            }\n" +
-                                "          ]\n" +
-                                "        },\n" +
-                                "        {\n" +
-                                "          \"area\": \"hongdae\",\n" +
-                                "          \"places\": [\n" +
-                                "            {\n" +
-                                "              \"day\": \"2025-06-02\",\n" +
-                                "              \"placeName\": \"홍대 거리\",\n" +
-                                "              \"placeLat\": 37.5563,\n" +
-                                "              \"placeLon\": 126.9229,\n" +
-                                "              \"placeAddress\": \"서울 마포구 와우산로\",\n" +
-                                "              \"sequence\": 1,\n" +
-                                "              \"placeType\": \"문화\"\n" +
-                                "            }\n" +
-                                "          ]\n" +
-                                "        },\n" +
-                                "        {\n" +
-                                "          \"area\": \"itaewon\",\n" +
-                                "          \"places\": [\n" +
-                                "            {\n" +
-                                "              \"day\": \"2025-06-03\",\n" +
-                                "              \"placeName\": \"이태원 거리\",\n" +
-                                "              \"placeLat\": 37.5345,\n" +
-                                "              \"placeLon\": 126.9941,\n" +
-                                "              \"placeAddress\": \"서울 용산구 이태원로\",\n" +
-                                "              \"sequence\": 1,\n" +
-                                "              \"placeType\": \"음식\"\n" +
-                                "            }\n" +
-                                "          ]\n" +
-                                "        }\n" +
-                                "      ]\n" +
-                                "    }\n" +
-                                "  ]\n" +
-                                "}"));
-
-
-                mockServer.start();
-
-                Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl(mockServer.url("/"))
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build();
-
-                apiService = retrofit.create(ApiService.class);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-//            apiService = RetrofitClient.getInstance().create(ApiService.class);
-        }).start();
     }
 
 }

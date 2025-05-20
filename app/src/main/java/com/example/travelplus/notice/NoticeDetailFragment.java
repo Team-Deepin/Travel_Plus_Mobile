@@ -34,15 +34,12 @@ public class NoticeDetailFragment extends Fragment {
     int id;
     TextView detailTitle, detailDate, detailContent;
     ApiService apiService;
-    private String authorization;
-    MockWebServer mockServer;
+
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            id = (int) getArguments().get("noticeId");
+            id = getArguments().getInt("noticeId");
         }
-        SharedPreferences prefs = requireActivity().getSharedPreferences("userPrefs", MODE_PRIVATE);
-        authorization = prefs.getString("authorization", null);
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -51,61 +48,13 @@ public class NoticeDetailFragment extends Fragment {
         detailDate = view.findViewById(R.id.notice_detail_date);
         detailContent = view.findViewById(R.id.notice_detail_content);
 
-        setupMockServer();
+        apiService = RetrofitClient.getApiInstance(requireContext()).create(ApiService.class);
+        loadNoticeDetail(id);
 
         return view;
     }
-    private void setupMockServer() {
-        new Thread(() -> {
-            try {
-                mockServer = new MockWebServer();
-
-                mockServer.setDispatcher(new Dispatcher() {
-                    @Override
-                    public MockResponse dispatch(RecordedRequest request) {
-                        String path = request.getPath(); // 예: /edit/notice/3
-                        if (path != null && path.startsWith("/edit/notice/")) {
-                            try {
-                                String[] parts = path.split("/");
-                                int noticeId = Integer.parseInt(parts[parts.length - 1]);
-
-                                String body = "{"
-                                        + "\"resultCode\": 200,"
-                                        + "\"resultMessage\": \"Success\","
-                                        + "\"data\": {"
-                                        + "\"title\": \"공지사항 " + noticeId + "번\","
-                                        + "\"content\": \"공지사항 " + noticeId + "번 내용입니다.\","
-                                        + "\"date\": \"2025-04-" + (noticeId < 10 ? "0" + noticeId : noticeId) + "T19:12:45.382\""
-                                        + "}"
-                                        + "}";
-
-                                return new MockResponse().setResponseCode(200).setBody(body);
-                            } catch (Exception e) {
-                                return new MockResponse().setResponseCode(400).setBody("{\"resultMessage\":\"Invalid noticeId\"}");
-                            }
-                        }
-                        return new MockResponse().setResponseCode(404);
-                    }
-                });
-
-                mockServer.start();
-
-                Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl(mockServer.url("/"))
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build();
-
-                apiService = retrofit.create(ApiService.class);
-
-                requireActivity().runOnUiThread(() -> loadNoticeDetail(id));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-//            apiService = RetrofitClient.getInstance().create(ApiService.class);
-        }).start();
-    }
     private void loadNoticeDetail(int noticeId) {
-        apiService.getNoticeDetail(authorization, noticeId).enqueue(new Callback<NoticeDetailResponse>() {
+        apiService.getNoticeDetail(noticeId).enqueue(new Callback<NoticeDetailResponse>() {
             @Override
             public void onResponse(Call<NoticeDetailResponse> call, Response<NoticeDetailResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {

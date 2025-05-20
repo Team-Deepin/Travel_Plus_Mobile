@@ -29,6 +29,8 @@ import com.example.travelplus.CarDay;
 import com.example.travelplus.CarLocation;
 import com.example.travelplus.R;
 import com.example.travelplus.network.ApiService;
+import com.example.travelplus.network.RetrofitClient;
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 
@@ -50,15 +52,14 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class CourseDetailCarFragment extends Fragment {
-    String title, duration, meansTP, location, authorization;
+    String title, duration, location;
     int courseId;
     FloatingActionButton plusFab, cancelFab, deleteFab, rateFab;
     TextView deleteText, rateText, titleView, locationView, durationView, vehicleView;
     View detailBackground;
     LinearLayout detailListLayout;
+    ShimmerFrameLayout detailSkeleton;
     ApiService apiService;
-    MockWebServer mockServer;
-    SharedPreferences prefs;
     List<CarDay> carDays = new ArrayList<>();
 
     @Override
@@ -70,8 +71,6 @@ public class CourseDetailCarFragment extends Fragment {
             duration = getArguments().getString("duration");
             location = getArguments().getString("location");
         }
-        prefs = requireContext().getSharedPreferences("userPrefs", Context.MODE_PRIVATE);
-        authorization = prefs.getString("authorization", null);
     }
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_course_detail, container, false);
@@ -89,7 +88,9 @@ public class CourseDetailCarFragment extends Fragment {
         detailListLayout = view.findViewById(R.id.detail_list);
         ImageView mapView = view.findViewById(R.id.detail_map);
         plusFab.setVisibility(VISIBLE);
-        setupMockServer(() -> requireActivity().runOnUiThread(() -> showDetails(inflater)));
+        detailSkeleton = view.findViewById(R.id.detail_skeleton);
+        apiService = RetrofitClient.getApiInstance(requireContext()).create(ApiService.class);
+        showDetails(inflater);
 
         plusFab.setOnClickListener(view1 -> {
             plusFab.setVisibility(GONE);
@@ -163,18 +164,23 @@ public class CourseDetailCarFragment extends Fragment {
         dialog.show();
     }
     private void showDetails(LayoutInflater inflater){
+        detailSkeleton.setVisibility(View.VISIBLE);
+        detailSkeleton.startShimmer();
+        detailListLayout.removeAllViews();
         Log.d("showDetailsCar", "apiService 호출 시작");
-        Call<CourseDetailCarResponse> call = apiService.detailCar(authorization, courseId);
+        Call<CourseDetailCarResponse> call = apiService.detailCar(courseId);
         call.enqueue(new Callback<CourseDetailCarResponse>() {
             @Override
             public void onResponse(Call<CourseDetailCarResponse> call, Response<CourseDetailCarResponse> response) {
+                detailSkeleton.stopShimmer();
+                detailSkeleton.setVisibility(View.GONE);
                 if (response.isSuccessful() && response.body() != null) {
                     CourseDetailCarResponse res = response.body();
                     Log.d("courseDetailCar",res.resultMessage);
                     if(res.resultCode == 200 && res.data != null && !res.data.isEmpty()) {
                         titleView.setText(title);
                         locationView.setText(location);
-                        vehicleView.setText("자가용");
+                        vehicleView.setText(res.data.get(0).meansTp);
                         durationView.setText(duration+ ", ");
                         LinearLayout detailCard = new LinearLayout(requireContext());
 
@@ -232,23 +238,28 @@ public class CourseDetailCarFragment extends Fragment {
                                 detailCard.addView(placeCard);
                             }
                             carDays.add(new CarDay(carData.day, carLocations));
-                            CourseDetailCarResponse.route lastDetail = carData.routes.get(carData.routes.size() - 1);
-                            View endPlaceCard = inflater.inflate(R.layout.fragment_course_detail_car_list, detailCard, false);
-                            TextView placeText = endPlaceCard.findViewById(R.id.detail_car_place_name);
-                            TextView timeText = endPlaceCard.findViewById(R.id.detail_car_time);
-                            placeText.setText(lastDetail.end);
-                            timeText.setText("");
-                            detailCard.addView(endPlaceCard);
+                            if (!carData.routes.isEmpty()) {
+                                CourseDetailCarResponse.route lastDetail = carData.routes.get(carData.routes.size() - 1);
+                                View endPlaceCard = inflater.inflate(R.layout.fragment_course_detail_car_list, detailCard, false);
+                                TextView placeText = endPlaceCard.findViewById(R.id.detail_car_place_name);
+                                TextView timeText = endPlaceCard.findViewById(R.id.detail_car_time);
+                                placeText.setText(lastDetail.end);
+                                timeText.setText("");
+                                detailCard.addView(endPlaceCard);
+                            }
                         }
                         detailListLayout.addView(detailCard);
-                    }else {
-                        Log.d("courseDetailCar", "데이터 없음");
+                    }else if (res.resultCode == 403){
+
+                        Log.d("courseDetailCar", "DB데이터 요청 실패");
                     }
                 }
             }
 
             @Override
             public void onFailure(Call<CourseDetailCarResponse> call, Throwable t) {
+                detailSkeleton.stopShimmer();
+                detailSkeleton.setVisibility(View.GONE);
                 t.printStackTrace();
             }
         });
@@ -278,7 +289,7 @@ public class CourseDetailCarFragment extends Fragment {
         });
         deleteBtn.setOnClickListener(v -> {
             // 코스 삭제 API
-            Call<CourseDeleteResponse> call = apiService.deleteCourse(authorization, courseId);
+            Call<CourseDeleteResponse> call = apiService.deleteCourse(courseId);
             call.enqueue(new Callback<CourseDeleteResponse>() {
                 @Override
                 public void onResponse(Call<CourseDeleteResponse> call, Response<CourseDeleteResponse> response) {
@@ -344,7 +355,7 @@ public class CourseDetailCarFragment extends Fragment {
             // 코스 평가 API
             double score = ratingBar.getRating();
             CourseRatingRequest courseRatingRequest = new CourseRatingRequest(courseId, score);
-            Call<CourseRatingResponse> call = apiService.rate(authorization, courseRatingRequest);
+            Call<CourseRatingResponse> call = apiService.rate(courseRatingRequest);
             call.enqueue(new Callback<CourseRatingResponse>() {
                 @Override
                 public void onResponse(Call<CourseRatingResponse> call, Response<CourseRatingResponse> response) {
@@ -356,9 +367,9 @@ public class CourseDetailCarFragment extends Fragment {
                             Toast.makeText(getActivity(), "코스가 평가되었습니다.", Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
                             requireActivity().getSupportFragmentManager().popBackStack();
-                        }else{
+                        }else if (res.resultCode == 402){
                             Toast.makeText(getActivity(), "코스 평가 실패", Toast.LENGTH_SHORT).show();
-                            Log.d("Rate Course",String.valueOf(res.resultCode));
+                            Log.d("Rate Course",String.valueOf(res.resultCode)+"\nDB저장 실패");
                             dialog.dismiss();
                         }
                     }else {
@@ -377,110 +388,5 @@ public class CourseDetailCarFragment extends Fragment {
             });
         });
         dialog.show();
-    }
-    private void setupMockServer(Runnable onReady) {
-        new Thread(() -> {
-            try {
-                mockServer = new MockWebServer();
-                Log.d("mockServer", "Mock 서버 시작");
-                mockServer.setDispatcher(new Dispatcher() {
-                    @NonNull
-                    @Override
-                    public MockResponse dispatch(@NonNull RecordedRequest request) {
-                        String path = request.getPath();
-                        Log.d("mockServer", "요청됨: " + request.getPath());
-                        if (path.contains("course/detail/car")) {
-                            return new MockResponse()
-                                    .setResponseCode(200)
-                                    .addHeader("Content-Type", "application/json")
-                                    .setBody("{\n" +
-                                            "  \"resultCode\": 200,\n" +
-                                            "  \"resultMessage\": \"success\",\n" +
-                                            "  \"data\": [\n" +
-                                            "    {\n" +
-                                            "      \"meansTp\": \"자가용\",\n" +
-                                            "      \"day\": \"2025-06-01\",\n" +
-                                            "      \"routes\": [\n" +
-                                            "        {\n" +
-                                            "          \"start\": \"첨성대\",\n" +
-                                            "          \"end\": \"국립경주박물관\",\n" +
-                                            "          \"startLat\": 35.8341,\n" +
-                                            "          \"startLon\": 129.217,\n" +
-                                            "          \"endLat\": 35.8294,\n" +
-                                            "          \"endLon\": 129.2101,\n" +
-                                            "          \"distance\": 1109,\n" +
-                                            "          \"sectionTime\": 210\n" +
-                                            "        },\n" +
-                                            "        {\n" +
-                                            "          \"start\": \"국립경주박물관\",\n" +
-                                            "          \"end\": \"안압지\",\n" +
-                                            "          \"startLat\": 35.8294,\n" +
-                                            "          \"startLon\": 129.2101,\n" +
-                                            "          \"endLat\": 35.8348,\n" +
-                                            "          \"endLon\": 129.213,\n" +
-                                            "          \"distance\": 1317,\n" +
-                                            "          \"sectionTime\": 220\n" +
-                                            "        }\n" +
-                                            "      ]\n" +
-                                            "    },\n" +
-                                            "    {\n" +
-                                            "      \"meansTp\": \"자가용\",\n" +
-                                            "      \"day\": \"2025-06-02\",\n" +
-                                            "      \"routes\": [\n" +
-                                            "        {\n" +
-                                            "          \"start\": \"포석정\",\n" +
-                                            "          \"end\": \"오릉\",\n" +
-                                            "          \"startLat\": 35.8312,\n" +
-                                            "          \"startLon\": 129.219,\n" +
-                                            "          \"endLat\": 35.833,\n" +
-                                            "          \"endLon\": 129.2145,\n" +
-                                            "          \"distance\": 894,\n" +
-                                            "          \"sectionTime\": 167\n" +
-                                            "        },\n" +
-                                            "        {\n" +
-                                            "          \"start\": \"오릉\",\n" +
-                                            "          \"end\": \"교촌마을\",\n" +
-                                            "          \"startLat\": 35.833,\n" +
-                                            "          \"startLon\": 129.2145,\n" +
-                                            "          \"endLat\": 35.829,\n" +
-                                            "          \"endLon\": 129.218,\n" +
-                                            "          \"distance\": 2794,\n" +
-                                            "          \"sectionTime\": 407\n" +
-                                            "        }\n" +
-                                            "      ]\n" +
-                                            "    }\n" +
-                                            "  ]\n" +
-                                            "}");
-                        } else if (path.contains("/course/delete/{courseId}")) {
-                            return new MockResponse()
-                                    .setResponseCode(200)
-                                    .addHeader("Content-Type", "application/json")
-                                    .setBody("{\"resultCode\":200,\"resultMessage\":\"코스 삭제 성공\"}");
-                        } else if (path.contains("/rating")) {
-                            return new MockResponse()
-                                    .setResponseCode(200)
-                                    .addHeader("Content-Type", "application/json")
-                                    .setBody("{\"resultCode\":200,\"resultMessage\":\"평가 완료\"}");
-                        }
-
-                        return new MockResponse().setResponseCode(404);
-                    }
-                });
-
-                mockServer.start();
-
-                Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl(mockServer.url("/"))
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build();
-
-                apiService = retrofit.create(ApiService.class);
-                onReady.run();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-//            apiService = RetrofitClient.getInstance().create(ApiService.class);
-//            onReady.run();
-        }).start();
     }
 }
