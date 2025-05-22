@@ -1,17 +1,16 @@
 package com.example.travelplus.course;
 
-import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
@@ -23,25 +22,24 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
-import android.content.SharedPreferences;
 
+import com.example.travelplus.MapClass;
 import com.example.travelplus.R;
 import com.example.travelplus.network.ApiService;
 import com.example.travelplus.network.RetrofitClient;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.gson.Gson;
 
-import java.io.IOException;
+import org.json.JSONObject;
 
-import okhttp3.mockwebserver.Dispatcher;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import okhttp3.mockwebserver.RecordedRequest;
+import java.util.ArrayList;
+import java.util.List;
+
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class CourseDetailTransitFragment extends Fragment {
     String title, duration, location;
@@ -52,6 +50,7 @@ public class CourseDetailTransitFragment extends Fragment {
     LinearLayout detailListLayout;
     ApiService apiService;
     ShimmerFrameLayout detailSkeleton;
+    List<MapClass> days = new ArrayList<>();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -124,6 +123,11 @@ public class CourseDetailTransitFragment extends Fragment {
         return view;
     }
     private void showMapDialog() {
+        if (!isAdded() || days == null || days.isEmpty()) {
+            Toast.makeText(getContext(), "경로 정보가 없습니다.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         Dialog dialog = new Dialog(requireContext());
         dialog.setContentView(R.layout.pop_up_map);
 
@@ -140,6 +144,18 @@ public class CourseDetailTransitFragment extends Fragment {
 
         WebView webView = dialog.findViewById(R.id.pop_up_webview);
         webView.getSettings().setJavaScriptEnabled(true);
+
+        String json = new Gson().toJson(days);
+        String safeJson = JSONObject.quote(json);
+
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                if (!isAdded()) return;
+                webView.evaluateJavascript("setRouteData(" + safeJson + ");", null);
+            }
+        });
+
         webView.loadUrl("file:///android_asset/map.html");
 
         dialog.show();
@@ -176,6 +192,7 @@ public class CourseDetailTransitFragment extends Fragment {
                         detailCard.setLayoutParams(courseParams);
 
                         for (CourseDetailTransitResponse.transitData transitData : res.data){
+                            List<MapClass.Locations> locations = new ArrayList<>();
                             TextView dayText = new TextView(requireContext());
                             LinearLayout.LayoutParams dayParams = new LinearLayout.LayoutParams(
                                     ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -192,6 +209,12 @@ public class CourseDetailTransitFragment extends Fragment {
                                 View fromPlaceCard = inflater.inflate(R.layout.fragment_course_detail_transit_place_list, detailCard, false);
                                 TextView placeText = fromPlaceCard.findViewById(R.id.detail_transit_place_name);
                                 placeText.setText(transitDetail.from);
+                                locations.add(new MapClass.Locations(
+                                        transitDetail.fromLat,
+                                        transitDetail.fromLon,
+                                        transitDetail.toLat,
+                                        transitDetail.toLon
+                                ));
                                 detailCard.addView(fromPlaceCard);
                                 for (CourseDetailTransitResponse.path path : transitDetail.paths){
                                     View pathCard = inflater.inflate(R.layout.fragment_course_detail_transit_path_list, detailCard, false);
@@ -219,6 +242,7 @@ public class CourseDetailTransitFragment extends Fragment {
                                     detailCard.addView(pathCard);
                                 }
                             }
+                            days.add(new MapClass(transitData.day, locations));
                             if (transitData.transitDetails != null && !transitData.transitDetails.isEmpty()) {
                                 CourseDetailTransitResponse.transitDetail lastDetail = transitData.transitDetails.get(transitData.transitDetails.size() - 1);
                                 View toPlaceCard = inflater.inflate(R.layout.fragment_course_detail_transit_place_list, detailCard, false);
@@ -278,6 +302,9 @@ public class CourseDetailTransitFragment extends Fragment {
                             Log.d("Delete Course", "코스 삭제 완료");
                             Toast.makeText(getActivity(), "코스가 삭제되었습니다.", Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
+                            Bundle result = new Bundle();
+                            result.putBoolean("refresh_need", true);
+                            getParentFragmentManager().setFragmentResult("refresh_course", result);
                             requireActivity().getSupportFragmentManager().popBackStack();
                         }else{
                             Toast.makeText(getActivity(), "코스 삭제 실패", Toast.LENGTH_SHORT).show();

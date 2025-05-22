@@ -29,12 +29,15 @@ import com.example.travelplus.R;
 import com.example.travelplus.course.CourseResponse;
 import com.example.travelplus.network.ApiService;
 import com.example.travelplus.network.RetrofitClient;
+import com.example.travelplus.survey.SurveyResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -46,8 +49,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class AIResultFragment extends Fragment {
     String title, transit, date;
-    List<AIRecommendResponse.AIRecommendData> data;
+    AIRecommendResponse.AIRecommendData data;
     ApiService apiService;
+    Set<String> tripType = new HashSet<>();
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,13 +59,12 @@ public class AIResultFragment extends Fragment {
             title = getArguments().getString("title");
             transit = getArguments().getString("transit");
             date = getArguments().getString("date");
-            data = (List<AIRecommendResponse.AIRecommendData>) getArguments().getSerializable("data");
+            data = (AIRecommendResponse.AIRecommendData) getArguments().getSerializable("data");
         }
     }
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Log.d("result",data.get(0).courseDetails.get(0).area);
         View view = inflater.inflate(R.layout.fragment_ai_recommend_result, container, false);
         TextView titleView = view.findViewById(R.id.ai_title);
         LinearLayout aiList = view.findViewById(R.id.ai_list);
@@ -70,11 +73,11 @@ public class AIResultFragment extends Fragment {
 
         titleView.setText(title);
         if (title.isEmpty()){
-            titleView.setText(data.get(0).courseDetails.get(0).area + " "+date + " "+ transit);
+            titleView.setText(date + " "+ transit);
         }
-        for (AIRecommendResponse.AIRecommendData courseData : data) {
+        for (AIRecommendResponse.CourseDetailGroup group : data.courseDetails) {
             LinearLayout courseCard = new LinearLayout(requireContext());
-            courseCard.setTag(courseData.courseId);
+            courseCard.setTag(group.courseIdx);
             courseCard.setOrientation(LinearLayout.VERTICAL);
             courseCard.setBackgroundResource(R.drawable.ai_background);
             LinearLayout.LayoutParams courseParams = new LinearLayout.LayoutParams(
@@ -96,41 +99,39 @@ public class AIResultFragment extends Fragment {
             );
             titleParams.setMargins(40, 30, 0, 20);
             courseTitle.setLayoutParams(titleParams);
-            courseTitle.setText(courseData.courseDetails.get(0).area + " (" + date + ") " + transit);
+            courseTitle.setText(group.area + " (" + date + ") " + transit);
             courseTitle.setTextSize(20);
             courseTitle.setTextColor(ContextCompat.getColor(requireContext(), R.color.color_text));
             courseTitle.setTypeface(ResourcesCompat.getFont(requireContext(), R.font.bmeuljirottf));
             courseCard.addView(courseTitle);
 
-            for (AIRecommendResponse.CourseDetailGroup group : courseData.courseDetails) {
-                Map<String, List<AIRecommendResponse.detailPlace>> dayGrouped = new LinkedHashMap<>();
-                for (AIRecommendResponse.detailPlace place : group.places) {
-                    dayGrouped.computeIfAbsent(place.day, k -> new ArrayList<>()).add(place);
-                }
+            Map<String, List<AIRecommendResponse.detailPlace>> dayGrouped = new LinkedHashMap<>();
+            for (AIRecommendResponse.detailPlace place : group.places) {
+                dayGrouped.computeIfAbsent(place.day, k -> new ArrayList<>()).add(place);
+            }
+            for (Map.Entry<String, List<AIRecommendResponse.detailPlace>> entry : dayGrouped.entrySet()) {
+                String day = entry.getKey();
+                List<AIRecommendResponse.detailPlace> places = entry.getValue();
 
-                for (Map.Entry<String, List<AIRecommendResponse.detailPlace>> entry : dayGrouped.entrySet()) {
-                    String day = entry.getKey();
-                    List<AIRecommendResponse.detailPlace> places = entry.getValue();
+                TextView dayText = new TextView(requireContext());
+                LinearLayout.LayoutParams dayParams = new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                );
+                dayParams.setMargins(30, 20, 0, 10);
+                dayText.setLayoutParams(dayParams);
+                dayText.setText("📅 " + day);
+                dayText.setTextSize(18);
+                dayText.setTextColor(ContextCompat.getColor(requireContext(), R.color.color_text));
+                dayText.setTypeface(ResourcesCompat.getFont(requireContext(), R.font.bmeuljirottf));
+                courseCard.addView(dayText);
 
-                    TextView dayText = new TextView(requireContext());
-                    LinearLayout.LayoutParams dayParams = new LinearLayout.LayoutParams(
-                            ViewGroup.LayoutParams.WRAP_CONTENT,
-                            ViewGroup.LayoutParams.WRAP_CONTENT
-                    );
-                    dayParams.setMargins(30, 20, 0, 10);
-                    dayText.setLayoutParams(dayParams);
-                    dayText.setText("📅 " + day);
-                    dayText.setTextSize(18);
-                    dayText.setTextColor(ContextCompat.getColor(requireContext(), R.color.color_text));
-                    dayText.setTypeface(ResourcesCompat.getFont(requireContext(), R.font.bmeuljirottf));
-                    courseCard.addView(dayText);
-
-                    for (AIRecommendResponse.detailPlace place : places) {
-                        View placeCard = inflater.inflate(R.layout.fragment_ai_recommend_result_list, courseCard, false);
-                        TextView placeText = placeCard.findViewById(R.id.ai_result_place);
-                        placeText.setText(place.placeName);
-                        courseCard.addView(placeCard);
-                    }
+                for (AIRecommendResponse.detailPlace place : places) {
+                    View placeCard = inflater.inflate(R.layout.fragment_ai_recommend_result_list, courseCard, false);
+                    TextView placeText = placeCard.findViewById(R.id.ai_result_place);
+                    placeText.setText(place.placeName);
+                    courseCard.addView(placeCard);
+                    tripType.add(place.placeType);
                 }
             }
             aiList.addView(courseCard);
@@ -155,19 +156,28 @@ public class AIResultFragment extends Fragment {
             }
 
             // 선택된 데이터 찾기
-            AIRecommendResponse.AIRecommendData selectedData = null;
-            for (AIRecommendResponse.AIRecommendData d : data) {
-                if (d.courseId == selectedCourseId) {
-                    selectedData = d;
+            AIRecommendResponse.CourseDetailGroup foundData = null;
+            for (AIRecommendResponse.CourseDetailGroup d : data.courseDetails) {
+                if (d.courseIdx == selectedCourseId) {
+                    foundData = d;
                     break;
                 }
             }
 
-            if (selectedData != null) {
+            if (foundData != null) {
+                AIRecommendResponse.CourseDetailGroup selectedData = foundData;
+                List<String> tripTypeList = new ArrayList<>(tripType);
+                Log.d("tripType",tripTypeList.toString());
                 AISaveRequest aiSaveRequest = new AISaveRequest(
-                        selectedData.courseId,
-                        "협업필터링",
-                        selectedData.courseDetails
+                        data.modelName,
+                        data.modelType,
+                        selectedData.area,
+                        transit,
+                        (String) titleView.getText(),
+                        tripTypeList,
+                        new ArrayList<AIRecommendResponse.CourseDetailGroup>(){{
+                            add(selectedData);
+                        }}
                 );
 
                 Call<AISaveResponse> call = apiService.aiSave(aiSaveRequest);
@@ -179,11 +189,16 @@ public class AIResultFragment extends Fragment {
                             Log.d("aiSave", res.resultMessage);
                             if (res.resultCode == 200) {
                                 Log.d("aiSave", "성공");
+                                Bundle result = new Bundle();
+                                result.putBoolean("refresh_need", true);
+                                getParentFragmentManager().setFragmentResult("refresh_course", result);
+
                                 requireActivity().getSupportFragmentManager()
                                         .popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                             }
                         } else {
                             Log.d("aiSave", "실패");
+                            Log.d("aiSave", response.message());
                         }
                     }
 

@@ -126,14 +126,6 @@
             android:fontFamily="@font/bmeuljirottf"
             android:layout_gravity="center"/>
     </androidx.cardview.widget.CardView>
-<!--    <ImageView-->
-<!--        android:id="@+id/duplicate_check"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:src="@drawable/duplicate_check_button"-->
-<!--        app:layout_constraintStart_toEndOf="@id/register_email"-->
-<!--        app:layout_constraintEnd_toEndOf="@id/guidelineVertical85"-->
-<!--        app:layout_constraintBottom_toTopOf="@id/guidelineHorizontal23" />-->
     <EditText
         android:id="@+id/register_password"
         android:layout_width="0dp"
@@ -201,16 +193,5 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
     </androidx.cardview.widget.CardView>
-<!--    <ImageView-->
-<!--        android:id="@+id/register_button"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:src="@drawable/register_button_deactivate"-->
-<!--        android:enabled="false"-->
-<!--        app:layout_constraintTop_toBottomOf="@id/register_name"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent" />-->
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -60,26 +60,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"/>
-<!--        <androidx.constraintlayout.widget.ConstraintLayout-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="match_parent">-->
-<!--            <ScrollView-->
-<!--                android:id="@+id/ai_scroll"-->
-<!--                android:visibility="visible"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="match_parent"-->
-<!--                app:layout_constraintTop_toTopOf="parent"-->
-<!--                app:layout_constraintStart_toStartOf="parent"-->
-<!--                app:layout_constraintEnd_toEndOf="parent"-->
-<!--                android:layout_marginTop="30dp">-->
-<!--                -->
-<!--            </ScrollView>-->
-<!--            <View-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="50dp"-->
-<!--                app:layout_constraintStart_toStartOf="parent"-->
-<!--                app:layout_constraintTop_toBottomOf="@id/ai_scroll"/>-->
-<!--        </androidx.constraintlayout.widget.ConstraintLayout>-->
     </androidx.core.widget.NestedScrollView>
     <ImageView
         android:id="@+id/ai_select_btn"

@@ -84,6 +84,13 @@ public class InquiryFragment extends Fragment {
                     }
                 });
 
+        getParentFragmentManager().setFragmentResultListener("refresh_inquiry", this, (requestKey, bundle) -> {
+            boolean refresh = bundle.getBoolean("refresh_need", false);
+            if (refresh) {
+                inquiryLists(LayoutInflater.from(requireContext()));
+            }
+        });
+
         return view;
     }
     private void inquiryLists(LayoutInflater inflater) {

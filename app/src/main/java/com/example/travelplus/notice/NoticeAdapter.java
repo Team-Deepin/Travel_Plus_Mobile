@@ -45,7 +45,6 @@ public class NoticeAdapter extends RecyclerView.Adapter<NoticeAdapter.NoticeView
     @Override
     public void onBindViewHolder(@NonNull NoticeViewHolder holder, int position) {
         NoticeResponse.Notice notice = noticeList.get(position);
-        holder.noticeType.setText("["+notice.noticeType+"]");
         holder.noticeTitle.setText(notice.title);
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
@@ -61,12 +60,10 @@ public class NoticeAdapter extends RecyclerView.Adapter<NoticeAdapter.NoticeView
 
     static class NoticeViewHolder extends RecyclerView.ViewHolder {
         TextView noticeTitle;
-        TextView noticeType;
 
         public NoticeViewHolder(@NonNull View itemView) {
             super(itemView);
             noticeTitle = itemView.findViewById(R.id.notice_title);
-            noticeType = itemView.findViewById(R.id.notice_type);
         }
     }
 }

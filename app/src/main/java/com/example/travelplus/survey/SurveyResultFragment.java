@@ -176,17 +176,22 @@ public class SurveyResultFragment extends Fragment {
                             Log.d("surveySave", res.resultMessage);
                             if (res.resultCode == 200) {
                                 Log.d("surveySave", "성공");
+                                Bundle result = new Bundle();
+                                result.putBoolean("refresh_need", true);
+                                getParentFragmentManager().setFragmentResult("refresh_course", result);
+
                                 requireActivity().getSupportFragmentManager()
                                         .popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                             }
                         } else {
-                            Log.d("surveySave", "실패: 응답 오류");
+                            Log.d("surveySave", "실패");
                         }
                     }
 
                     @Override
                     public void onFailure(Call<SurveySaveResponse> call, Throwable t) {
-                        Log.e("surveySave", "실패: 네트워크 오류", t);
+                        Log.e("surveySave", "네트워크 오류", t);
+                        t.printStackTrace();
                     }
                 });
             }

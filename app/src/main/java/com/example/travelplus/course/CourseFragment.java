@@ -51,9 +51,10 @@ public class CourseFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (apiService != null) {
-            courseList(LayoutInflater.from(requireContext()));
+        if (apiService == null) {
+            apiService = RetrofitClient.getApiInstance(requireContext()).create(ApiService.class);
         }
+        courseList(LayoutInflater.from(requireContext()));
     }
 
     @Nullable
@@ -99,6 +100,14 @@ public class CourseFragment extends Fragment {
                         rateText.setVisibility(GONE);
                     }
                 });
+
+        getParentFragmentManager().setFragmentResultListener("refresh_course", this, (requestKey, bundle) -> {
+            boolean refresh = bundle.getBoolean("refresh_need", false);
+            if (refresh) {
+                courseList(LayoutInflater.from(requireContext()));
+            }
+        });
+
         return view;
     }
     private void courseList(LayoutInflater inflater){

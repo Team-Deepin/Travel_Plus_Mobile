@@ -6,12 +6,14 @@ import java.util.List;
 public class AIRecommendResponse {
     public int resultCode;
     public String resultMessage;
-    public List<AIRecommendData> data;
+    public AIRecommendData data;
     public static class AIRecommendData implements Serializable {
-        public int courseId;
+        public String modelName;
+        public String modelType;
         public List<CourseDetailGroup> courseDetails;
     }
     public static class CourseDetailGroup implements Serializable{
+        public int courseIdx;
         public String area;
         public List<detailPlace> places;
     }

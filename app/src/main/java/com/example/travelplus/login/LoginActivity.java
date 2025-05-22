@@ -82,7 +82,6 @@ public class LoginActivity extends AppCompatActivity {
                     String accessToken = oAuthToken.getAccessToken();
                     Log.d(TAG, "카카오 로그인 성공, 토큰: " + accessToken);
 //                    checkAgreements(LoginActivity.this);
-                    Log.d(TAG, "checkAgreements 호출됨");
                     UserApiClient.getInstance().me((user, error)->{
                         if (error != null) {
                             Log.e(TAG, "사용자 정보 요청 실패", error);
@@ -249,7 +248,6 @@ public class LoginActivity extends AppCompatActivity {
                         } else if (token != null) {
                             Log.i(TAG, "카카오톡으로 로그인 성공 " + token.getAccessToken());
 //                            checkAgreements(LoginActivity.this);
-                            Log.d(TAG, "checkAgreements 호출됨");
                         }
                         return Unit.INSTANCE;
                     }
@@ -257,7 +255,6 @@ public class LoginActivity extends AppCompatActivity {
             } else {
                 UserApiClient.getInstance().loginWithKakaoAccount(LoginActivity.this, callback);
 //                checkAgreements(LoginActivity.this);
-                Log.d(TAG, "checkAgreements 호출됨");
             }
 
         });

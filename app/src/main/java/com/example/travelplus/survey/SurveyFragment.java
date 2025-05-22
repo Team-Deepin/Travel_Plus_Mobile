@@ -26,6 +26,7 @@ import com.applandeo.materialcalendarview.CalendarView;
 import com.example.travelplus.R;
 import com.example.travelplus.network.ApiService;
 import com.example.travelplus.network.RetrofitClient;
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.checkbox.MaterialCheckBox;
 
@@ -54,6 +55,7 @@ public class SurveyFragment extends Fragment {
     List<String> tripType = new ArrayList<>();
     MaterialCardView surveyBtn;
     ApiService apiService;
+    ShimmerFrameLayout surveySkeleton;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,6 +68,7 @@ public class SurveyFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_survey, container, false);
         apiService = RetrofitClient.getApiInstance(requireContext()).create(ApiService.class);
+        surveySkeleton = view.findViewById(R.id.survey_skeleton);
 
         // 장소 요소
         CardView cardPlace = view.findViewById(R.id.card_place);
@@ -505,6 +508,8 @@ public class SurveyFragment extends Fragment {
         parkTour.setOnCheckedChangeListener((buttonView, isChecked)-> setButton.run());
 
         surveyBtn.setOnClickListener(view1 -> {
+            surveySkeleton.setVisibility(View.VISIBLE);
+            surveySkeleton.startShimmer();
             if (cityTour.isChecked()) tripType.add("도시관광/건축물");
             if (activityTour.isChecked()) tripType.add("레포츠/야외활동");
             if (emotionTour.isChecked()) tripType.add("문화시설");
@@ -522,6 +527,8 @@ public class SurveyFragment extends Fragment {
             call.enqueue(new Callback<SurveyResponse>() {
                 @Override
                 public void onResponse(Call<SurveyResponse> call, Response<SurveyResponse> response) {
+                    surveySkeleton.stopShimmer();
+                    surveySkeleton.setVisibility(View.GONE);
                     if (response.isSuccessful() && response.body() != null) {
                         Log.d("survey", "실패");
                         Log.d("survey", "응답 코드: " + response.code());
@@ -554,6 +561,8 @@ public class SurveyFragment extends Fragment {
                 }
                 @Override
                 public void onFailure(Call<SurveyResponse> call, Throwable t) {
+                    surveySkeleton.stopShimmer();
+                    surveySkeleton.setVisibility(View.GONE);
                     t.printStackTrace();
                 }
             });
@@ -564,11 +573,9 @@ public class SurveyFragment extends Fragment {
         boolean enabled = placeCheck && dateCheck && transportCheck && peopleCheck && themeCheck;
         surveyBtn.setEnabled(enabled);
         if (enabled) {
-//            surveyBtn.setImageResource(R.drawable.survey_btn_activate);
             int color = ContextCompat.getColor(requireContext(), R.color.color_button1);
             surveyBtn.setCardBackgroundColor(color);
         } else {
-//            surveyBtn.setImageResource(R.drawable.survey_btn_deactivate);
             int color = ContextCompat.getColor(requireContext(), R.color.survey_deactivate);
             surveyBtn.setCardBackgroundColor(color);
         }

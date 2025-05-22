@@ -132,8 +132,8 @@ public class MoreFragment extends Fragment {
                             SharedPreferences.Editor editor = preferences.edit();
                             editor.remove("authorization");
                             editor.apply();
-
                             Intent intent = new Intent(requireActivity(), LoginActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(intent);
                             requireActivity().finish();
                         }else{
@@ -147,7 +147,6 @@ public class MoreFragment extends Fragment {
                         dialog.dismiss();
                     }
                 }
-
                 @Override
                 public void onFailure(Call<LogoutResponse> call, Throwable t) {
                     Toast.makeText(getActivity(), "로그아웃 실패", Toast.LENGTH_SHORT).show();
@@ -179,8 +178,8 @@ public class MoreFragment extends Fragment {
         });
         cancelBtn.setOnClickListener(v -> dialog.dismiss());
         checkBtn.setOnClickListener(v -> {
+            checkBtn.setEnabled(false);
             // 회원탈퇴 API
-            WithdrawResponse withdrawResponse = new WithdrawResponse();
             Call<WithdrawResponse> call = apiService.withdraw();
             call.enqueue(new Callback<WithdrawResponse>() {
                 @Override
@@ -192,24 +191,27 @@ public class MoreFragment extends Fragment {
                             Log.d("Withdraw", "회원탈퇴 성공");
                             Toast.makeText(getActivity(), "회원탈퇴 되었습니다.", Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
+                            SharedPreferences prefs = requireContext().getSharedPreferences("userPrefs", MODE_PRIVATE);
+                            prefs.edit().clear().apply();
                             Intent intent = new Intent(requireActivity(), LoginActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(intent);
                             requireActivity().finish();
                         }else {
+                            checkBtn.setEnabled(true);
                             Log.d("Withdraw", "회원탈퇴 실패");
                             Toast.makeText(getActivity(), "회원탈퇴를 완료할 수 없습니다. 다시 시도해 주세요.", Toast.LENGTH_SHORT).show();
-                            dialog.dismiss();
                         }
                     }else {
+                        checkBtn.setEnabled(true);
                         Log.d("Withdraw", "회원탈퇴 실패");
                         Toast.makeText(getActivity(), "회원탈퇴를 완료할 수 없습니다. 다시 시도해 주세요.", Toast.LENGTH_SHORT).show();
-                        dialog.dismiss();
                     }
                 }
                 @Override
                 public void onFailure(Call<WithdrawResponse> call, Throwable t) {
+                    checkBtn.setEnabled(true);
                     Toast.makeText(getActivity(), "네트워크 연결 실패", Toast.LENGTH_SHORT).show();
-                    dialog.dismiss();
                     Log.e("Withdraw","API call failed: " + t);
                 }
             });
