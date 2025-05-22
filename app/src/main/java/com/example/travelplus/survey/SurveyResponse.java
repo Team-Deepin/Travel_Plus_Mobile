@@ -25,7 +25,7 @@ public class SurveyResponse {
         public double placeLat;
         public double placeLon;
         public String placeAddress;
-        public int sequence;
         public String placeType;
+        public int sequence;
     }
 }

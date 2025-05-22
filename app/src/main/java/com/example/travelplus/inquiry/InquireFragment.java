@@ -88,6 +88,9 @@ public class InquireFragment extends Fragment {
                         InquireResponse res = response.body();
                         Log.d("Inquire",res.resultMessage);
                         if (res.resultCode == 200) {
+                            Bundle result = new Bundle();
+                            result.putBoolean("refresh_need", true);
+                            getParentFragmentManager().setFragmentResult("refresh_inquiry", result);
                             if (getActivity() != null && getActivity().getSupportFragmentManager() != null) {
                                 getActivity().getSupportFragmentManager().popBackStack();
                             }

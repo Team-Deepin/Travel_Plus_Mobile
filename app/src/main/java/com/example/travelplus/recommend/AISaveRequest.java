@@ -1,29 +1,29 @@
 package com.example.travelplus.recommend;
 
+import com.example.travelplus.survey.SurveyResponse;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class AISaveRequest {
-    public SaveData data;
+    public String modelName;
+    public String modelType;
+    public String area;
+    public String meansTp;
+    public String title;
+    public List<String> tripType;
+    public List<AIRecommendResponse.CourseDetailGroup> courseDetails;
 
-    public AISaveRequest(int courseId, String modelType, List<AIRecommendResponse.CourseDetailGroup> courseDetails) {
-        List<List<AIRecommendResponse.detailPlace>> nestedPlaces = new ArrayList<>();
-        for (AIRecommendResponse.CourseDetailGroup group : courseDetails) {
-            nestedPlaces.add(group.places);
-        }
-        this.data = new SaveData(courseId, modelType, nestedPlaces);
-    }
+    public AISaveRequest(String modelName, String modelType, String area, String meansTp,
+                         String title, List<String> tripType, List<AIRecommendResponse.CourseDetailGroup> courseDetails){
+        this.modelName = modelName;
+        this.modelType = modelType;
+        this.area = area;
+        this.meansTp = meansTp;
+        this.title = title;
+        this.tripType = tripType;
+        this.courseDetails = courseDetails;
 
-    public static class SaveData {
-        public int courseId;
-        public String modelType;
-        public List<List<AIRecommendResponse.detailPlace>> courseDetails;
-
-        public SaveData(int courseId, String modelType, List<List<AIRecommendResponse.detailPlace>> courseDetails) {
-            this.courseId = courseId;
-            this.modelType = modelType;
-            this.courseDetails = courseDetails;
-        }
     }
 }
 

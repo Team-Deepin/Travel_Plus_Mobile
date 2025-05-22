@@ -25,6 +25,7 @@ import androidx.fragment.app.Fragment;
 import com.example.travelplus.R;
 import com.example.travelplus.network.ApiService;
 import com.example.travelplus.network.RetrofitClient;
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.material.card.MaterialCardView;
 
 import java.io.IOException;
@@ -47,6 +48,7 @@ public class AIRecommendFragment extends Fragment {
     String selectTransport, startDate, endDate;
     ApiService apiService;
     String title;
+    ShimmerFrameLayout aiSkeleton;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,17 +76,16 @@ public class AIRecommendFragment extends Fragment {
         MaterialCardView aiBtn = view.findViewById(R.id.ai_btn);
         TextView aiBtnText = view.findViewById(R.id.ai_btn_text);
         aiBtn.setEnabled(false);
+        aiSkeleton = view.findViewById(R.id.ai_skeleton);
 
         Runnable updateAiBtnState = () -> {
             boolean enabled = dateCheck && transportCheck;
             aiBtn.setEnabled(enabled);
             if (enabled) {
-//                aiBtn.setImageResource(R.drawable.ai_recommend);
                 int color = ContextCompat.getColor(requireContext(), R.color.color_button1);
                 aiBtn.setStrokeColor(color);
                 aiBtnText.setTextColor(color);
             } else {
-//                aiBtn.setImageResource(R.drawable.ai_recommend_btn_deactivate);
                 int color = ContextCompat.getColor(requireContext(), R.color.AIbutton_deactivate);
                 aiBtn.setStrokeColor(color);
                 aiBtnText.setTextColor(color);
@@ -208,11 +209,21 @@ public class AIRecommendFragment extends Fragment {
         });
 
         aiBtn.setOnClickListener(view1 -> {
+            aiSkeleton.setVisibility(View.VISIBLE);
+            aiSkeleton.startShimmer();
             AIRecommendRequest aiRecommendRequest = new AIRecommendRequest(startDate, endDate, selectTransport);
             Call<AIRecommendResponse> call = apiService.recommend(aiRecommendRequest);
             call.enqueue(new Callback<AIRecommendResponse>() {
                 @Override
                 public void onResponse(Call<AIRecommendResponse> call, Response<AIRecommendResponse> response) {
+                    aiSkeleton.stopShimmer();
+                    aiSkeleton.setVisibility(View.GONE);
+                    try {
+                        String raw = response.body().toString(); // 여기서 HTML, 빈 문자열 확인 가능
+                        Log.d("RAW_RESPONSE", raw);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     if (response.isSuccessful() && response.body() != null) {
                         AIRecommendResponse res = response.body();
                         Log.d("recommend",res.resultMessage);
@@ -239,6 +250,8 @@ public class AIRecommendFragment extends Fragment {
 
                 @Override
                 public void onFailure(Call<AIRecommendResponse> call, Throwable t) {
+                    aiSkeleton.stopShimmer();
+                    aiSkeleton.setVisibility(View.GONE);
                     t.printStackTrace();
                 }
             });

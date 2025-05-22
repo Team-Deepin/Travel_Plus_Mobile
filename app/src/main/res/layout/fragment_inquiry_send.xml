@@ -138,14 +138,5 @@
             android:fontFamily="@font/bmeuljirottf"
             android:textSize="25dp"/>
     </androidx.cardview.widget.CardView>
-<!--    <ImageView-->
-<!--        android:id="@+id/inquire_btn"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:src="@drawable/inquiry_big_btn"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintTop_toBottomOf="@id/inquire_container"-->
-<!--        android:layout_marginTop="30dp"/>-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

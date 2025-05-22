@@ -13,21 +13,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <TextView
-            android:id="@+id/notice_type"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/bmeuljirottf"
-            android:text=""
-            android:textSize="25dp"
-            android:textColor="@color/color_text"
-            android:gravity="center"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="16dp"
-            android:paddingStart="30dp"
-            android:layout_marginEnd="15dp"/>
-
-        <TextView
             android:id="@+id/notice_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -37,9 +22,9 @@
             android:textColor="@color/color_text"
             android:singleLine="true"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toEndOf="@id/notice_type"
+            app:layout_constraintStart_toStartOf="parent"
             android:layout_marginTop="16dp"
-            android:paddingStart="10dp"
+            android:paddingStart="30dp"
             android:layout_marginEnd="15dp"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

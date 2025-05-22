@@ -4,12 +4,14 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageView;
@@ -23,10 +25,8 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
-import android.content.SharedPreferences;
 
-import com.example.travelplus.CarDay;
-import com.example.travelplus.CarLocation;
+import com.example.travelplus.MapClass;
 import com.example.travelplus.R;
 import com.example.travelplus.network.ApiService;
 import com.example.travelplus.network.RetrofitClient;
@@ -36,20 +36,13 @@ import com.google.gson.Gson;
 
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import okhttp3.mockwebserver.Dispatcher;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import okhttp3.mockwebserver.RecordedRequest;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class CourseDetailCarFragment extends Fragment {
     String title, duration, location;
@@ -60,7 +53,7 @@ public class CourseDetailCarFragment extends Fragment {
     LinearLayout detailListLayout;
     ShimmerFrameLayout detailSkeleton;
     ApiService apiService;
-    List<CarDay> carDays = new ArrayList<>();
+    List<MapClass> days = new ArrayList<>();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -132,6 +125,10 @@ public class CourseDetailCarFragment extends Fragment {
         return view;
     }
     private void showMapDialog() {
+        if (!isAdded() || days == null || days.isEmpty()) {
+            Toast.makeText(getContext(), "경로 정보가 없습니다.", Toast.LENGTH_SHORT).show();
+            return;
+        }
         Dialog dialog = new Dialog(requireContext());
         dialog.setContentView(R.layout.pop_up_map);
 
@@ -147,14 +144,19 @@ public class CourseDetailCarFragment extends Fragment {
         });
 
         WebView webView = dialog.findViewById(R.id.pop_up_webview);
+        WebSettings webSettings = webView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
         webView.getSettings().setJavaScriptEnabled(true);
+        webView.getSettings().setAllowFileAccessFromFileURLs(true);
+        webView.getSettings().setAllowUniversalAccessFromFileURLs(true);
 
-        String json = new Gson().toJson(carDays);
+        String json = new Gson().toJson(days);
         String safeJson = JSONObject.quote(json);
 
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
+                if (!isAdded()) return;
                 webView.evaluateJavascript("setRouteData(" + safeJson + ");", null);
             }
         });
@@ -195,7 +197,7 @@ public class CourseDetailCarFragment extends Fragment {
                         detailCard.setLayoutParams(courseParams);
 
                         for (CourseDetailCarResponse.carData carData : res.data){
-                            List<CarLocation> carLocations = new ArrayList<>();
+                            List<MapClass.Locations> locations = new ArrayList<>();
                             TextView dayText = new TextView(requireContext());
                             LinearLayout.LayoutParams dayParams = new LinearLayout.LayoutParams(
                                     ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -214,7 +216,7 @@ public class CourseDetailCarFragment extends Fragment {
                                 TextView placeText = placeCard.findViewById(R.id.detail_car_place_name);
                                 TextView distanceText = placeCard.findViewById(R.id.detail_car_distance);
                                 TextView timeText = placeCard.findViewById(R.id.detail_car_time);
-                                carLocations.add(new CarLocation(
+                                locations.add(new MapClass.Locations(
                                         route.startLat,
                                         route.startLon,
                                         route.endLat,
@@ -237,7 +239,7 @@ public class CourseDetailCarFragment extends Fragment {
                                 }
                                 detailCard.addView(placeCard);
                             }
-                            carDays.add(new CarDay(carData.day, carLocations));
+                            days.add(new MapClass(carData.day, locations));
                             if (!carData.routes.isEmpty()) {
                                 CourseDetailCarResponse.route lastDetail = carData.routes.get(carData.routes.size() - 1);
                                 View endPlaceCard = inflater.inflate(R.layout.fragment_course_detail_car_list, detailCard, false);
@@ -300,6 +302,9 @@ public class CourseDetailCarFragment extends Fragment {
                             Log.d("Delete Course", "코스 삭제 완료");
                             Toast.makeText(getActivity(), "코스가 삭제되었습니다.", Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
+                            Bundle result = new Bundle();
+                            result.putBoolean("refresh_need", true);
+                            getParentFragmentManager().setFragmentResult("refresh_course", result);
                             requireActivity().getSupportFragmentManager().popBackStack();
                         }else{
                             Toast.makeText(getActivity(), "코스 삭제 실패", Toast.LENGTH_SHORT).show();
