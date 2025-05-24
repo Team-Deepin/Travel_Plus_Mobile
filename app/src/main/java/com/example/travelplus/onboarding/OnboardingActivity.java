@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 
+import com.example.travelplus.BaseResponse;
 import com.example.travelplus.MainActivity;
 import com.example.travelplus.R;
 import com.example.travelplus.network.ApiService;
@@ -142,13 +143,13 @@ public class OnboardingActivity extends AppCompatActivity {
             if (festivalTour.isChecked()) selectedTypes.add("축제/공연/이벤트");
             if (parkTour.isChecked()) selectedTypes.add("테마파크/공원");
             OnboardingRequest request = new OnboardingRequest(gender, formattedDate, selectedTypes);
-            Call<OnboardingResponse> call = apiService.onboarding(request);
-            call.enqueue(new Callback<OnboardingResponse>() {
+            Call<BaseResponse> call = apiService.onboarding(request);
+            call.enqueue(new Callback<BaseResponse>() {
                 @Override
-                public void onResponse(Call<OnboardingResponse> call, Response<OnboardingResponse> response) {
+                public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
                     Log.d("Onboarding", "응답 코드: " + response.code());
                     if (response.isSuccessful() && response.body() != null) {
-                        OnboardingResponse res = response.body();
+                        BaseResponse res = response.body();
                         Log.d("Onboarding",res.resultMessage);
                         if (res.resultCode == 200) {
                             Intent intent = new Intent(OnboardingActivity.this, MainActivity.class);
@@ -171,7 +172,7 @@ public class OnboardingActivity extends AppCompatActivity {
                 }
 
                 @Override
-                public void onFailure(Call<OnboardingResponse> call, Throwable t) {
+                public void onFailure(Call<BaseResponse> call, Throwable t) {
                     runOnUiThread(() -> Toast.makeText(OnboardingActivity.this, "입력 실패", Toast.LENGTH_SHORT).show());
                     t.printStackTrace();
                 }

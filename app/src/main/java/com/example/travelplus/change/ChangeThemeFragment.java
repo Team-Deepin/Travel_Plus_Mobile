@@ -1,8 +1,5 @@
 package com.example.travelplus.change;
 
-import static android.content.Context.MODE_PRIVATE;
-
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,23 +12,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.travelplus.BaseResponse;
 import com.example.travelplus.R;
 import com.example.travelplus.network.ApiService;
 import com.example.travelplus.network.RetrofitClient;
-import com.example.travelplus.onboarding.OnboardingResponse;
 import com.google.android.material.checkbox.MaterialCheckBox;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+
 
 public class ChangeThemeFragment extends Fragment {
     MaterialCheckBox cityTour, activityTour, emotionTour, shoppingTour, healingTour,
@@ -99,14 +91,14 @@ public class ChangeThemeFragment extends Fragment {
             if (festivalTour.isChecked()) selectedTypes.add("축제/공연/이벤트");
             if (parkTour.isChecked()) selectedTypes.add("테마파크/공원");
             ChangeThemeRequest changeThemeRequest = new ChangeThemeRequest(selectedTypes);
-            Call<ChangeThemeResponse> call = apiService.change(changeThemeRequest);
-            call.enqueue(new Callback<ChangeThemeResponse>() {
+            Call<BaseResponse> call = apiService.change(changeThemeRequest);
+            call.enqueue(new Callback<BaseResponse>() {
                 @Override
-                public void onResponse(Call<ChangeThemeResponse> call, Response<ChangeThemeResponse> response) {
+                public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
                     Log.d("change theme", String.valueOf(selectedTypes));
                     Log.d("change theme", "응답 코드: " + response.code());
                     if (response.isSuccessful() && response.body() != null) {
-                        ChangeThemeResponse res = response.body();
+                        BaseResponse res = response.body();
                         Log.d("change theme",res.resultMessage);
                         if (res.resultCode == 200) {
                             Toast.makeText(getContext(), "여행 취향이 변경 되었습니다", Toast.LENGTH_SHORT).show();
@@ -125,7 +117,7 @@ public class ChangeThemeFragment extends Fragment {
                 }
 
                 @Override
-                public void onFailure(Call<ChangeThemeResponse> call, Throwable t) {
+                public void onFailure(Call<BaseResponse> call, Throwable t) {
                     t.printStackTrace();
                 }
             });

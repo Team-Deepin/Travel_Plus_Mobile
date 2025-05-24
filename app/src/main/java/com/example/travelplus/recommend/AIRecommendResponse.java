@@ -1,11 +1,11 @@
 package com.example.travelplus.recommend;
 
+import com.example.travelplus.BaseResponse;
+
 import java.io.Serializable;
 import java.util.List;
 
-public class AIRecommendResponse {
-    public int resultCode;
-    public String resultMessage;
+public class AIRecommendResponse extends BaseResponse {
     public AIRecommendData data;
     public static class AIRecommendData implements Serializable {
         public String modelName;

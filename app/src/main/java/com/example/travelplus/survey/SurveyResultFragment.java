@@ -17,6 +17,7 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.example.travelplus.BaseResponse;
 import com.example.travelplus.R;
 import com.example.travelplus.network.ApiService;
 import com.example.travelplus.network.RetrofitClient;
@@ -167,12 +168,12 @@ public class SurveyResultFragment extends Fragment {
                         }}
                 );
 
-                Call<SurveySaveResponse> call = apiService.surveySave(surveySaveRequest);
-                call.enqueue(new Callback<SurveySaveResponse>() {
+                Call<BaseResponse> call = apiService.surveySave(surveySaveRequest);
+                call.enqueue(new Callback<BaseResponse>() {
                     @Override
-                    public void onResponse(Call<SurveySaveResponse> call, Response<SurveySaveResponse> response) {
+                    public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
                         if (response.isSuccessful() && response.body() != null) {
-                            SurveySaveResponse res = response.body();
+                            BaseResponse res = response.body();
                             Log.d("surveySave", res.resultMessage);
                             if (res.resultCode == 200) {
                                 Log.d("surveySave", "성공");
@@ -189,7 +190,7 @@ public class SurveyResultFragment extends Fragment {
                     }
 
                     @Override
-                    public void onFailure(Call<SurveySaveResponse> call, Throwable t) {
+                    public void onFailure(Call<BaseResponse> call, Throwable t) {
                         Log.e("surveySave", "네트워크 오류", t);
                         t.printStackTrace();
                     }

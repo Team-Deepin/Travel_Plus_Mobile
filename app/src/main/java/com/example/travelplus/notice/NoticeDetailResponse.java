@@ -1,8 +1,8 @@
 package com.example.travelplus.notice;
 
-public class NoticeDetailResponse {
-    public int resultCode;
-    public String resultMessage;
+import com.example.travelplus.BaseResponse;
+
+public class NoticeDetailResponse extends BaseResponse {
     public Data data;
 
     public static class Data {

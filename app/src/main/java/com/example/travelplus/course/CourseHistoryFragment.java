@@ -132,8 +132,14 @@ public class CourseHistoryFragment extends Fragment {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
             Date startDate = sdf.parse(start);
             Date endDate = sdf.parse(end);
+
             long diff = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
-            return diff + "박 " + (diff + 1) + "일";
+
+            if (diff == 0) {
+                return "당일치기";
+            } else {
+                return diff + "박 " + (diff + 1) + "일";
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return "기간 불명";

@@ -21,6 +21,7 @@ import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 
+import com.example.travelplus.BaseResponse;
 import com.example.travelplus.login.LoginActivity;
 import com.example.travelplus.R;
 import com.example.travelplus.network.ApiService;
@@ -157,12 +158,12 @@ public class RegisterActivity extends AppCompatActivity {
             String nameStr = name.getText().toString().trim();
 
             RegisterRequest request = new RegisterRequest(emailStr, pwStr, nameStr);
-            Call<RegisterResponse> call = apiService.register(request);
-            call.enqueue(new Callback<RegisterResponse>() {
+            Call<BaseResponse> call = apiService.register(request);
+            call.enqueue(new Callback<BaseResponse>() {
                 @Override
-                public void onResponse(Call<RegisterResponse> call, Response<RegisterResponse> response) {
+                public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
                     if (response.isSuccessful() && response.body() != null){
-                        RegisterResponse res = response.body();
+                        BaseResponse res = response.body();
                         Log.d("Register",res.resultMessage);
                         if(res.resultCode == 200){
                             Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
@@ -182,7 +183,7 @@ public class RegisterActivity extends AppCompatActivity {
                 }
 
                 @Override
-                public void onFailure(Call<RegisterResponse> call, Throwable t) {
+                public void onFailure(Call<BaseResponse> call, Throwable t) {
                     runOnUiThread(() -> Toast.makeText(RegisterActivity.this, "회원가입 실패", Toast.LENGTH_SHORT).show());
                     Log.d("Login","서버 연결 실패");
                 }

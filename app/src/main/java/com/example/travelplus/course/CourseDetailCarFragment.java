@@ -26,6 +26,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 
+import com.example.travelplus.BaseResponse;
 import com.example.travelplus.MapClass;
 import com.example.travelplus.R;
 import com.example.travelplus.network.ApiService;
@@ -51,7 +52,7 @@ public class CourseDetailCarFragment extends Fragment {
     TextView deleteText, rateText, titleView, locationView, durationView, vehicleView;
     View detailBackground;
     LinearLayout detailListLayout;
-    ShimmerFrameLayout detailSkeleton;
+    ShimmerFrameLayout detailSkeleton, mapSkeleton;
     ApiService apiService;
     List<MapClass> days = new ArrayList<>();
 
@@ -82,6 +83,7 @@ public class CourseDetailCarFragment extends Fragment {
         ImageView mapView = view.findViewById(R.id.detail_map);
         plusFab.setVisibility(VISIBLE);
         detailSkeleton = view.findViewById(R.id.detail_skeleton);
+        mapSkeleton = view.findViewById(R.id.map_skeleton);
         apiService = RetrofitClient.getApiInstance(requireContext()).create(ApiService.class);
         showDetails(inflater);
 
@@ -129,6 +131,7 @@ public class CourseDetailCarFragment extends Fragment {
             Toast.makeText(getContext(), "경로 정보가 없습니다.", Toast.LENGTH_SHORT).show();
             return;
         }
+
         Dialog dialog = new Dialog(requireContext());
         dialog.setContentView(R.layout.pop_up_map);
 
@@ -138,14 +141,15 @@ public class CourseDetailCarFragment extends Fragment {
                     ViewGroup.LayoutParams.WRAP_CONTENT
             );
         }
+
         TextView quit = dialog.findViewById(R.id.quit);
-        quit.setOnClickListener(view -> {
-            dialog.dismiss();
-        });
+        quit.setOnClickListener(view -> dialog.dismiss());
 
         WebView webView = dialog.findViewById(R.id.pop_up_webview);
-        WebSettings webSettings = webView.getSettings();
-        webSettings.setJavaScriptEnabled(true);
+
+        mapSkeleton.setVisibility(View.VISIBLE);
+        mapSkeleton.startShimmer();
+
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setAllowFileAccessFromFileURLs(true);
         webView.getSettings().setAllowUniversalAccessFromFileURLs(true);
@@ -157,7 +161,10 @@ public class CourseDetailCarFragment extends Fragment {
             @Override
             public void onPageFinished(WebView view, String url) {
                 if (!isAdded()) return;
-                webView.evaluateJavascript("setRouteData(" + safeJson + ");", null);
+                webView.evaluateJavascript("setRouteData(" + safeJson + ");", value -> {
+                    mapSkeleton.stopShimmer();
+                    mapSkeleton.setVisibility(View.GONE);
+                });
             }
         });
 
@@ -165,6 +172,7 @@ public class CourseDetailCarFragment extends Fragment {
 
         dialog.show();
     }
+
     private void showDetails(LayoutInflater inflater){
         detailSkeleton.setVisibility(View.VISIBLE);
         detailSkeleton.startShimmer();
@@ -291,12 +299,12 @@ public class CourseDetailCarFragment extends Fragment {
         });
         deleteBtn.setOnClickListener(v -> {
             // 코스 삭제 API
-            Call<CourseDeleteResponse> call = apiService.deleteCourse(courseId);
-            call.enqueue(new Callback<CourseDeleteResponse>() {
+            Call<BaseResponse> call = apiService.deleteCourse(courseId);
+            call.enqueue(new Callback<BaseResponse>() {
                 @Override
-                public void onResponse(Call<CourseDeleteResponse> call, Response<CourseDeleteResponse> response) {
+                public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
                     if (response.isSuccessful() && response.body() != null) {
-                        CourseDeleteResponse res = response.body();
+                        BaseResponse res = response.body();
                         Log.d("Delete Course",res.resultMessage);
                         if (res.resultCode == 200) {
                             Log.d("Delete Course", "코스 삭제 완료");
@@ -319,7 +327,7 @@ public class CourseDetailCarFragment extends Fragment {
                 }
 
                 @Override
-                public void onFailure(Call<CourseDeleteResponse> call, Throwable t) {
+                public void onFailure(Call<BaseResponse> call, Throwable t) {
                     Toast.makeText(getActivity(), "코스 삭제 실패", Toast.LENGTH_SHORT).show();
                     Log.d("Delete Course","서버 연결 실패");
                     dialog.dismiss();
@@ -360,12 +368,12 @@ public class CourseDetailCarFragment extends Fragment {
             // 코스 평가 API
             double score = ratingBar.getRating();
             CourseRatingRequest courseRatingRequest = new CourseRatingRequest(courseId, score);
-            Call<CourseRatingResponse> call = apiService.rate(courseRatingRequest);
-            call.enqueue(new Callback<CourseRatingResponse>() {
+            Call<BaseResponse> call = apiService.rate(courseRatingRequest);
+            call.enqueue(new Callback<BaseResponse>() {
                 @Override
-                public void onResponse(Call<CourseRatingResponse> call, Response<CourseRatingResponse> response) {
+                public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
                     if (response.isSuccessful() && response.body() != null) {
-                        CourseRatingResponse res = response.body();
+                        BaseResponse res = response.body();
                         Log.d("Rate Course",res.resultMessage);
                         if (res.resultCode == 200) {
                             Log.d("Rate Course", "평가 점수 : "+score);
@@ -385,7 +393,7 @@ public class CourseDetailCarFragment extends Fragment {
                 }
 
                 @Override
-                public void onFailure(Call<CourseRatingResponse> call, Throwable t) {
+                public void onFailure(Call<BaseResponse> call, Throwable t) {
                     Toast.makeText(getActivity(), "코스 평가 실패", Toast.LENGTH_SHORT).show();
                     Log.d("Rate Course","서버 연결 실패");
                     dialog.dismiss();

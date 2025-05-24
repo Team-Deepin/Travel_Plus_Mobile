@@ -5,6 +5,7 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Paint;
@@ -23,31 +24,34 @@ import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
+import com.example.travelplus.BaseResponse;
 import com.example.travelplus.change.ChangeThemeFragment;
 import com.example.travelplus.inquiry.InquiryFragment;
 import com.example.travelplus.login.LoginActivity;
-import com.example.travelplus.login.LogoutResponse;
 import com.example.travelplus.R;
 import com.example.travelplus.WithdrawTextView;
-import com.example.travelplus.login.WithdrawResponse;
 import com.example.travelplus.network.ApiService;
 import com.example.travelplus.network.RetrofitClient;
 import com.example.travelplus.notice.NoticeFragment;
+import com.kakao.sdk.user.UserApiClient;
 
-import java.io.IOException;
-
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MoreFragment extends Fragment {
     CardView notice, inquiry, changeTheme, logout, withdraw;
     ApiService apiService;
     ApiService logoutService;
+    String loginType;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        SharedPreferences prefs = requireContext().getSharedPreferences("userPrefs", Context.MODE_PRIVATE);
+        loginType = prefs.getString("loginType", "normal");
+    }
+
     @Override
     @Nullable
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -118,42 +122,65 @@ public class MoreFragment extends Fragment {
         ImageView checkBtn = dialog.findViewById(R.id.check_button);
         cancelBtn.setOnClickListener(v -> dialog.dismiss());
         checkBtn.setOnClickListener(v -> {
-            Call<LogoutResponse> call = logoutService.logout();
-            call.enqueue(new Callback<LogoutResponse>() {
-                @Override
-                public void onResponse(Call<LogoutResponse> call, Response<LogoutResponse> response) {
-                    if (response.isSuccessful() && response.body() != null) {
-                        LogoutResponse res = response.body();
-                        Log.d("Logout",res.resultMessage);
-                        if (res.resultCode == 200) {
-                            Toast.makeText(getActivity(), "로그아웃 되었습니다", Toast.LENGTH_SHORT).show();
-                            dialog.dismiss();
-                            SharedPreferences preferences = requireContext().getSharedPreferences("userPrefs", MODE_PRIVATE);
-                            SharedPreferences.Editor editor = preferences.edit();
-                            editor.remove("authorization");
-                            editor.apply();
-                            Intent intent = new Intent(requireActivity(), LoginActivity.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            startActivity(intent);
-                            requireActivity().finish();
-                        }else{
+            if ("kakao".equals(loginType)){
+                UserApiClient.getInstance().logout(error -> {
+                    if (error != null) {
+                        Log.e("KakaoLogout", "로그아웃 실패", error);
+                    } else {
+                        Log.i("KakaoLogout", "로그아웃 성공");
+                        SharedPreferences prefs = requireContext().getSharedPreferences("userPrefs", MODE_PRIVATE);
+                        prefs.edit()
+                                .remove("authorization")
+                                .remove("loginType")
+                                .apply();
+                        dialog.dismiss();
+                        Intent intent = new Intent(requireActivity(), LoginActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        requireActivity().finish();
+                        Toast.makeText(getActivity(), "로그아웃되었습니다.", Toast.LENGTH_SHORT).show();
+                    }
+                    return null;
+                });
+            }else {
+                Call<BaseResponse> call = logoutService.logout();
+                call.enqueue(new Callback<BaseResponse>() {
+                    @Override
+                    public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            BaseResponse res = response.body();
+                            Log.d("Logout",res.resultMessage);
+                            if (res.resultCode == 200) {
+                                SharedPreferences preferences = requireContext().getSharedPreferences("userPrefs", MODE_PRIVATE);
+                                SharedPreferences.Editor editor = preferences.edit();
+                                editor.remove("loginType")
+                                        .remove("authorization")
+                                        .apply();
+                                Intent intent = new Intent(requireActivity(), LoginActivity.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                startActivity(intent);
+                                requireActivity().finish();
+                                Toast.makeText(getActivity(), "로그아웃 되었습니다", Toast.LENGTH_SHORT).show();
+                                dialog.dismiss();
+                            }else{
+                                Toast.makeText(getActivity(), "로그아웃 실패", Toast.LENGTH_SHORT).show();
+                                Log.d("Logout",String.valueOf(res.resultCode));
+                                dialog.dismiss();
+                            }
+                        }else {
                             Toast.makeText(getActivity(), "로그아웃 실패", Toast.LENGTH_SHORT).show();
-                            Log.d("Logout",String.valueOf(res.resultCode));
+                            Log.d("Logout","로그아웃 실패");
                             dialog.dismiss();
                         }
-                    }else {
+                    }
+                    @Override
+                    public void onFailure(Call<BaseResponse> call, Throwable t) {
                         Toast.makeText(getActivity(), "로그아웃 실패", Toast.LENGTH_SHORT).show();
-                        Log.d("Logout","로그아웃 실패");
+                        Log.d("Logout","서버 연결 실패");
                         dialog.dismiss();
                     }
-                }
-                @Override
-                public void onFailure(Call<LogoutResponse> call, Throwable t) {
-                    Toast.makeText(getActivity(), "로그아웃 실패", Toast.LENGTH_SHORT).show();
-                    Log.d("Logout","서버 연결 실패");
-                    dialog.dismiss();
-                }
-            });
+                });
+            }
         });
         dialog.show();
     }
@@ -180,43 +207,58 @@ public class MoreFragment extends Fragment {
         checkBtn.setOnClickListener(v -> {
             checkBtn.setEnabled(false);
             // 회원탈퇴 API
-            Call<WithdrawResponse> call = apiService.withdraw();
-            call.enqueue(new Callback<WithdrawResponse>() {
-                @Override
-                public void onResponse(Call<WithdrawResponse> call, Response<WithdrawResponse> response) {
-                    if (response.isSuccessful() && response.body() != null) {
-                        WithdrawResponse res = response.body();
-                        Log.d("Withdraw", res.resultMessage);
-                        if (res.resultCode == 200) {
-                            Log.d("Withdraw", "회원탈퇴 성공");
-                            Toast.makeText(getActivity(), "회원탈퇴 되었습니다.", Toast.LENGTH_SHORT).show();
-                            dialog.dismiss();
-                            SharedPreferences prefs = requireContext().getSharedPreferences("userPrefs", MODE_PRIVATE);
-                            prefs.edit().clear().apply();
-                            Intent intent = new Intent(requireActivity(), LoginActivity.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            startActivity(intent);
-                            requireActivity().finish();
-                        }else {
-                            checkBtn.setEnabled(true);
-                            Log.d("Withdraw", "회원탈퇴 실패");
-                            Toast.makeText(getActivity(), "회원탈퇴를 완료할 수 없습니다. 다시 시도해 주세요.", Toast.LENGTH_SHORT).show();
-                        }
-                    }else {
+            if ("kakao".equals(loginType)){
+                UserApiClient.getInstance().unlink(error -> {
+                    if (error != null) {
                         checkBtn.setEnabled(true);
-                        Log.d("Withdraw", "회원탈퇴 실패");
-                        Toast.makeText(getActivity(), "회원탈퇴를 완료할 수 없습니다. 다시 시도해 주세요.", Toast.LENGTH_SHORT).show();
+                        Log.e("KakaoUnlink", "탈퇴 실패", error);
+                        Toast.makeText(getActivity(), "카카오 탈퇴 실패", Toast.LENGTH_SHORT).show();
+                        return null;
                     }
-                }
-                @Override
-                public void onFailure(Call<WithdrawResponse> call, Throwable t) {
-                    checkBtn.setEnabled(true);
-                    Toast.makeText(getActivity(), "네트워크 연결 실패", Toast.LENGTH_SHORT).show();
-                    Log.e("Withdraw","API call failed: " + t);
-                }
-            });
-
+                    Log.i("KakaoUnlink", "카카오 연결 해제 성공");
+                    callWithdraw(dialog, checkBtn);
+                    return null;
+                });
+            }else {
+                callWithdraw(dialog, checkBtn);
+            }
         });
         dialog.show();
     }
+    private void callWithdraw(Dialog dialog, ImageView checkBtn) {
+        Call<BaseResponse> call = apiService.withdraw();
+        call.enqueue(new Callback<BaseResponse>() {
+            @Override
+            public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    BaseResponse res = response.body();
+                    Log.d("Withdraw", res.resultMessage);
+                    if (res.resultCode == 200) {
+                        Toast.makeText(getActivity(), "회원탈퇴 되었습니다.", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                        SharedPreferences prefs = requireContext().getSharedPreferences("userPrefs", MODE_PRIVATE);
+                        prefs.edit().clear().apply();
+                        Intent intent = new Intent(requireActivity(), LoginActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        requireActivity().finish();
+                    } else {
+                        checkBtn.setEnabled(true);
+                        Toast.makeText(getActivity(), "회원탈퇴 실패", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    checkBtn.setEnabled(true);
+                    Toast.makeText(getActivity(), "회원탈퇴 실패", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<BaseResponse> call, Throwable t) {
+                checkBtn.setEnabled(true);
+                Toast.makeText(getActivity(), "네트워크 연결 실패", Toast.LENGTH_SHORT).show();
+                Log.e("Withdraw", "API call failed: ", t);
+            }
+        });
+    }
+
 }

@@ -219,7 +219,7 @@ public class AIRecommendFragment extends Fragment {
                     aiSkeleton.stopShimmer();
                     aiSkeleton.setVisibility(View.GONE);
                     try {
-                        String raw = response.body().toString(); // 여기서 HTML, 빈 문자열 확인 가능
+                        String raw = response.body().toString();
                         Log.d("RAW_RESPONSE", raw);
                     } catch (Exception e) {
                         e.printStackTrace();
