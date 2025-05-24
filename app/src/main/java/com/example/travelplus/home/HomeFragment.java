@@ -4,7 +4,6 @@ import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -51,13 +50,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+
 
 public class HomeFragment extends Fragment {
     Spinner locationList;
@@ -96,6 +92,9 @@ public class HomeFragment extends Fragment {
         weatherSkeleton = view.findViewById(R.id.weather_skeleton);
         homeListSkeleton = view.findViewById(R.id.home_list_skeleton);
         homeWeatherSkeleton = view.findViewById(R.id.home_weather_skeleton);
+        SharedPreferences prefs = requireContext().getSharedPreferences("userPrefs", MODE_PRIVATE);
+        String authorization = prefs.getString("authorization", null);
+        Log.d("auth", "토큰: " + authorization);
 
         String[] items = {"서울", "경기도", "강원도", "충청북도", "충청남도", "전라북도", "전라남도", "경상북도", "경상남도", "제주도"};
         weatherLocation = new LinkedHashMap<>();
@@ -445,7 +444,14 @@ public class HomeFragment extends Fragment {
                         }
                     }
                 } else {
-                    Log.e("home", "Response failed: " + response.message());
+                    Log.e("home", "Response failed - code: " + response.code());
+                    try {
+                        if (response.errorBody() != null) {
+                            Log.e("home", "errorBody: " + response.errorBody().string());
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
 

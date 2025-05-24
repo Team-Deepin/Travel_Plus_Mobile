@@ -1,10 +1,10 @@
 package com.example.travelplus.course;
 
+import com.example.travelplus.BaseResponse;
+
 import java.util.List;
 
-public class CourseHistoryResponse {
-    public int resultCode;
-    public String resultMessage;
+public class CourseHistoryResponse extends BaseResponse {
     public List<Course> data;
 
     public static class Course{

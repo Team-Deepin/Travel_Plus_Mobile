@@ -1,11 +1,11 @@
 package com.example.travelplus.survey;
 
+import com.example.travelplus.BaseResponse;
+
 import java.io.Serializable;
 import java.util.List;
 
-public class SurveyResponse {
-    public int resultCode;
-    public String resultMessage;
+public class SurveyResponse extends BaseResponse {
     public surveyData data;
 
     public static class surveyData implements Serializable {

@@ -29,13 +29,17 @@ public class RetrofitClient {
         if (apiRetrofit == null) {
             OkHttpClient client = new OkHttpClient.Builder()
                     .addInterceptor(chain -> {
-                        SharedPreferences prefs = context.getSharedPreferences("userPrefs", Context.MODE_PRIVATE);
-                        String authorization = prefs.getString("authorization", null);
+                        Request original = chain.request();
+                        Request.Builder builder = original.newBuilder();
 
-                        Request request = chain.request().newBuilder()
-                                .addHeader("Authorization", authorization)
-                                .build();
-                        return chain.proceed(request);
+                        SharedPreferences prefs = context.getSharedPreferences("userPrefs", Context.MODE_PRIVATE);
+                        String token = prefs.getString("authorization", null);
+
+                        if (token != null) {
+                            builder.addHeader("Authorization", token);
+                        }
+
+                        return chain.proceed(builder.build());
                     })
                     .connectTimeout(30, TimeUnit.SECONDS)
                     .readTimeout(30, TimeUnit.SECONDS)

@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
+import com.example.travelplus.BaseResponse;
 import com.example.travelplus.R;
 import com.example.travelplus.network.ApiService;
 import com.example.travelplus.network.RetrofitClient;
@@ -80,12 +81,12 @@ public class InquireFragment extends Fragment {
         inquireBtn.setOnClickListener(view1 -> {
             // 내용 보내기
             InquireRequest inquireRequest = new InquireRequest(title, content);
-            Call<InquireResponse> call = apiService.inquire(inquireRequest);
-            call.enqueue(new Callback<InquireResponse>() {
+            Call<BaseResponse> call = apiService.inquire(inquireRequest);
+            call.enqueue(new Callback<BaseResponse>() {
                 @Override
-                public void onResponse(Call<InquireResponse> call, Response<InquireResponse> response) {
+                public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
                     if (response.isSuccessful() && response.body() != null) {
-                        InquireResponse res = response.body();
+                        BaseResponse res = response.body();
                         Log.d("Inquire",res.resultMessage);
                         if (res.resultCode == 200) {
                             Bundle result = new Bundle();
@@ -107,7 +108,7 @@ public class InquireFragment extends Fragment {
                 }
 
                 @Override
-                public void onFailure(Call<InquireResponse> call, Throwable t) {
+                public void onFailure(Call<BaseResponse> call, Throwable t) {
                     Toast.makeText(getContext(), "네트워크 연결 실패", Toast.LENGTH_SHORT).show();
                     Log.d("Inquire", "네트워크 연결 실패");
                 }

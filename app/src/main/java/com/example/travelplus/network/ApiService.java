@@ -1,5 +1,6 @@
 package com.example.travelplus.network;
 
+import com.example.travelplus.BaseResponse;
 import com.example.travelplus.course.CourseHistoryResponse;
 import com.example.travelplus.home.HomeResponse;
 import com.example.travelplus.change.ChangeThemeRequest;
@@ -11,30 +12,21 @@ import com.example.travelplus.course.CourseRatingRequest;
 import com.example.travelplus.course.CourseRatingResponse;
 import com.example.travelplus.course.CourseResponse;
 import com.example.travelplus.inquiry.InquireRequest;
-import com.example.travelplus.inquiry.InquireResponse;
 import com.example.travelplus.inquiry.InquiryResponse;
 import com.example.travelplus.login.KakaoLoginRequest;
-import com.example.travelplus.login.KakaoResponse;
 import com.example.travelplus.login.LoginRequest;
-import com.example.travelplus.login.LoginResponse;
-import com.example.travelplus.login.LogoutResponse;
-import com.example.travelplus.login.WithdrawResponse;
 import com.example.travelplus.notice.NoticeDetailResponse;
 import com.example.travelplus.notice.NoticeResponse;
 import com.example.travelplus.onboarding.OnboardingRequest;
-import com.example.travelplus.onboarding.OnboardingResponse;
 import com.example.travelplus.recommend.AIRecommendRequest;
 import com.example.travelplus.recommend.AIRecommendResponse;
 import com.example.travelplus.recommend.AISaveRequest;
-import com.example.travelplus.recommend.AISaveResponse;
 import com.example.travelplus.register.DuplicateCheckRequest;
 import com.example.travelplus.register.DuplicateCheckResponse;
 import com.example.travelplus.register.RegisterRequest;
-import com.example.travelplus.register.RegisterResponse;
 import com.example.travelplus.survey.SurveyRequest;
 import com.example.travelplus.survey.SurveyResponse;
 import com.example.travelplus.survey.SurveySaveRequest;
-import com.example.travelplus.survey.SurveySaveResponse;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -47,29 +39,29 @@ import retrofit2.http.Query;
 
 public interface ApiService {
     @POST("/auth/login")
-    Call<LoginResponse> login(@Body LoginRequest request);
+    Call<BaseResponse> login(@Body LoginRequest request);
     @POST("/auth/kakaoLogin")
-    Call<KakaoResponse> kakao(@Body KakaoLoginRequest request);
+    Call<BaseResponse> kakao(@Body KakaoLoginRequest request);
     @POST("/auth/register")
-    Call<RegisterResponse> register(@Body RegisterRequest request);
+    Call<BaseResponse> register(@Body RegisterRequest request);
     @POST("/auth/onboarding")
-    Call<OnboardingResponse> onboarding(@Body OnboardingRequest request);
+    Call<BaseResponse> onboarding(@Body OnboardingRequest request);
     @POST("/auth/check")
     Call<DuplicateCheckResponse> duplicateCheck(@Body DuplicateCheckRequest request);
     @POST("/rating")
-    Call<CourseRatingResponse> rate(@Body CourseRatingRequest request);
+    Call<BaseResponse> rate(@Body CourseRatingRequest request);
     @POST("/edit/inquire/submit")
-    Call<InquireResponse> inquire(@Body InquireRequest request);
+    Call<BaseResponse> inquire(@Body InquireRequest request);
     @POST("/course/recommend")
     Call<AIRecommendResponse> recommend(@Body AIRecommendRequest request);
     @POST("/course/save")
-    Call<AISaveResponse> aiSave(@Body AISaveRequest request);
+    Call<BaseResponse> aiSave(@Body AISaveRequest request);
     @POST("/course/save")
-    Call<SurveySaveResponse> surveySave(@Body SurveySaveRequest request);
+    Call<BaseResponse> surveySave(@Body SurveySaveRequest request);
     @POST("/course/survey")
     Call<SurveyResponse> survey(@Body SurveyRequest request);
     @GET("/auth/logout")
-    Call<LogoutResponse> logout();
+    Call<BaseResponse> logout();
     @GET("/auth/home")
     Call<HomeResponse> home();
     @GET("/course")
@@ -87,10 +79,10 @@ public interface ApiService {
     @GET("/edit/notice/{noticeId}")
     Call<NoticeDetailResponse> getNoticeDetail(@Path("noticeId") int noticeId);
     @PUT("/edit/modifyUser")
-    Call<ChangeThemeResponse> change(@Body ChangeThemeRequest request);
+    Call<BaseResponse> change(@Body ChangeThemeRequest request);
     @DELETE("/course/delete/{courseId}")
-    Call<CourseDeleteResponse> deleteCourse(@Path("courseId") int courseId);
+    Call<BaseResponse> deleteCourse(@Path("courseId") int courseId);
     @DELETE("/edit/delete")
-    Call<WithdrawResponse> withdraw();
+    Call<BaseResponse> withdraw();
 
 }

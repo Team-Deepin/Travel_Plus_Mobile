@@ -1,10 +1,10 @@
 package com.example.travelplus.inquiry;
 
+import com.example.travelplus.BaseResponse;
+
 import java.util.List;
 
-public class InquiryResponse {
-    public int resultCode;
-    public String resultMessage;
+public class InquiryResponse extends BaseResponse {
     public List<Inquiry> data;
 
     public static class Inquiry {

@@ -25,6 +25,7 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.example.travelplus.BaseResponse;
 import com.example.travelplus.R;
 import com.example.travelplus.course.CourseResponse;
 import com.example.travelplus.network.ApiService;
@@ -55,6 +56,7 @@ public class AIResultFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        tripType.clear();
         if (getArguments() != null) {
             title = getArguments().getString("title");
             transit = getArguments().getString("transit");
@@ -180,12 +182,12 @@ public class AIResultFragment extends Fragment {
                         }}
                 );
 
-                Call<AISaveResponse> call = apiService.aiSave(aiSaveRequest);
-                call.enqueue(new Callback<AISaveResponse>() {
+                Call<BaseResponse> call = apiService.aiSave(aiSaveRequest);
+                call.enqueue(new Callback<BaseResponse>() {
                     @Override
-                    public void onResponse(Call<AISaveResponse> call, Response<AISaveResponse> response) {
+                    public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
                         if (response.isSuccessful() && response.body() != null) {
-                            AISaveResponse res = response.body();
+                            BaseResponse res = response.body();
                             Log.d("aiSave", res.resultMessage);
                             if (res.resultCode == 200) {
                                 Log.d("aiSave", "성공");
@@ -203,7 +205,7 @@ public class AIResultFragment extends Fragment {
                     }
 
                     @Override
-                    public void onFailure(Call<AISaveResponse> call, Throwable t) {
+                    public void onFailure(Call<BaseResponse> call, Throwable t) {
                         t.printStackTrace();
                     }
                 });
