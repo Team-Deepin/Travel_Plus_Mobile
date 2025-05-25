@@ -24,19 +24,14 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.travelplus.BaseResponse;
-import com.example.travelplus.MapClass;
+
 import com.example.travelplus.R;
 import com.example.travelplus.network.ApiService;
 import com.example.travelplus.network.RetrofitClient;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.gson.Gson;
-
-import org.json.JSONObject;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -49,9 +44,8 @@ public class CourseDetailCarFragment extends Fragment {
     TextView deleteText, rateText, titleView, locationView, durationView, vehicleView;
     View detailBackground;
     LinearLayout detailListLayout;
-    ShimmerFrameLayout detailSkeleton, mapSkeleton;
+    ShimmerFrameLayout detailSkeleton;
     ApiService apiService;
-    List<MapClass> days = new ArrayList<>();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -77,10 +71,8 @@ public class CourseDetailCarFragment extends Fragment {
         rateText = requireActivity().findViewById(R.id.detail_rate_text);
         detailBackground = requireActivity().findViewById(R.id.detail_background);
         detailListLayout = view.findViewById(R.id.detail_list);
-        ImageView mapView = view.findViewById(R.id.detail_map);
         plusFab.setVisibility(VISIBLE);
         detailSkeleton = view.findViewById(R.id.detail_skeleton);
-        mapSkeleton = view.findViewById(R.id.map_skeleton);
         apiService = RetrofitClient.getApiInstance(requireContext()).create(ApiService.class);
         showDetails(inflater);
 
@@ -117,57 +109,8 @@ public class CourseDetailCarFragment extends Fragment {
         rateFab.setOnClickListener(view1 -> {
             showRatingPopup();
         });
-        mapView.setOnClickListener(view1 -> {
-            showMapDialog();
-        });
 
         return view;
-    }
-    private void showMapDialog() {
-        if (!isAdded() || days == null || days.isEmpty()) {
-            Toast.makeText(getContext(), "경로 정보가 없습니다.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        Dialog dialog = new Dialog(requireContext());
-        dialog.setContentView(R.layout.pop_up_map);
-
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setLayout(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-            );
-        }
-
-        TextView quit = dialog.findViewById(R.id.quit);
-        quit.setOnClickListener(view -> dialog.dismiss());
-
-        WebView webView = dialog.findViewById(R.id.pop_up_webview);
-
-        mapSkeleton.setVisibility(View.VISIBLE);
-        mapSkeleton.startShimmer();
-
-        webView.getSettings().setJavaScriptEnabled(true);
-        webView.getSettings().setAllowFileAccessFromFileURLs(true);
-        webView.getSettings().setAllowUniversalAccessFromFileURLs(true);
-
-        String json = new Gson().toJson(days);
-        String safeJson = JSONObject.quote(json);
-
-        webView.setWebViewClient(new WebViewClient() {
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                if (!isAdded()) return;
-                webView.evaluateJavascript("setRouteData(" + safeJson + ");", value -> {
-                    mapSkeleton.stopShimmer();
-                    mapSkeleton.setVisibility(View.GONE);
-                });
-            }
-        });
-
-        webView.loadUrl("file:///android_asset/map.html");
-
-        dialog.show();
     }
 
     private void showDetails(LayoutInflater inflater){
@@ -198,9 +141,7 @@ public class CourseDetailCarFragment extends Fragment {
                         );
                         courseParams.setMargins(0, 0, 0, 40);
                         detailCard.setLayoutParams(courseParams);
-
                         for (CourseDetailCarResponse.carData carData : res.data){
-                            List<MapClass.Locations> locations = new ArrayList<>();
                             TextView dayText = new TextView(requireContext());
                             LinearLayout.LayoutParams dayParams = new LinearLayout.LayoutParams(
                                     ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -219,12 +160,6 @@ public class CourseDetailCarFragment extends Fragment {
                                 TextView placeText = placeCard.findViewById(R.id.detail_car_place_name);
                                 TextView distanceText = placeCard.findViewById(R.id.detail_car_distance);
                                 TextView timeText = placeCard.findViewById(R.id.detail_car_time);
-                                locations.add(new MapClass.Locations(
-                                        route.startLat,
-                                        route.startLon,
-                                        route.endLat,
-                                        route.endLon
-                                ));
 
                                 double distance = route.distance;
                                 double km = distance / 1000.0;
@@ -242,7 +177,6 @@ public class CourseDetailCarFragment extends Fragment {
                                 }
                                 detailCard.addView(placeCard);
                             }
-                            days.add(new MapClass(carData.day, locations));
                             if (!carData.routes.isEmpty()) {
                                 CourseDetailCarResponse.route lastDetail = carData.routes.get(carData.routes.size() - 1);
                                 View endPlaceCard = inflater.inflate(R.layout.fragment_course_detail_car_list, detailCard, false);
