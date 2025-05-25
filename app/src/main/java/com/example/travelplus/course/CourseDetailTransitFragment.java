@@ -165,7 +165,6 @@ public class CourseDetailTransitFragment extends Fragment {
         detailSkeleton.setVisibility(View.VISIBLE);
         detailSkeleton.startShimmer();
         detailListLayout.removeAllViews();
-        Log.d("showDetailsTransit", "apiService 호출 시작");
         Call<CourseDetailTransitResponse> call = apiService.detailTransit(courseId);
         call.enqueue(new Callback<CourseDetailTransitResponse>() {
             @Override
@@ -174,7 +173,6 @@ public class CourseDetailTransitFragment extends Fragment {
                 detailSkeleton.setVisibility(View.GONE);
                 if (response.isSuccessful() && response.body() != null) {
                     CourseDetailTransitResponse res = response.body();
-                    Log.d("courseDetailTransit",res.resultMessage);
                     if(res.resultCode == 200 && res.data != null && !res.data.isEmpty()) {
                         titleView.setText(title);
                         locationView.setText(location);
@@ -254,8 +252,10 @@ public class CourseDetailTransitFragment extends Fragment {
                         }
                         detailListLayout.addView(detailCard);
                     }else {
-                        Log.d("courseDetailTransit", "데이터 없음");
+                        Log.e("courseDetailTransit", "데이터 없음"+res.resultMessage);
                     }
+                }else {
+                    Log.e("courseDetailTransit",response.message());
                 }
             }
 
@@ -298,9 +298,7 @@ public class CourseDetailTransitFragment extends Fragment {
                 public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
                     if (response.isSuccessful() && response.body() != null) {
                         BaseResponse res = response.body();
-                        Log.d("Delete Course",res.resultMessage);
                         if (res.resultCode == 200) {
-                            Log.d("Delete Course", "코스 삭제 완료");
                             Toast.makeText(getActivity(), "코스가 삭제되었습니다.", Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
                             Bundle result = new Bundle();
@@ -309,12 +307,12 @@ public class CourseDetailTransitFragment extends Fragment {
                             requireActivity().getSupportFragmentManager().popBackStack();
                         }else{
                             Toast.makeText(getActivity(), "코스 삭제 실패", Toast.LENGTH_SHORT).show();
-                            Log.d("Delete Course",String.valueOf(res.resultCode));
+                            Log.e("Delete Course",String.valueOf(res.resultCode));
                             dialog.dismiss();
                         }
                     }else {
                         Toast.makeText(getActivity(), "코스 삭제 실패", Toast.LENGTH_SHORT).show();
-                        Log.d("Delete Course","코스 삭제 실패");
+                        Log.e("Delete Course","코스 삭제 실패");
                         dialog.dismiss();
                     }
                 }
@@ -322,7 +320,7 @@ public class CourseDetailTransitFragment extends Fragment {
                 @Override
                 public void onFailure(Call<BaseResponse> call, Throwable t) {
                     Toast.makeText(getActivity(), "코스 삭제 실패", Toast.LENGTH_SHORT).show();
-                    Log.d("Delete Course","서버 연결 실패");
+                    Log.e("Delete Course","서버 연결 실패"+t);
                     dialog.dismiss();
                 }
             });
@@ -367,20 +365,18 @@ public class CourseDetailTransitFragment extends Fragment {
                 public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
                     if (response.isSuccessful() && response.body() != null) {
                         BaseResponse res = response.body();
-                        Log.d("Rate Course",res.resultMessage);
                         if (res.resultCode == 200) {
-                            Log.d("Rate Course", "평가 점수 : "+score);
                             Toast.makeText(getActivity(), "코스가 평가되었습니다.", Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
                             requireActivity().getSupportFragmentManager().popBackStack();
                         }else{
                             Toast.makeText(getActivity(), "코스 평가 실패", Toast.LENGTH_SHORT).show();
-                            Log.d("Rate Course",String.valueOf(res.resultCode));
+                            Log.e("Rate Course",String.valueOf(res.resultCode));
                             dialog.dismiss();
                         }
                     }else {
                         Toast.makeText(getActivity(), "코스 평가 실패", Toast.LENGTH_SHORT).show();
-                        Log.d("Rate Course","코스 평가 실패");
+                        Log.e("Rate Course","코스 평가 실패"+response.message());
                         dialog.dismiss();
                     }
                 }
@@ -388,7 +384,7 @@ public class CourseDetailTransitFragment extends Fragment {
                 @Override
                 public void onFailure(Call<BaseResponse> call, Throwable t) {
                     Toast.makeText(getActivity(), "코스 평가 실패", Toast.LENGTH_SHORT).show();
-                    Log.d("Rate Course","서버 연결 실패");
+                    Log.e("Rate Course","서버 연결 실패"+t);
                     dialog.dismiss();
                 }
             });

@@ -1,9 +1,5 @@
 package com.example.travelplus.inquiry;
 
-import static android.content.Context.MODE_PRIVATE;
-
-import android.content.SharedPreferences;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -14,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,15 +23,9 @@ import com.example.travelplus.R;
 import com.example.travelplus.network.ApiService;
 import com.example.travelplus.network.RetrofitClient;
 
-import java.io.IOException;
-
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class InquireFragment extends Fragment {
     EditText inquireTitle, inquireContent;
@@ -87,7 +76,6 @@ public class InquireFragment extends Fragment {
                 public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
                     if (response.isSuccessful() && response.body() != null) {
                         BaseResponse res = response.body();
-                        Log.d("Inquire",res.resultMessage);
                         if (res.resultCode == 200) {
                             Bundle result = new Bundle();
                             result.putBoolean("refresh_need", true);
@@ -96,21 +84,20 @@ public class InquireFragment extends Fragment {
                                 getActivity().getSupportFragmentManager().popBackStack();
                             }
                             Toast.makeText(getContext(), "문의가 정상적으로 접수되었습니다.", Toast.LENGTH_SHORT).show();
-                            Log.d("Inquire", "문의 성공");
                         }else {
                             Toast.makeText(getContext(), "문의 접수에 실패했습니다.", Toast.LENGTH_SHORT).show();
-                            Log.d("Inquire", "문의 실패");
+                            Log.d("Inquire", res.resultMessage);
                         }
                     }else {
                         Toast.makeText(getContext(), "문의 접수에 실패했습니다.", Toast.LENGTH_SHORT).show();
-                        Log.d("Inquire", "문의 실패");
+                        Log.e("Inquire", response.message());
                     }
                 }
 
                 @Override
                 public void onFailure(Call<BaseResponse> call, Throwable t) {
                     Toast.makeText(getContext(), "네트워크 연결 실패", Toast.LENGTH_SHORT).show();
-                    Log.d("Inquire", "네트워크 연결 실패");
+                    Log.e("Inquire", "네트워크 연결 실패"+t);
                 }
             });
         });

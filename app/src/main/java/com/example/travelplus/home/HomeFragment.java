@@ -94,7 +94,6 @@ public class HomeFragment extends Fragment {
         homeWeatherSkeleton = view.findViewById(R.id.home_weather_skeleton);
         SharedPreferences prefs = requireContext().getSharedPreferences("userPrefs", MODE_PRIVATE);
         String authorization = prefs.getString("authorization", null);
-        Log.d("auth", "토큰: " + authorization);
 
         String[] items = {"서울", "경기도", "강원도", "충청북도", "충청남도", "전라북도", "전라남도", "경상북도", "경상남도", "제주도"};
         weatherLocation = new LinkedHashMap<>();
@@ -300,7 +299,6 @@ public class HomeFragment extends Fragment {
                         Date kstDate = new Date(matchedUTC.getTime() + TimeZone.getTimeZone("Asia/Seoul").getRawOffset());
                         date.setText(outputDateFormat.format(kstDate));
 
-                        Log.d("날짜",outputDateFormat.format(kstDate));
 
                         temp.setText(String.format(Locale.getDefault(), "%.1f°C", matchedItem.main.temp));
                         setWeatherImage(weatherImage, matchedItem.weather.get(0).main);
@@ -371,7 +369,6 @@ public class HomeFragment extends Fragment {
             public void onResponse(Call<HomeResponse> call, Response<HomeResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     HomeResponse res = response.body();
-                    Log.d("home",res.resultMessage);
                     boolean isFirst = res.data.isFirst;
                     if (isFirst) {
                         Intent onboardingIntent = new Intent(getContext(), OnboardingActivity.class);
@@ -433,31 +430,22 @@ public class HomeFragment extends Fragment {
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
-                            Log.d("home", "isFirst : " + isFirst);
                         }else {
                             weatherList.setVisibility(VISIBLE);
                             locationList.setVisibility(VISIBLE);
                             homeList.setVisibility(GONE);
                             homeWeatherList.setVisibility(GONE);
                             homeScroll.setVisibility(GONE);
-                            Log.d("home", "Result Code: " + res.resultCode + ", Result Message: " + res.resultMessage);
                         }
                     }
                 } else {
-                    Log.e("home", "Response failed - code: " + response.code());
-                    try {
-                        if (response.errorBody() != null) {
-                            Log.e("home", "errorBody: " + response.errorBody().string());
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    Log.e("home", response.message());
                 }
             }
 
             @Override
             public void onFailure(Call<HomeResponse> call, Throwable t) {
-                Log.e("home", "API call failed: " + t);
+                Log.e("home", "서버 연결 실패 " + t);
             }
         });
     }

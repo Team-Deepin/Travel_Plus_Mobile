@@ -174,24 +174,23 @@ public class SurveyResultFragment extends Fragment {
                     public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
                         if (response.isSuccessful() && response.body() != null) {
                             BaseResponse res = response.body();
-                            Log.d("surveySave", res.resultMessage);
                             if (res.resultCode == 200) {
-                                Log.d("surveySave", "성공");
                                 Bundle result = new Bundle();
                                 result.putBoolean("refresh_need", true);
                                 getParentFragmentManager().setFragmentResult("refresh_course", result);
 
                                 requireActivity().getSupportFragmentManager()
                                         .popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                            }else {
+                                Log.e("surveySave", "서버 응답 실패: " + res.resultMessage);
                             }
                         } else {
-                            Log.d("surveySave", "실패");
+                            Log.e("surveySave", "응답 자체 실패 또는 null");
                         }
                     }
 
                     @Override
                     public void onFailure(Call<BaseResponse> call, Throwable t) {
-                        Log.e("surveySave", "네트워크 오류", t);
                         t.printStackTrace();
                     }
                 });

@@ -1,8 +1,5 @@
 package com.example.travelplus.recommend;
 
-import com.example.travelplus.survey.SurveyResponse;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class AISaveRequest {

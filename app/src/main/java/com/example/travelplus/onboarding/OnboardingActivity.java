@@ -1,12 +1,10 @@
 package com.example.travelplus.onboarding;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,13 +30,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class OnboardingActivity extends AppCompatActivity {
     TextInputEditText age;
@@ -81,12 +75,10 @@ public class OnboardingActivity extends AppCompatActivity {
                         experienceTour.isChecked() || festivalTour.isChecked() || parkTour.isChecked();
 
                 if(isGenderChecked && isTypeChecked && birth.length() == 8){
-//                    onboardingBtn.setImageResource(R.drawable.input_activated);
                     onboardingBtn.setCardBackgroundColor(ContextCompat.getColor(OnboardingActivity.this,R.color.color_button1));
                     inputText.setTextColor(ContextCompat.getColor(OnboardingActivity.this, R.color.color_background));
                     onboardingBtn.setEnabled(true);
                 }else{
-//                    onboardingBtn.setImageResource(R.drawable.input_deactivated);
                     onboardingBtn.setCardBackgroundColor(ContextCompat.getColor(OnboardingActivity.this,R.color.gray));
                     inputText.setTextColor(ContextCompat.getColor(OnboardingActivity.this, R.color.black));
                     onboardingBtn.setEnabled(false);
@@ -147,33 +139,26 @@ public class OnboardingActivity extends AppCompatActivity {
             call.enqueue(new Callback<BaseResponse>() {
                 @Override
                 public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
-                    Log.d("Onboarding", "응답 코드: " + response.code());
                     if (response.isSuccessful() && response.body() != null) {
                         BaseResponse res = response.body();
-                        Log.d("Onboarding",res.resultMessage);
                         if (res.resultCode == 200) {
                             Intent intent = new Intent(OnboardingActivity.this, MainActivity.class);
                             startActivity(intent);
                             finish();
-                            runOnUiThread(() -> Toast.makeText(OnboardingActivity.this, "입력 성공", Toast.LENGTH_SHORT).show());
+                            Toast.makeText(OnboardingActivity.this, "입력 성공", Toast.LENGTH_SHORT).show();
                         }else{
-                            runOnUiThread(() -> Toast.makeText(OnboardingActivity.this, "입력 실패", Toast.LENGTH_SHORT).show());
-                            Log.d("Onboarding",String.valueOf(res.resultCode));
+                            Toast.makeText(OnboardingActivity.this, "입력 실패", Toast.LENGTH_SHORT).show();
+                            Log.e("Onboarding",String.valueOf(res.resultCode));
                         }
                     } else {
-                        runOnUiThread(() -> Toast.makeText(OnboardingActivity.this, "입력 실패", Toast.LENGTH_SHORT).show());
-                        Log.d("Onboarding","온보딩 실패");
-                        try {
-                            Log.e("Onboarding", "Response error: " + response.errorBody().string());
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                        Toast.makeText(OnboardingActivity.this, "입력 실패", Toast.LENGTH_SHORT).show();
+                        Log.e("Onboarding",response.message());
                     }
                 }
 
                 @Override
                 public void onFailure(Call<BaseResponse> call, Throwable t) {
-                    runOnUiThread(() -> Toast.makeText(OnboardingActivity.this, "입력 실패", Toast.LENGTH_SHORT).show());
+                    Toast.makeText(OnboardingActivity.this, "입력 실패", Toast.LENGTH_SHORT).show();
                     t.printStackTrace();
                 }
             });

@@ -1,10 +1,8 @@
 package com.example.travelplus.inquiry;
 
-import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,15 +24,9 @@ import com.example.travelplus.network.ApiService;
 import com.example.travelplus.network.RetrofitClient;
 import com.facebook.shimmer.ShimmerFrameLayout;
 
-import java.io.IOException;
-
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class InquiryFragment extends Fragment {
     ConstraintLayout noListContainer;
@@ -107,7 +99,6 @@ public class InquiryFragment extends Fragment {
                 if (response.isSuccessful() && response.body() != null) {
                     InquiryResponse res = response.body();
                     if(res.resultCode == 200 && res.data != null && !res.data.isEmpty()){
-                        Log.d("inquiry","성공");
                         inquiryScroll.setVisibility(VISIBLE);
                         int incompleteColor = ContextCompat.getColor(requireContext(), R.color.incomplete);
                         int completeColor = ContextCompat.getColor(requireContext(), R.color.complete);
@@ -150,12 +141,12 @@ public class InquiryFragment extends Fragment {
                     }else {
                         inquiryScroll.setVisibility(GONE);
                         noListContainer.setVisibility(VISIBLE);
-                        Log.d("inquiry", "문의 데이터 없음 또는 실패");
+                        Log.e("inquiry", "문의 데이터 없음 또는 실패");
                     }
                 }else {
                     inquiryScroll.setVisibility(GONE);
                     noListContainer.setVisibility(VISIBLE);
-                    Log.d("inquiry", "연결 실패");
+                    Log.e("inquiry", "연결 실패");
                 }
             }
 
@@ -165,7 +156,7 @@ public class InquiryFragment extends Fragment {
                 inquirySkeleton.setVisibility(GONE);
                 inquiryScroll.setVisibility(GONE);
                 noListContainer.setVisibility(VISIBLE);
-                Log.e("inquiry", "API call failed: " + t);
+                Log.e("inquiry", "서버 연결 실패 " + t);
             }
         });
     }

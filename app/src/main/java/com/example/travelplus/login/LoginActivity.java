@@ -63,9 +63,8 @@ public class LoginActivity extends AppCompatActivity {
 
         Function2<OAuthToken,Throwable, Unit> callback =new Function2<OAuthToken, Throwable, Unit>() {
             @Override
-            // 콜백 메서드
+            // 콜백 메서드 (카카오 계정 로그인)
             public Unit invoke(OAuthToken oAuthToken, Throwable throwable) {
-                Log.e(TAG,"CallBack Method");
                 //oAuthToken != null 이라면 로그인 성공
                 if(oAuthToken!=null){
                     // 토큰이 전달된다면 로그인이 성공한 것이고 토큰이 전달되지 않으면 로그인 실패한다.
@@ -76,7 +75,6 @@ public class LoginActivity extends AppCompatActivity {
                         } else if (user != null) {
                             String kakaoEmail = user.getKakaoAccount().getEmail();
                             String nickname = user.getKakaoAccount().getProfile().getNickname();
-                            Log.d("kakao",kakaoEmail+" 이름: "+nickname);
 
                             if (kakaoEmail != null && nickname != null){
                                 KakaoLoginRequest kakaoLoginRequest = new KakaoLoginRequest(kakaoEmail, nickname);
@@ -99,31 +97,31 @@ public class LoginActivity extends AppCompatActivity {
                                                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                                 startActivity(intent);
                                                 finish();
-                                                runOnUiThread(() -> Toast.makeText(LoginActivity.this,
-                                                        "환영합니다! "+nickname+"님!", Toast.LENGTH_SHORT).show());
+                                                Toast.makeText(LoginActivity.this,
+                                                        "환영합니다! "+nickname+"님!", Toast.LENGTH_SHORT).show();
                                             }else {
-                                                runOnUiThread(() -> Toast.makeText(LoginActivity.this, "카카오 로그인 실패", Toast.LENGTH_SHORT).show());
-                                                Log.d(TAG, String.valueOf(res.resultCode));
+                                                Toast.makeText(LoginActivity.this, "카카오 로그인 실패", Toast.LENGTH_SHORT).show();
+                                                Log.e(TAG, String.valueOf(res.resultCode));
                                             }
                                         }
                                     }
 
                                     @Override
                                     public void onFailure(Call<BaseResponse> call, Throwable t) {
-                                        runOnUiThread(() -> Toast.makeText(LoginActivity.this, "카카오 로그인 실패", Toast.LENGTH_SHORT).show());
+                                        Toast.makeText(LoginActivity.this, "카카오 로그인 실패", Toast.LENGTH_SHORT).show();
                                         t.printStackTrace();
                                     }
                                 });
                             }else {
-                                Log.d(TAG, "이메일, 닉네임 가져오기 실패");
+                                Log.e(TAG, "이메일, 닉네임 가져오기 실패");
                             }
                         }
                         return null;
                     });
                 }else {
                     Log.e(TAG, "invoke: login fail" );
-                    runOnUiThread(() -> Toast.makeText(LoginActivity.this,
-                            "카카오 로그인 실패", Toast.LENGTH_SHORT).show());
+                    Toast.makeText(LoginActivity.this,
+                            "카카오 로그인 실패", Toast.LENGTH_SHORT).show();
                 }
                 return null;
             }
@@ -192,27 +190,26 @@ public class LoginActivity extends AppCompatActivity {
                             editor.apply();
                         }
                         BaseResponse res = response.body();
-                        Log.d("Login",res.resultMessage);
                         if (res.resultCode == 200) {
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             startActivity(intent);
                             finish();
                         } else if (res.resultCode == 401) {
-                            runOnUiThread(() -> Toast.makeText(LoginActivity.this, "로그인 실패", Toast.LENGTH_SHORT).show());
-                            Log.d("Login",String.valueOf(res.resultCode));
+                            Toast.makeText(LoginActivity.this, "로그인 실패", Toast.LENGTH_SHORT).show();
+                            Log.e("Login",String.valueOf(res.resultCode));
                         }else {
-                            runOnUiThread(() -> Toast.makeText(LoginActivity.this, "로그인 실패", Toast.LENGTH_SHORT).show());
-                            Log.d("Login",String.valueOf(res.resultCode));
+                            Toast.makeText(LoginActivity.this, "로그인 실패", Toast.LENGTH_SHORT).show();
+                            Log.e("Login",String.valueOf(res.resultCode));
                         }
                     } else {
-                        runOnUiThread(() -> Toast.makeText(LoginActivity.this, "로그인 실패", Toast.LENGTH_SHORT).show());
-                        Log.d("Login","로그인 실패");
+                        Toast.makeText(LoginActivity.this, "로그인 실패", Toast.LENGTH_SHORT).show();
+                        Log.e("Login",response.message());
                     }
                 }
 
                 @Override
                 public void onFailure(Call<BaseResponse> call, Throwable t) {
-                    runOnUiThread(() -> Toast.makeText(LoginActivity.this, "로그인 실패", Toast.LENGTH_SHORT).show());
+                    Toast.makeText(LoginActivity.this, "로그인 서버 연결 실패", Toast.LENGTH_SHORT).show();
                     t.printStackTrace();
                 }
             });
@@ -225,8 +222,6 @@ public class LoginActivity extends AppCompatActivity {
                     Log.e(TAG, "카카오 로그인 실패", error);
                     Toast.makeText(LoginActivity.this, "카카오 로그인 실패", Toast.LENGTH_SHORT).show();
                 } else if (token != null) {
-                    Log.d(TAG, "카카오 로그인 성공: " + token.getAccessToken());
-
                     // 사용자 정보 요청
                     UserApiClient.getInstance().me((user, meError) -> {
                         if (meError != null) {
@@ -234,7 +229,6 @@ public class LoginActivity extends AppCompatActivity {
                         } else if (user != null) {
                             String kakaoEmail = user.getKakaoAccount().getEmail();
                             String nickname = user.getKakaoAccount().getProfile().getNickname();
-                            Log.d("kakao", kakaoEmail + " 이름: " + nickname);
 
                             // 서버에 전달
                             if (kakaoEmail != null && nickname != null){
@@ -258,10 +252,11 @@ public class LoginActivity extends AppCompatActivity {
                                                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                                 startActivity(intent);
                                                 finish();
-                                                runOnUiThread(() -> Toast.makeText(LoginActivity.this,
-                                                        "환영합니다! " + nickname + "님!", Toast.LENGTH_SHORT).show());
+                                                Toast.makeText(LoginActivity.this,
+                                                        "환영합니다! " + nickname + "님!", Toast.LENGTH_SHORT).show();
                                             } else {
                                                 Toast.makeText(LoginActivity.this, "카카오 로그인 실패", Toast.LENGTH_SHORT).show();
+                                                Log.e(TAG,response.message());
                                             }
                                         }
                                     }
@@ -269,6 +264,7 @@ public class LoginActivity extends AppCompatActivity {
                                     @Override
                                     public void onFailure(Call<BaseResponse> call, Throwable t) {
                                         Toast.makeText(LoginActivity.this, "카카오 로그인 실패", Toast.LENGTH_SHORT).show();
+                                        t.printStackTrace();
                                     }
                                 });
                             }

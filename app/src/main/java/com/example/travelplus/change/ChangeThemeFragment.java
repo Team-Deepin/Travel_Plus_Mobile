@@ -95,24 +95,22 @@ public class ChangeThemeFragment extends Fragment {
             call.enqueue(new Callback<BaseResponse>() {
                 @Override
                 public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
-                    Log.d("change theme", String.valueOf(selectedTypes));
-                    Log.d("change theme", "응답 코드: " + response.code());
                     if (response.isSuccessful() && response.body() != null) {
                         BaseResponse res = response.body();
-                        Log.d("change theme",res.resultMessage);
                         if (res.resultCode == 200) {
                             Toast.makeText(getContext(), "여행 취향이 변경 되었습니다", Toast.LENGTH_SHORT).show();
                             if (getActivity() != null && getActivity().getSupportFragmentManager() != null) {
                                 getActivity().getSupportFragmentManager().popBackStack();
                             }
+                        }else {
+                            Log.e("change theme",res.resultMessage);
                         }
                     }else {
                         if (!response.isSuccessful()){
-                            Log.d("change theme", "isSuccessful 실패");
+                            Log.e("change theme", "isSuccessful 실패"+response.message());
                         }else {
-                            Log.d("change theme", "body 실패");
+                            Log.e("change theme", "body 실패"+response.message());
                         }
-
                     }
                 }
 

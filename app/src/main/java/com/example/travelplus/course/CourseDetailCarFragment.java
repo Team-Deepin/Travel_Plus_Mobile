@@ -5,13 +5,10 @@ import static android.view.View.VISIBLE;
 
 import android.app.Dialog;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageView;
@@ -177,7 +174,6 @@ public class CourseDetailCarFragment extends Fragment {
         detailSkeleton.setVisibility(View.VISIBLE);
         detailSkeleton.startShimmer();
         detailListLayout.removeAllViews();
-        Log.d("showDetailsCar", "apiService 호출 시작");
         Call<CourseDetailCarResponse> call = apiService.detailCar(courseId);
         call.enqueue(new Callback<CourseDetailCarResponse>() {
             @Override
@@ -186,7 +182,6 @@ public class CourseDetailCarFragment extends Fragment {
                 detailSkeleton.setVisibility(View.GONE);
                 if (response.isSuccessful() && response.body() != null) {
                     CourseDetailCarResponse res = response.body();
-                    Log.d("courseDetailCar",res.resultMessage);
                     if(res.resultCode == 200 && res.data != null && !res.data.isEmpty()) {
                         titleView.setText(title);
                         locationView.setText(location);
@@ -260,9 +255,12 @@ public class CourseDetailCarFragment extends Fragment {
                         }
                         detailListLayout.addView(detailCard);
                     }else if (res.resultCode == 403){
-
-                        Log.d("courseDetailCar", "DB데이터 요청 실패");
+                        Log.e("courseDetailCar", "DB데이터 요청 실패"+res.resultMessage);
+                    }else {
+                        Log.e("courseDetailCar",res.resultMessage);
                     }
+                }else {
+                    Log.e("courseDetailCar",response.message());
                 }
             }
 
@@ -305,9 +303,7 @@ public class CourseDetailCarFragment extends Fragment {
                 public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
                     if (response.isSuccessful() && response.body() != null) {
                         BaseResponse res = response.body();
-                        Log.d("Delete Course",res.resultMessage);
                         if (res.resultCode == 200) {
-                            Log.d("Delete Course", "코스 삭제 완료");
                             Toast.makeText(getActivity(), "코스가 삭제되었습니다.", Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
                             Bundle result = new Bundle();
@@ -316,12 +312,12 @@ public class CourseDetailCarFragment extends Fragment {
                             requireActivity().getSupportFragmentManager().popBackStack();
                         }else{
                             Toast.makeText(getActivity(), "코스 삭제 실패", Toast.LENGTH_SHORT).show();
-                            Log.d("Delete Course",String.valueOf(res.resultCode));
+                            Log.e("Delete Course",String.valueOf(res.resultCode));
                             dialog.dismiss();
                         }
                     }else {
                         Toast.makeText(getActivity(), "코스 삭제 실패", Toast.LENGTH_SHORT).show();
-                        Log.d("Delete Course","코스 삭제 실패");
+                        Log.e("Delete Course","코스 삭제 실패"+response.message());
                         dialog.dismiss();
                     }
                 }
@@ -329,7 +325,7 @@ public class CourseDetailCarFragment extends Fragment {
                 @Override
                 public void onFailure(Call<BaseResponse> call, Throwable t) {
                     Toast.makeText(getActivity(), "코스 삭제 실패", Toast.LENGTH_SHORT).show();
-                    Log.d("Delete Course","서버 연결 실패");
+                    Log.e("Delete Course","서버 연결 실패"+t);
                     dialog.dismiss();
                 }
             });
@@ -374,20 +370,18 @@ public class CourseDetailCarFragment extends Fragment {
                 public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
                     if (response.isSuccessful() && response.body() != null) {
                         BaseResponse res = response.body();
-                        Log.d("Rate Course",res.resultMessage);
                         if (res.resultCode == 200) {
-                            Log.d("Rate Course", "평가 점수 : "+score);
                             Toast.makeText(getActivity(), "코스가 평가되었습니다.", Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
                             requireActivity().getSupportFragmentManager().popBackStack();
                         }else if (res.resultCode == 402){
                             Toast.makeText(getActivity(), "코스 평가 실패", Toast.LENGTH_SHORT).show();
-                            Log.d("Rate Course",String.valueOf(res.resultCode)+"\nDB저장 실패");
+                            Log.e("Rate Course",String.valueOf(res.resultCode)+"\nDB저장 실패");
                             dialog.dismiss();
                         }
                     }else {
                         Toast.makeText(getActivity(), "코스 평가 실패", Toast.LENGTH_SHORT).show();
-                        Log.d("Rate Course","코스 평가 실패");
+                        Log.e("Rate Course","코스 평가 실패"+response.message());
                         dialog.dismiss();
                     }
                 }
@@ -395,7 +389,7 @@ public class CourseDetailCarFragment extends Fragment {
                 @Override
                 public void onFailure(Call<BaseResponse> call, Throwable t) {
                     Toast.makeText(getActivity(), "코스 평가 실패", Toast.LENGTH_SHORT).show();
-                    Log.d("Rate Course","서버 연결 실패");
+                    Log.e("Rate Course","서버 연결 실패"+t);
                     dialog.dismiss();
                 }
             });

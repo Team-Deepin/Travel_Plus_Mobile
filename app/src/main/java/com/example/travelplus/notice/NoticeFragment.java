@@ -1,10 +1,8 @@
 package com.example.travelplus.notice;
 
-import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -27,19 +25,11 @@ import com.example.travelplus.network.ApiService;
 import com.example.travelplus.network.RetrofitClient;
 import com.facebook.shimmer.ShimmerFrameLayout;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
-import okhttp3.mockwebserver.Dispatcher;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import okhttp3.mockwebserver.RecordedRequest;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class NoticeFragment extends Fragment {
     LinearLayout paginationContainer;
@@ -80,7 +70,7 @@ public class NoticeFragment extends Fragment {
 
             requireActivity().getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.notice_fragment_container, detailFragment) // 부모 레이아웃 id
+                    .replace(R.id.notice_fragment_container, detailFragment)
                     .addToBackStack(null)
                     .commit();
         });
@@ -120,7 +110,7 @@ public class NoticeFragment extends Fragment {
                 }else {
                     noticeRecyclerView.setVisibility(GONE);
                     noNoticeContainer.setVisibility(View.VISIBLE);
-                    Log.d("notice", "연결 실패");
+                    Log.e("notice ", response.message());
                 }
             }
 
