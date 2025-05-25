@@ -57,9 +57,8 @@ public class CourseHistoryFragment extends Fragment {
             public void onResponse(Call<CourseHistoryResponse> call, Response<CourseHistoryResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     CourseHistoryResponse res = response.body();
-                    Log.d("courseHistory",res.resultMessage);
+
                     if(res.resultCode == 200 && res.data != null && !res.data.isEmpty()){
-                        Log.d("course","성공");
                         coursePastScrollView.setVisibility(VISIBLE);
                         noCoursePastLayout.setVisibility(GONE);
                         for (CourseHistoryResponse.Course course : res.data) {
@@ -110,12 +109,12 @@ public class CourseHistoryFragment extends Fragment {
                     }else{
                         coursePastScrollView.setVisibility(GONE);
                         noCoursePastLayout.setVisibility(VISIBLE);
-                        Log.d("courseHistory", "코스 데이터 없음 또는 실패");
+                        Log.e("courseHistory", "코스 데이터 없음 또는 실패"+res.resultMessage);
                     }
                 }else{
                     coursePastScrollView.setVisibility(GONE);
                     noCoursePastLayout.setVisibility(VISIBLE);
-                    Log.d("courseHistory","연결 실패");
+                    Log.e("courseHistory",response.message());
                 }
             }
 
@@ -123,7 +122,7 @@ public class CourseHistoryFragment extends Fragment {
             public void onFailure(Call<CourseHistoryResponse> call, Throwable t) {
                 coursePastScrollView.setVisibility(GONE);
                 noCoursePastLayout.setVisibility(VISIBLE);
-                Log.d("courseHistory","연결 실패");
+                Log.e("courseHistory","서버 연결 실패"+t);
             }
         });
     }

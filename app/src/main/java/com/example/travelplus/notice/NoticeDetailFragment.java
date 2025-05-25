@@ -1,8 +1,5 @@
 package com.example.travelplus.notice;
 
-import static android.content.Context.MODE_PRIVATE;
-
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,17 +15,10 @@ import com.example.travelplus.R;
 import com.example.travelplus.network.ApiService;
 import com.example.travelplus.network.RetrofitClient;
 
-import java.io.IOException;
-
-import okhttp3.mockwebserver.Dispatcher;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import okhttp3.mockwebserver.RecordedRequest;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+
 
 public class NoticeDetailFragment extends Fragment {
     int id;
@@ -64,7 +54,7 @@ public class NoticeDetailFragment extends Fragment {
                     detailDate.setText(data.date);
                     detailContent.setText(data.content);
                 }else {
-                    Log.d("noticeDetail","불러오기 실패");
+                    Log.e("noticeDetail ",response.message());
                 }
             }
 

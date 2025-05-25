@@ -1,12 +1,10 @@
 package com.example.travelplus.register;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
@@ -14,7 +12,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
@@ -26,19 +23,10 @@ import com.example.travelplus.login.LoginActivity;
 import com.example.travelplus.R;
 import com.example.travelplus.network.ApiService;
 import com.example.travelplus.network.RetrofitClient;
-import com.example.travelplus.onboarding.OnboardingActivity;
 
-import java.io.IOException;
-
-import okhttp3.mockwebserver.Dispatcher;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import okhttp3.mockwebserver.RecordedRequest;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RegisterActivity extends AppCompatActivity {
     ImageView back;
@@ -48,7 +36,6 @@ public class RegisterActivity extends AppCompatActivity {
     Typeface font;
     boolean isUsable;
     ApiService apiService;
-    private MockWebServer mockServer;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -117,7 +104,6 @@ public class RegisterActivity extends AppCompatActivity {
                 public void onResponse(Call<DuplicateCheckResponse> call, Response<DuplicateCheckResponse> response) {
                     if (response.isSuccessful() && response.body() != null){
                         DuplicateCheckResponse res = response.body();
-                        Log.d("Duplicate",res.resultMessage);
                         if(res.resultCode == 200){
                             checkId.setVisibility(TextView.VISIBLE);
                             if(res.data.duplication){
@@ -130,27 +116,25 @@ public class RegisterActivity extends AppCompatActivity {
                         } else if (res.resultCode == 605) {
                             checkId.setText("중복된 이메일입니다. 다시 시도해 주십시오.");
                             isUsable = false;
-                            Log.d("Duplicate","중복된 이메일\n"+"ResultCode : "+res.resultCode+" ResultMessage : "+res.resultMessage);
                         }else {
-                            runOnUiThread(() -> Toast.makeText(RegisterActivity.this, "중복확인 실패", Toast.LENGTH_SHORT).show());
+                            Toast.makeText(RegisterActivity.this, "중복확인 실패", Toast.LENGTH_SHORT).show();
                             isUsable = false;
-                            Log.d("Duplicate","중복확인 실패\n"+"ResultCode : "+res.resultCode+" ResultMessage : "+res.resultMessage);
                         }
                     }else {
-                        runOnUiThread(() -> Toast.makeText(RegisterActivity.this, "중복확인 실패", Toast.LENGTH_SHORT).show());
+                        Toast.makeText(RegisterActivity.this, "중복확인 실패", Toast.LENGTH_SHORT).show();
                         isUsable = false;
-                        Log.d("Duplicate","중복확인 실패");
                     }
+                    checkInputAndSetButton();
                 }
 
                 @Override
                 public void onFailure(Call<DuplicateCheckResponse> call, Throwable t) {
-                    runOnUiThread(() -> Toast.makeText(RegisterActivity.this, "네트워크 연결 실패", Toast.LENGTH_SHORT).show());
+                    Toast.makeText(RegisterActivity.this, "네트워크 연결 실패", Toast.LENGTH_SHORT).show();
                     isUsable = false;
                     t.printStackTrace();
+                    checkInputAndSetButton();
                 }
             });
-            checkInputAndSetButton();
         });
         registerBtn.setOnClickListener(view -> {
             String emailStr = email.getText().toString().trim();
@@ -164,28 +148,24 @@ public class RegisterActivity extends AppCompatActivity {
                 public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
                     if (response.isSuccessful() && response.body() != null){
                         BaseResponse res = response.body();
-                        Log.d("Register",res.resultMessage);
                         if(res.resultCode == 200){
                             Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                             startActivity(intent);
                             finish();
-                            runOnUiThread(() -> Toast.makeText(RegisterActivity.this,
-                                    "회원가입에 성공하였습니다!", Toast.LENGTH_SHORT).show());
+                            Toast.makeText(RegisterActivity.this, "회원가입에 성공하였습니다!", Toast.LENGTH_SHORT).show();
                         }else {
-                            runOnUiThread(() -> Toast.makeText(RegisterActivity.this, "회원가입 실패", Toast.LENGTH_SHORT).show());
-                            Log.d("Register","회원가입 실패\n"+"ResultCode : "+res.resultCode+" ResultMessage : "+res.resultMessage);
+                            Toast.makeText(RegisterActivity.this, "회원가입 실패", Toast.LENGTH_SHORT).show();
                         }
                     }else {
-                        runOnUiThread(() -> Toast.makeText(RegisterActivity.this, "회원가입 실패", Toast.LENGTH_SHORT).show());
-                        Log.d("Register","회원가입 실패");
+                        Toast.makeText(RegisterActivity.this, "회원가입 실패", Toast.LENGTH_SHORT).show();
                     }
                 }
 
                 @Override
                 public void onFailure(Call<BaseResponse> call, Throwable t) {
-                    runOnUiThread(() -> Toast.makeText(RegisterActivity.this, "회원가입 실패", Toast.LENGTH_SHORT).show());
-                    Log.d("Login","서버 연결 실패");
+                    Toast.makeText(RegisterActivity.this, "회원가입 실패", Toast.LENGTH_SHORT).show();
+                    t.printStackTrace();
                 }
             });
         });
@@ -208,11 +188,9 @@ public class RegisterActivity extends AppCompatActivity {
             same=false;
         }
         if (same && !id.isEmpty() && !pw.isEmpty() && !pwc.isEmpty() && !user_name.isEmpty() && validEmail(id) && isUsable) {
-//            registerBtn.setImageResource(R.drawable.register_button_activate);
             registerBtn.setCardBackgroundColor(ContextCompat.getColor(RegisterActivity.this,R.color.login_button));
             registerBtn.setEnabled(true);
         } else {
-//            registerBtn.setImageResource(R.drawable.register_button_deactivate);
             registerBtn.setCardBackgroundColor(ContextCompat.getColor(RegisterActivity.this,R.color.gray));
             registerBtn.setEnabled(false);
         }

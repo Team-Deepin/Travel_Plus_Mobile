@@ -123,9 +123,7 @@ public class CourseFragment extends Fragment {
                 skeletonUI.setVisibility(View.GONE);
                 if (response.isSuccessful() && response.body() != null) {
                     CourseResponse res = response.body();
-                    Log.d("course",res.resultMessage);
                     if(res.resultCode == 200 && res.data != null && !res.data.isEmpty()){
-                        Log.d("course","성공");
                         courseListLayout.removeAllViews();
                         courseScrollView.setVisibility(VISIBLE);
                         noCourseListLayout.setVisibility(GONE);
@@ -177,12 +175,12 @@ public class CourseFragment extends Fragment {
                     }else{
                         courseScrollView.setVisibility(GONE);
                         noCourseListLayout.setVisibility(VISIBLE);
-                        Log.d("course", "코스 데이터 없음 또는 실패");
+                        Log.e("course", "코스 데이터 없음 또는 실패"+res.resultMessage);
                     }
                 }else{
                     courseScrollView.setVisibility(GONE);
                     noCourseListLayout.setVisibility(VISIBLE);
-                    Log.d("course","연결 실패");
+                    Log.e("course",response.message());
                 }
             }
 
@@ -192,7 +190,7 @@ public class CourseFragment extends Fragment {
                 skeletonUI.setVisibility(View.GONE);
                 courseScrollView.setVisibility(GONE);
                 noCourseListLayout.setVisibility(VISIBLE);
-                Log.d("course","연결 실패");
+                Log.e("course","서버 연결 실패"+t);
             }
         });
     }

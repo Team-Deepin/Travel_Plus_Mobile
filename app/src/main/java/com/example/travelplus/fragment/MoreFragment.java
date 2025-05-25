@@ -134,11 +134,11 @@ public class MoreFragment extends Fragment {
                                 .remove("loginType")
                                 .apply();
                         dialog.dismiss();
+                        Toast.makeText(getActivity(), "로그아웃되었습니다.", Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(requireActivity(), LoginActivity.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);
                         requireActivity().finish();
-                        Toast.makeText(getActivity(), "로그아웃되었습니다.", Toast.LENGTH_SHORT).show();
                     }
                     return null;
                 });
@@ -149,34 +149,33 @@ public class MoreFragment extends Fragment {
                     public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
                         if (response.isSuccessful() && response.body() != null) {
                             BaseResponse res = response.body();
-                            Log.d("Logout",res.resultMessage);
                             if (res.resultCode == 200) {
                                 SharedPreferences preferences = requireContext().getSharedPreferences("userPrefs", MODE_PRIVATE);
                                 SharedPreferences.Editor editor = preferences.edit();
                                 editor.remove("loginType")
                                         .remove("authorization")
                                         .apply();
+                                Toast.makeText(getActivity(), "로그아웃 되었습니다", Toast.LENGTH_SHORT).show();
+                                dialog.dismiss();
                                 Intent intent = new Intent(requireActivity(), LoginActivity.class);
                                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                 startActivity(intent);
                                 requireActivity().finish();
-                                Toast.makeText(getActivity(), "로그아웃 되었습니다", Toast.LENGTH_SHORT).show();
-                                dialog.dismiss();
                             }else{
                                 Toast.makeText(getActivity(), "로그아웃 실패", Toast.LENGTH_SHORT).show();
-                                Log.d("Logout",String.valueOf(res.resultCode));
+                                Log.e("Logout",String.valueOf(res.resultCode));
                                 dialog.dismiss();
                             }
                         }else {
                             Toast.makeText(getActivity(), "로그아웃 실패", Toast.LENGTH_SHORT).show();
-                            Log.d("Logout","로그아웃 실패");
+                            Log.e("Logout","로그아웃 실패"+response.message());
                             dialog.dismiss();
                         }
                     }
                     @Override
                     public void onFailure(Call<BaseResponse> call, Throwable t) {
                         Toast.makeText(getActivity(), "로그아웃 실패", Toast.LENGTH_SHORT).show();
-                        Log.d("Logout","서버 연결 실패");
+                        Log.e("Logout","서버 연결 실패"+t);
                         dialog.dismiss();
                     }
                 });
@@ -232,7 +231,6 @@ public class MoreFragment extends Fragment {
             public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     BaseResponse res = response.body();
-                    Log.d("Withdraw", res.resultMessage);
                     if (res.resultCode == 200) {
                         Toast.makeText(getActivity(), "회원탈퇴 되었습니다.", Toast.LENGTH_SHORT).show();
                         dialog.dismiss();
@@ -245,10 +243,12 @@ public class MoreFragment extends Fragment {
                     } else {
                         checkBtn.setEnabled(true);
                         Toast.makeText(getActivity(), "회원탈퇴 실패", Toast.LENGTH_SHORT).show();
+                        Log.e("withdraw",res.resultMessage);
                     }
                 } else {
                     checkBtn.setEnabled(true);
                     Toast.makeText(getActivity(), "회원탈퇴 실패", Toast.LENGTH_SHORT).show();
+                    Log.e("withdraw",response.message());
                 }
             }
 
@@ -256,7 +256,7 @@ public class MoreFragment extends Fragment {
             public void onFailure(Call<BaseResponse> call, Throwable t) {
                 checkBtn.setEnabled(true);
                 Toast.makeText(getActivity(), "네트워크 연결 실패", Toast.LENGTH_SHORT).show();
-                Log.e("Withdraw", "API call failed: ", t);
+                Log.e("Withdraw", "서버 연결 실패 "+ t);
             }
         });
     }

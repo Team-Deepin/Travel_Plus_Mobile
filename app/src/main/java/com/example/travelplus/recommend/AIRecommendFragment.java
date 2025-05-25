@@ -1,10 +1,8 @@
 package com.example.travelplus.recommend;
 
-import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-import android.content.SharedPreferences;
 import android.util.Log;
 import android.util.TypedValue;
 import android.os.Bundle;
@@ -28,20 +26,15 @@ import com.example.travelplus.network.RetrofitClient;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.material.card.MaterialCardView;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class AIRecommendFragment extends Fragment {
     boolean dateFlag = true, transportFlag = true, dateCheck = false, transportCheck = false;
@@ -218,15 +211,8 @@ public class AIRecommendFragment extends Fragment {
                 public void onResponse(Call<AIRecommendResponse> call, Response<AIRecommendResponse> response) {
                     aiSkeleton.stopShimmer();
                     aiSkeleton.setVisibility(View.GONE);
-                    try {
-                        String raw = response.body().toString();
-                        Log.d("RAW_RESPONSE", raw);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
                     if (response.isSuccessful() && response.body() != null) {
                         AIRecommendResponse res = response.body();
-                        Log.d("recommend",res.resultMessage);
                         if (res.resultCode == 200) {
                             Bundle bundle = new Bundle();
                             bundle.putString("title",title);
@@ -243,7 +229,7 @@ public class AIRecommendFragment extends Fragment {
                                     .replace(R.id.ai_fragment_container, resultFragment)
                                     .commit();
                         }else {
-                            Log.d("recommend",res.resultMessage);
+                            Log.e("recommend",res.resultMessage);
                         }
                     }
                 }

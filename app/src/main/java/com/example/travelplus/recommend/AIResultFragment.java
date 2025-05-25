@@ -1,16 +1,11 @@
 package com.example.travelplus.recommend;
 
-import static android.content.Context.MODE_PRIVATE;
-import static android.view.View.VISIBLE;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -18,8 +13,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
@@ -27,12 +20,9 @@ import androidx.fragment.app.FragmentManager;
 
 import com.example.travelplus.BaseResponse;
 import com.example.travelplus.R;
-import com.example.travelplus.course.CourseResponse;
 import com.example.travelplus.network.ApiService;
 import com.example.travelplus.network.RetrofitClient;
-import com.example.travelplus.survey.SurveyResponse;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -40,13 +30,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class AIResultFragment extends Fragment {
     String title, transit, date;
@@ -169,7 +155,6 @@ public class AIResultFragment extends Fragment {
             if (foundData != null) {
                 AIRecommendResponse.CourseDetailGroup selectedData = foundData;
                 List<String> tripTypeList = new ArrayList<>(tripType);
-                Log.d("tripType",tripTypeList.toString());
                 AISaveRequest aiSaveRequest = new AISaveRequest(
                         data.modelName,
                         data.modelType,
@@ -188,9 +173,7 @@ public class AIResultFragment extends Fragment {
                     public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
                         if (response.isSuccessful() && response.body() != null) {
                             BaseResponse res = response.body();
-                            Log.d("aiSave", res.resultMessage);
                             if (res.resultCode == 200) {
-                                Log.d("aiSave", "성공");
                                 Bundle result = new Bundle();
                                 result.putBoolean("refresh_need", true);
                                 getParentFragmentManager().setFragmentResult("refresh_course", result);
@@ -199,8 +182,7 @@ public class AIResultFragment extends Fragment {
                                         .popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                             }
                         } else {
-                            Log.d("aiSave", "실패");
-                            Log.d("aiSave", response.message());
+                            Log.e("aiSave", response.message());
                         }
                     }
 
