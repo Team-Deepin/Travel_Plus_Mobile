@@ -9,8 +9,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
@@ -23,7 +21,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 
-import com.example.travelplus.BaseResponse;
+import com.example.travelplus.util.BaseResponse;
 import com.example.travelplus.R;
 import com.example.travelplus.network.ApiService;
 import com.example.travelplus.network.RetrofitClient;

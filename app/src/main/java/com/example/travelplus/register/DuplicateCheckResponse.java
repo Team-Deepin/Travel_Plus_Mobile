@@ -1,6 +1,6 @@
 package com.example.travelplus.register;
 
-import com.example.travelplus.BaseResponse;
+import com.example.travelplus.util.BaseResponse;
 
 public class DuplicateCheckResponse extends BaseResponse {
     public Data data;

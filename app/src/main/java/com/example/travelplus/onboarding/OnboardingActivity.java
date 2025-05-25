@@ -13,8 +13,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 
-import com.example.travelplus.BaseResponse;
-import com.example.travelplus.MainActivity;
+import com.example.travelplus.util.BaseResponse;
+import com.example.travelplus.main.MainActivity;
 import com.example.travelplus.R;
 import com.example.travelplus.network.ApiService;
 import com.example.travelplus.network.RetrofitClient;
@@ -22,7 +22,6 @@ import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.radiobutton.MaterialRadioButton;
 import com.google.android.material.textfield.TextInputEditText;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

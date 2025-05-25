@@ -1,6 +1,6 @@
 package com.example.travelplus.inquiry;
 
-import com.example.travelplus.BaseResponse;
+import com.example.travelplus.util.BaseResponse;
 
 import java.util.List;
 

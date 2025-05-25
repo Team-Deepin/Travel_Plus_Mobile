@@ -25,7 +25,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:background="@drawable/rounded_withdraw_pop_up">
-        <com.example.travelplus.WithdrawTextView
+        <com.example.travelplus.util.WithdrawTextView
             android:id="@+id/check_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

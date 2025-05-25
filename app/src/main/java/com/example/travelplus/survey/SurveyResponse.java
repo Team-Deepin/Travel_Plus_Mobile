@@ -1,6 +1,6 @@
 package com.example.travelplus.survey;
 
-import com.example.travelplus.BaseResponse;
+import com.example.travelplus.util.BaseResponse;
 
 import java.io.Serializable;
 import java.util.List;

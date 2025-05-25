@@ -1,4 +1,4 @@
-package com.example.travelplus;
+package com.example.travelplus.main;
 
 import android.os.Bundle;
 
@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.travelplus.adapter.mainAdapter;
+import com.example.travelplus.R;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 

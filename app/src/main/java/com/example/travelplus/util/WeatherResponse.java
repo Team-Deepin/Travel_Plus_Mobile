@@ -1,4 +1,4 @@
-package com.example.travelplus;
+package com.example.travelplus.util;
 
 import java.util.List;
 

@@ -30,13 +30,12 @@ import androidx.fragment.app.Fragment;
 import com.example.travelplus.network.RetrofitClient;
 import com.example.travelplus.onboarding.OnboardingActivity;
 import com.example.travelplus.R;
-import com.example.travelplus.WeatherResponse;
+import com.example.travelplus.util.WeatherResponse;
 import com.example.travelplus.network.ApiService;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.gson.Gson;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;

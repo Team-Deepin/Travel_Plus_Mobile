@@ -1,6 +1,6 @@
 package com.example.travelplus.network;
 
-import com.example.travelplus.BaseResponse;
+import com.example.travelplus.util.BaseResponse;
 import com.example.travelplus.course.CourseHistoryResponse;
 import com.example.travelplus.home.HomeResponse;
 import com.example.travelplus.change.ChangeThemeRequest;

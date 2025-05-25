@@ -1,4 +1,4 @@
-package com.example.travelplus.fragment;
+package com.example.travelplus;
 
 import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
@@ -24,15 +24,14 @@ import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
-import com.example.travelplus.BaseResponse;
 import com.example.travelplus.change.ChangeThemeFragment;
 import com.example.travelplus.inquiry.InquiryFragment;
 import com.example.travelplus.login.LoginActivity;
-import com.example.travelplus.R;
-import com.example.travelplus.WithdrawTextView;
 import com.example.travelplus.network.ApiService;
 import com.example.travelplus.network.RetrofitClient;
 import com.example.travelplus.notice.NoticeFragment;
+import com.example.travelplus.util.BaseResponse;
+import com.example.travelplus.util.WithdrawTextView;
 import com.kakao.sdk.user.UserApiClient;
 
 import retrofit2.Call;

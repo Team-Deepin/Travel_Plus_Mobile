@@ -1,4 +1,4 @@
-package com.example.travelplus.adapter;
+package com.example.travelplus.main;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -7,7 +7,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.example.travelplus.course.CourseFragment;
 import com.example.travelplus.home.HomeFragment;
-import com.example.travelplus.fragment.MoreFragment;
+import com.example.travelplus.MoreFragment;
 
 
 public class mainAdapter extends FragmentStateAdapter {

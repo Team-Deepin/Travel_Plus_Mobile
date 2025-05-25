@@ -1,6 +1,6 @@
 package com.example.travelplus.notice;
 
-import com.example.travelplus.BaseResponse;
+import com.example.travelplus.util.BaseResponse;
 
 import java.util.List;
 

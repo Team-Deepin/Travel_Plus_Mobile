@@ -18,7 +18,7 @@ import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 
-import com.example.travelplus.BaseResponse;
+import com.example.travelplus.util.BaseResponse;
 import com.example.travelplus.login.LoginActivity;
 import com.example.travelplus.R;
 import com.example.travelplus.network.ApiService;

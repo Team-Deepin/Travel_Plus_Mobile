@@ -18,7 +18,7 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
-import com.example.travelplus.BaseResponse;
+import com.example.travelplus.util.BaseResponse;
 import com.example.travelplus.R;
 import com.example.travelplus.network.ApiService;
 import com.example.travelplus.network.RetrofitClient;
