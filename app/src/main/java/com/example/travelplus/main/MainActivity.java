@@ -25,6 +25,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
+                Bundle result = new Bundle();
+                result.putBoolean("refresh_need", true);
+                getSupportFragmentManager().setFragmentResult("refresh_main", result);
                 getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             }
         });

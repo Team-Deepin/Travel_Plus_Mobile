@@ -68,12 +68,19 @@ public class HomeFragment extends Fragment {
     Map<String, String> weatherLocation;
     String startDateGlobal, areaGlobal, endDateGlobal;
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (apiService == null) {
+            apiService = RetrofitClient.getApiInstance(requireContext()).create(ApiService.class);
+        }
+        checkIsFirst();
+    }
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view =inflater.inflate(R.layout.fragment_main,container,false);
         apiService = RetrofitClient.getApiInstance(requireContext()).create(ApiService.class);
-        checkIsFirst();
         homeList = view.findViewById(R.id.home_list);
         homeScroll = view.findViewById(R.id.home_scroll);
         weatherList = view.findViewById(R.id.weather_list);
@@ -91,21 +98,28 @@ public class HomeFragment extends Fragment {
         weatherSkeleton = view.findViewById(R.id.weather_skeleton);
         homeListSkeleton = view.findViewById(R.id.home_list_skeleton);
         homeWeatherSkeleton = view.findViewById(R.id.home_weather_skeleton);
-        SharedPreferences prefs = requireContext().getSharedPreferences("userPrefs", MODE_PRIVATE);
-        String authorization = prefs.getString("authorization", null);
 
         String[] items = {"서울", "경기도", "강원도", "충청북도", "충청남도", "전라북도", "전라남도", "경상북도", "경상남도", "제주도"};
         weatherLocation = new LinkedHashMap<>();
         weatherLocation.put("서울","Seoul");
         weatherLocation.put("경기도","Suwon");
+        weatherLocation.put("경기","Suwon");
         weatherLocation.put("강원도","Chuncheon");
+        weatherLocation.put("강원","Chuncheon");
         weatherLocation.put("충청북도","Cheongju");
+        weatherLocation.put("충북","Cheongju");
         weatherLocation.put("충청남도","Cheonan");
+        weatherLocation.put("충남","Cheonan");
         weatherLocation.put("전라북도","Jeonju");
+        weatherLocation.put("전북","Jeonju");
         weatherLocation.put("전라남도","Gwangju");
+        weatherLocation.put("전남","Gwangju");
         weatherLocation.put("경상북도","Pohang");
+        weatherLocation.put("경북","Pohang");
         weatherLocation.put("경상남도","Changwon");
+        weatherLocation.put("경남","Changwon");
         weatherLocation.put("제주도","Jeju");
+        weatherLocation.put("제주","Jeju");
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.dropdown_list, items);
         adapter.setDropDownViewResource(R.layout.dropdown_list);
         locationList.setAdapter(adapter);
@@ -127,6 +141,13 @@ public class HomeFragment extends Fragment {
                 String url = "https://api.openweathermap.org/data/2.5/forecast?q=Seoul"
                         + "&appid=" + apiKey + "&units=metric&lang=kr";
                 new GetWeatherNoCourse().execute(url);
+            }
+        });
+
+        getParentFragmentManager().setFragmentResultListener("refresh_main", this, (requestKey, bundle) -> {
+            boolean refresh = bundle.getBoolean("refresh_need", false);
+            if (refresh) {
+                checkIsFirst();
             }
         });
 
@@ -392,13 +413,10 @@ public class HomeFragment extends Fragment {
                                 long diffTodayStart = today.getTime() - startDate.getTime();
                                 long diffTodayEnd = endDate.getTime() - today.getTime();
                                 long diffInDays = diffInMillis / (1000 * 60 * 60 * 24);
-                                if (diffInDays == 0) {
+                                if (diffInDays <= 1) {
                                     duration = "당일치기";
-                                } else if (diffInDays == 1) {
-                                    duration = "1박 2일";
-                                }
-                                else {
-                                    duration = diffInDays + "박 " + (diffInDays + 1) + "일";
+                                } else {
+                                    duration = (diffInDays-1) + "박 " + (diffInDays) + "일";
                                 }
                                 if (diffTodayStart >= 0 && diffTodayEnd >= 0) {
                                     isTraveling = true;
